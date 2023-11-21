@@ -1,0 +1,91 @@
+{% extends 'vendor/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} {{title}} {% endblock title %}
+
+{% block content %}
+<div class="text-sm breadcrumbs">
+    <ul>
+      <li>
+        <a href="{% url 'store:vendor-home' %}">
+            <i class="fas fa-tachometer-alt"></i>                       Dashboard
+        </a>
+      </li> 
+      <li>
+        <span class="inline-flex gap-2 items-center">
+            <i class="fas fa-clipboard-list"></i>                      Add Product
+        </span>
+      </li>
+    </ul>
+  </div>
+            <div class="p-6 space-y-6">
+                <!-- Page Title -->
+                <h1 class="text-3xl font-semibold">Add New Product</h1>
+
+                <!-- Product Form -->
+                <form>
+                    <!-- Product Name -->
+                    <div class="form-control">
+                        <label for="product-name" class="label">Product Name</label>
+                        <input type="text" id="product-name" class="input input-bordered"
+                            placeholder="Enter product name" />
+                    </div>
+
+                    <!-- Price and Stock -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Price -->
+                        <div class="form-control">
+                            <label for="product-price" class="label">Price</label>
+                            <input type="number" id="product-price" class="input input-bordered"
+                                placeholder="Enter price" />
+                        </div>
+
+                        <!-- Stock -->
+                        <div class="form-control">
+                            <label for="product-stock" class="label">Stock</label>
+                            <input type="number" id="product-stock" class="input input-bordered"
+                                placeholder="Enter stock quantity" />
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-control">
+                        <label for="product-category" class="label">Category</label>
+                        <select id="product-category" class="select select-bordered">
+                            <option selected disabled>Select category</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="books">Books</option>
+                            <!-- Add more categories -->
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-control">
+                        <label for="product-description" class="label">Description</label>
+                        <textarea id="product-description" class="textarea textarea-bordered"
+                            placeholder="Enter product description" rows="4"></textarea>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="form-control">
+                        <label for="product-image" class="label">Product Image</label>
+                        <input type="file" id="product-image" accept="image/*"
+                            class="hidden file-input file-input-bordered file-input-primary w-full max-w-xs" />
+                        <label for="product-image" class="btn btn-outline cursor-pointer">
+                            Upload Product Image
+                        </label>
+                    </div>
+
+                    <!-- Add Product Button -->
+                    <div class="form-control mt-4">
+                        <button class="btn btn-primary w-full">Add Product</button>
+                    </div>
+                </form>
+            </div>
+
+       
+{% endblock content %}

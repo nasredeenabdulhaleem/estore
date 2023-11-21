@@ -1,0 +1,47 @@
+{% extends 'vendor/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Product Detail {% endblock title %}
+
+{% block content %}
+<div class="p-6 space-y-6">
+    <!-- Page Title -->
+    <h1 class="text-3xl font-semibold">Product Details</h1>
+
+    <!-- Product Information -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Product Image -->
+        <div class="w-full">
+            <img
+                src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp"
+                alt="Product Image"
+                class="w-full h-auto rounded-lg"
+            />
+        </div>
+
+        <!-- Product Details -->
+        <div>
+            <h2 class="text-2xl font-semibold text-primary">Sample Product</h2>
+            <p class= text-sm">Product ID: #P12345</p>
+            <p class= text-sm">Price: $50.00</p>
+            <p class= text-sm">Stock: 100</p>
+            <p class= text-sm">Category: Electronics</p>
+            <p class= text-sm">Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between mt-4">
+                <button class="btn btn-primary">Update Product</button>
+                <button class="btn btn-error">Delete Product</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    
+</div>
+
+
+{% endblock content %}

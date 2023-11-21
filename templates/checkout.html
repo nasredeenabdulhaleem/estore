@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block content %}
+<style>
+   .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      .b-example-divider {
+        height: 3rem;
+        background-color: rgba(0, 0, 0, .1);
+        border: solid rgba(0, 0, 0, .15);
+        border-width: 1px 0;
+        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+      }
+
+      .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+      }
+
+      .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
+      }
+
+      .nav-scroller {
+        position: relative;
+        z-index: 2;
+        height: 2.75rem;
+        overflow-y: hidden;
+      }
+
+      .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+</style>
+<body class="bg-light">
+  <div id="messagediv">
+
+  </div>
+  {% for message in messages %}
+  <div class="status">
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <strong>{{ message }}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+  </div>
+  {% endfor %}
+  <div class="container">
+    <main>
+      <div class="py-5 text-center">
+        
+        <h2>Checkout form</h2>
+      </div>
+      <div class="align-start">
+      <a href="{% url 'store:cart' %}" class="btn btn-outline-primary" style="margin: 1em !important;">Return to cart</a>
+      </div>
+      <div class="row g-5">
+        
+        <div class="col-md-5 col-lg-4 order-md-last">
+          <h4 class="d-flex justify-content-between align-items-center mb-3" style="font-size: 18px;">
+            <span >Your cart</span>
+            <span class="badge rounded-pill">{{ total_items }}</span>
+          </h4>
+
+          <ul class="list-group mb-3">
+            {% for items in cart %}
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div>
+                <h6 class="my-0">{{items.product.product.title}}</h6>
+                <small class="text-muted">{{items.product.product.description}}</small>
+              </div>
+              <span class="text-muted">{{items.get_total_item_price}}</span>
+            </li>
+            {% endfor %}
+            
+            <li class="list-group-item d-flex justify-content-between">
+              
+              <span>Total (NGN)</span>
+            
+              <strong>&#8358; {{ total }}0 </strong>
+              
+            </li>
+            
+          </ul>
+
+        </div>
+        <div class="col-md-7 col-lg-8">
+          <h4 class="mb-3">Billing address</h4>
+          <form class="paymentForm needs-validation" action="{% url 'store:checkout' %}" method="post">
+            {% csrf_token %}
+
+            {{form | crispy }}
+
+            <hr class="my-4">
+          </form>
+          <hr />
+
+                        <div class="your-payment">
+                            <h2 class="payment-title mb-3">Pay To Complete Order</h2>
+                            <div class="payment-method">
+                                <div class="payment-accordion">
+                                    <div id="accordion" class="payment-section">
+                                        <div class="card mb-2">
+                                            <div class="card-header">
+                                                <a class="card-link" data-toggle="collapse" href="#collapseOne">Direct Bank Transfer </a>
+                                            </div>
+                                            <div id="collapseOne" class="collapse" data-parent="#accordion">
+                                                <div class="card-body">
+                                                    <p class="no-margin font-15">Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order won't be shipped until the funds have cleared in our account.</p>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="card mb-2">
+                                            <div class="card-header">
+                                                <a class="collapsed card-link" data-toggle="collapse" href="#collapseFour"> Pay With Card </a>
+                                            </div>
+                                            <div id="collapseFour" class="collapse" data-parent="#accordion">
+                                                <div class="card-body">
+                                                  <div class="order-button-payment">
+                                                    <button id="pay" class="btn" type="submit" onclick="PAY()">Place Order</button>
+                                                  </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                
+                            </div>
+                        </div>
+            </div>
+            <hr class="my-4">
+        </div>
+      </div>
+    </main>
+
+    <script>
+          const pay = document.getElementById('pay')
+          pay.addEventListener("onclick", PAY, false);
+
+function disabledefault(){
+    let ele = document.getElementById('pay');
+    ele.disabledefault()
+}
+
+
+function PAY() {
+ 
+    let pay = document.getElementById('pay').value;
+    var csrf = getCookie('csrftoken');
+    var url = '/pay/'
+    fetch(url, {
+        method:'GET',
+        credentials: 'include',
+        headers:{
+            'Content-Type':'application/json',
+            'X-CSRFToken': csrf,
+        },
+})
+
+    .then ((response) => {
+        console.log('first then ran successfully');
+        return response.json();
+        console.log(response.json());
+    })
+    
+    .then ((data) => {
+        console.log(data)
+        let status = data[0].status;
+        console.log(status)
+        if ( status== 200){
+          let url = data[1].redirect_url ;
+          console.log(url);
+          window.location.replace(url);
+        }
+        else if (status == 401){
+          var messageDiv = document.getElementById('messagediv');
+          messageDiv.setAttribute('class', 'status');
+          messageDiv.innerHTML = `
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <strong>Can't process payment now try again later</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+          `;
+        }
+    
+    })
+    
+}
+
+    </script>
+    {% endblock %}

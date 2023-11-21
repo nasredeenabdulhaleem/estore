@@ -1,0 +1,71 @@
+{% extends 'vendor/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Product Detail {% endblock title %}
+
+{% block content %}
+<div class="text-sm breadcrumbs">
+    <ul>
+      <li>
+        <a href="{% url 'store:vendor-home' %}">
+            <i class="fas fa-tachometer-alt"></i>                       Dashboard
+        </a>
+      </li> 
+      <li>
+        <span class="inline-flex gap-2 items-center">
+            <i class="fas fa-clipboard-list"></i>                      Product
+      </li>
+    </ul>
+  </div>
+
+  <div class="p-6 space-y-6">
+    <!-- Page Title -->
+    <h1 class="text-3xl font-semibold">Vendor Products</h1>
+
+    <!-- Add New Product Button -->
+    <div class="flex justify-end">
+        <a href="{% url 'store:add-product' %}"><button class="btn btn-primary">Add New Product</button></a>
+    </div>
+
+    <!-- Product List -->
+    <div class="overflow-x-auto">
+        <table class="table w-full">
+            <thead>
+                <tr>
+                    <th>Product Image</th>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Repeat this row structure for each product -->
+                <tr>
+                    <td class="w-16">
+                        <img
+                            src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp"
+                            alt="Product Image"
+                            class="w-12 h-12 object-cover"
+                        />
+                    </td>
+                    <td>#P12345</td>
+                    <td>Sample Product</td>
+                    <td>$50.00</td>
+                    <td>100</td>
+                    <td class="flex flex-nowrap gap-2">
+                       <a href="{% url 'store:update-product' %}"> <button class="btn btn-secondary">Edit</button></a>
+                        <button class="btn btn-error">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock content %}

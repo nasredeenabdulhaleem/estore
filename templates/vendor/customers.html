@@ -1,0 +1,184 @@
+{% extends 'vendor/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Orders {% endblock title %}
+
+{% block content %}
+
+            <div class="text-sm breadcrumbs">
+                <ul>
+                    <li>
+                        <a href="./dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <span class="inline-flex gap-2 items-center">
+                            <i class="fas fa-users"></i> Customers
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <h1 class="text-3xl font-bold mb-6">Customers</h1>
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="w-full md:w-1/3">
+                    <div class="bg-base-200 shadow-lg rounded-lg p-6">
+                        <h2 class="text-xl font-bold mb-4">Filter</h2>
+                        <form>
+                            <div class="mb-4">
+                                <label class="block text-inherit font-bold mb-2" for="name">
+                                    Name
+                                </label>
+                                <input
+                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-inherit leading-tight focus:outline-none focus:shadow-outline"
+                                    id="name" type="text" placeholder="John Doe">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-inherit font-bold mb-2" for="email">
+                                    Email
+                                </label>
+                                <input
+                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-inherit leading-tight focus:outline-none focus:shadow-outline"
+                                    id="email" type="email" placeholder="johndoe@example.com">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-inherit font-bold mb-2" for="status">
+                                    Status
+                                </label>
+                                <select
+                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-inherit leading-tight focus:outline-none focus:shadow-outline"
+                                    id="status">
+                                    <option selected disabled value="">Select status</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="flex justify-end">
+                                <button
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                                    type="button">
+                                    Filter
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="w-full md:w-2/3">
+                    <div class="bg-base-200 shadow-lg rounded-lg p-6">
+                        <table class="w-full table-auto">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-2">Name</th>
+                                    <th class="px-4 py-2">Email</th>
+                                    <th class="px-4 py-2">Status</th>
+                                    <th class="px-4 py-2">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border px-4 py-2">John Doe</td>
+                                    <td class="border px-4 py-2">johndoe@example.com</td>
+                                    <td class="border px-4 py-2"><span
+                                            class="bg-green-500 text-white rounded-full px-2 py-1 text-sm">Active</span>
+                                    </td>
+                                    <td class="border px-4 py-2">
+                                        <button
+                                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                                            type="button">
+                                            Edit
+                                        </button>
+                                        <button
+                                            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
+                                            type="button">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="border px-4 py-2">Jane Doe</td>
+                                    <td class="border px-4 py-2">janedoe@example.com</td>
+                                    <td class="border px-4 py-2"><span
+                                            class="bg-red-500 text-white rounded-full px-2 py-1 text-sm">Inactive</span>
+                                    </td>
+                                    <td class="border px-4 py-2">
+                                        <button
+                                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                                            type="button">
+                                            Edit
+                                        </button>
+                                        <button
+                                            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
+                                            type="button">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Page Title -->
+                <h1 class="text-3xl font-semibold">Customer Management</h1>
+                <!-- Filter Customer -->
+                <div class="flex items-center space-x-4">
+                    <label for="filter" class="text-inherit">Filter:</label>
+                    <select id="filter" class="select select-bordered">
+                        <option value="all">All Customers</option>
+                        <option value="active">Active Customers</option>
+                        <option value="inactive">Inactive Customers</option>
+
+                    </select>
+                </div>
+                <!-- Customer List -->
+                <div class="overflow-x-auto">
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>Customer ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Total Purchases</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <tr>
+                                <td>#C67890</td>
+                                <td>John Doe</td>
+                                <td>john.doe@example.com</td>
+                                <td><span class="bg-red-500 text-white rounded-full px-2 py-1 text-sm">Inactive</span>
+                                </td>
+
+                                <td>$500.00</td>
+                                <td>
+                                    <button class="btn btn-secondary">View Details</button>
+                                    <button class="btn btn-error">Delete Customer</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#C67890</td>
+                                <td>John Doe Brother</td>
+                                <td>john.doe@example.com</td>
+                                <td><span class="bg-green-500 text-white rounded-full px-2 py-1 text-sm">active</span>
+                                </td>
+
+                                <td>$500.00</td>
+                                <td>
+                                    <button class="btn btn-secondary">View Details</button>
+                                    <button class="btn btn-error">Delete Customer</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            
+            {% endblock content %}

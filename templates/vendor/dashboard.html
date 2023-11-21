@@ -1,0 +1,157 @@
+{% extends 'vendor/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Dashboard {% endblock title %}
+
+{% block content %}
+
+<div class="w-full md:w-4/5">
+    <div class="container mx-auto my-5 px-4 md:px-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div class="flex flex-col bg-base-200 p-4 rounded-md shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-700">Total Sales</h3>
+                    <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+                <div class="flex-grow text-center">
+                    <h4 class="text-3xl font-bold text-gray-700">$10,000</h4>
+                </div>
+            </div>
+            <div class="flex flex-col bg-base-200 p-4 rounded-md shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-700">Total Orders</h3>
+                    <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+                <div class="flex-grow text-center">
+                    <h4 class="text-3xl font-bold text-gray-700">200</h4>
+                </div>
+            </div>
+            <div class="flex flex-col bg-base-200 p-4 rounded-md shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-700">Total Customers</h3>
+                    <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+                <div class="flex-grow text-center">
+                    <h4 class="text-3xl font-bold text-gray-700">500</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
+<!-- vendor-dashboard.blade.php -->
+
+<div class="container mx-auto p-8">
+    <!-- Vendor Information Section -->
+    <div class="bg-base-200 p-6 rounded-lg shadow mb-6">
+        <h2 class="text-2xl font-semibold mb-4">Vendor Dashboard</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Vendor Profile Info -->
+            <div class="border p-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">Vendor Profile</h3>
+                <!-- Display vendor information -->
+                <p class="text-gray-600">Vendor Name: John Doe</p>
+                <p class="text-gray-600">Store Name: XYZ Electronics</p>
+                <p class="text-gray-600">Email: john@example.com</p>
+                <!-- Add/Edit Profile button -->
+                <button class="mt-2 btn btn-primary">Edit Profile</button>
+            </div>
+
+            <!-- Sales Summary -->
+            <div class="border p-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">Sales Summary</h3>
+                <!-- Display sales information -->
+                <p class="text-gray-600">Total Sales: $50,000</p>
+                <p class="text-gray-600">Orders Shipped: 100</p>
+                <p class="text-gray-600">Pending Orders: 5</p>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="border p-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">Quick Actions</h3>
+                <!-- Add product, view orders, etc. buttons -->
+                <button class="btn btn-primary">Add New Product</button>
+                <button class="mt-2 btn btn-outline">View Orders</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders Section -->
+    <div class="bg-base-200 p-6 mb-6 rounded-lg shadow">
+        <h2 class="text-2xl font-semibold mb-4">Recent Orders</h2>
+        <!-- Display a list of recent orders -->
+        <ul>
+            <li class="border-b py-2">
+                <p class="text-gray-800">Order #1234</p>
+                <p class="text-gray-600">Customer: Jane Doe</p>
+                <p class="text-gray-600">Total: $100</p>
+            </li>
+            <!-- Add more order items as needed -->
+        </ul>
+    </div>
+
+    <!-- Vendor Analytics Section -->
+    <div class="bg-base-200 p-6 rounded-lg shadow mb-6">
+        <h2 class="text-2xl font-semibold mb-4">Vendor Analytics</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Sales Analytics -->
+            <div class="border p-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">Sales Analytics</h3>
+                <!-- Display charts or graphs for sales analytics -->
+                <div class="text-gray-600">Sales Trend Chart</div>
+            </div>
+
+            <!-- Product Performance -->
+            <div class="border p-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">Product Performance</h3>
+                <!-- Display top-selling products, low inventory, etc. -->
+                <ul>
+                    <li class="text-gray-800">Product A - 50 units sold</li>
+                    <li class="text-gray-800">Product B - Low Stock (10 units)</li>
+                    <!-- Add more product information as needed -->
+                </ul>
+            </div>
+
+            <!-- Customer Feedback -->
+            <div class="border p-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">Customer Feedback</h3>
+                <!-- Display recent reviews and ratings -->
+                <ul>
+                    <li class="text-gray-800">Customer X - 5-star rating</li>
+                    <li class="text-gray-800">Customer Y - Positive feedback</li>
+                    <!-- Add more feedback information as needed -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor Notifications Section -->
+    <div class="bg-base-200 p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-semibold mb-4">Notifications</h2>
+        <!-- Display recent notifications, new orders, etc. -->
+        <ul>
+            <li class="border-b py-2">
+                <p class="text-gray-800">New Order Received - Order #1235</p>
+                <p class="text-gray-600">Customer: John Smith</p>
+            </li>
+            <!-- Add more notification items as needed -->
+        </ul>
+    </div>
+</div>
+
+{% endblock content %}

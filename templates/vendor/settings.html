@@ -1,0 +1,162 @@
+{% extends 'vendor/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Product Detail {% endblock title %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Settings</h1>
+
+<div class="p-6 space-y-6">
+    <!-- Page Title -->
+    <h1 class="text-3xl font-semibold">Vendor Settings</h1>
+
+    <h2 class="text-xl font-semibold mb-2">General Settings</h2>
+    <!-- Vendor Profile Information -->
+    <div class="border-t pt-4">
+
+        <h3 class="text-xl mb-2">Vendor Profile Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Current Information -->
+            <div>
+                <p class="text-gray-600 mb-2"><strong>Current Vendor Name:</strong> John Doe</p>
+                <p class="text-gray-600 mb-2"><strong>Current Email:</strong> john.doe@example.com</p>
+                <p class="text-gray-600 mb-2"><strong>Current Phone Number</strong> +2348129096356</p>
+            </div>
+
+            <!-- Vendor Profile Update Form -->
+            <form id="profile-update-form" action="#">
+                <div class="form-control">
+                    <label for="vendor-name" class="label">Update Vendor Name</label>
+                    <input type="text" id="vendor-name" class="input input-bordered"
+                        placeholder="Enter updated vendor name" required />
+                </div>
+                <div class="form-control">
+                    <label for="vendor-email" class="label">Update Vendor Email</label>
+                    <input type="email" id="vendor-email" class="input input-bordered"
+                        placeholder="Enter updated vendor email" required />
+                </div>
+                <div class="form-control">
+                    <label for="vendor-phone-number" class="label">Update Vendor Phone Number</label>
+                    <input type="text" id="vendor-phone-number" class="input input-bordered"
+                        placeholder="Enter updated vendor phone-number" required />
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </div>
+            </form>
+
+        </div>
+        <!-- Update Button -->
+
+    </div>
+
+    <!-- Vendor Bank Details -->
+    <div class="border-t pt-4">
+        <h3 class="text-xl mb-2">Vendor Bank Details</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Current Information -->
+            <div>
+                <p class="text-gray-600 mb-2"><strong>Current Bank Name:</strong> ABC Bank</p>
+                <p class="text-gray-600 mb-2"><strong>Current Account Number:</strong> 1234567890</p>
+                <!-- Add more current information as needed -->
+            </div>
+            <form action="#">
+                <!-- Bank Update Form -->
+                <div class="form-control">
+                    <label for="bank-name" class="label">Update Bank Name</label>
+                    <input type="text" id="bank-name" class="input input-bordered" placeholder="Enter updated bank name"
+                        required />
+                </div>
+                <div class="form-control">
+                    <label for="bank-account-number" class="label">Update Bank Account Number</label>
+                    <input type="text" id="bank-account-number" class="input input-bordered"
+                        placeholder="Enter updated bank account number" required />
+                </div>
+                <div class="mt-4">
+                    <button class="btn btn-primary">Update Bank Details</button>
+                </div>
+            </form>
+        </div>
+
+
+    </div>
+
+    <!-- Vendor Store Information -->
+    <div class="border-t pt-4">
+        <h3 class="text-xl  mb-2">Vendor Store Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+                <p class="text-gray-600 mb-2"><strong>Current Store Name:</strong> MyStore</p>
+                <p class="text-gray-600 mb-2"><strong>Current Store Address:</strong> 123 Main Street</p>
+                <p class="text-gray-600 mb-2"><strong>Current Store Theme:</strong> Luxury</p>
+
+            </div>
+
+            <!-- Update Vendor Store Information Form -->
+            <form action="">
+                <div class="form-control">
+                    <label for="store-name" class="label">Update Store Name</label>
+                    <input type="text" id="store-name" class="input input-bordered"
+                        placeholder="Enter updated store name" required />
+                </div>
+                <div class="form-control">
+                    <label for="store-address" class="label">Update Store Address</label>
+                    <input type="text" id="store-address" class="input input-bordered"
+                        placeholder="Enter updated store address" required />
+                </div>
+                <div class="form-control">
+                    <label for="store-theme" class="label">Update Store Theme</label>
+                    <select id="store-theme" class="select select-bordered">
+                        <option value="light">Light</option>
+                        <option value="Dark">Dark</option>
+                        <option value="luxury">Luxury</option>
+                        <option value="retro">Retro</option>
+                    </select>
+                </div>
+                <div class="mt-4">
+                    <button class="btn btn-primary">Update Store Information</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+<h2 class="text-xl font-semibold mb-2">Security Settings</h2>
+
+<!-- Password Update -->
+<div class="border-t pt-4">
+    <h3 class="text-xl mb-2">Update Password</h3>
+    <!-- Password Update Form -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <form action="#">
+            <!-- Current Password (if needed) -->
+            <div class="form-control">
+                <label for="current-password" class="label">Current Password</label>
+                <input type="password" id="current-password" class="input input-bordered"
+                    placeholder="Enter current password" />
+            </div>
+            <!-- New Password -->
+            <div class="form-control">
+                <label for="new-password" class="label">New Password</label>
+                <input type="password" id="new-password" class="input input-bordered"
+                    placeholder="Enter new password" />
+            </div>
+            <!-- Confirm New Password -->
+            <div class="form-control">
+                <label for="confirm-password" class="label">Confirm New Password</label>
+                <input type="password" id="confirm-password" class="input input-bordered"
+                    placeholder="Confirm new password" />
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Update Password</button>
+            </div>
+        </form>
+    </div>
+
+
+</div>
+
+
+{% endblock content %}

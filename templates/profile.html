@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+{% for message in messages %}
+<div class="status">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+{% endfor %}
+<br>
+
+<div class="container">
+    <h4><a href="{% url 'store:profile-update' %}"><b><i>Update Your Profile</i></b></a></h4>
+    <div class="profile" style="margin: 4em;">
+        <h3>User Details</h3>
+        {% for user in user_detail %}
+        <div class="list">
+            <label for="FirstName">FirstName</label>
+            <br>
+            <h6> {{ user.firstname }} </h6>
+        </div>
+        <hr>
+        <div class="list">
+            <label for="LastName">LastName</label>
+            <br>
+            <h6> {{ user.lastname }} </h6>
+        </div>
+        <hr>
+        <div class="list">
+            <label for="Gender">Gender</label>
+            <br>
+            <h6> {{ user.gender }} </h6>
+        </div>
+        <hr>
+        <div class="list">
+            <label for="Email">Email</label>
+            <br>
+            <h6> {{ user.email }} </h6>
+        </div>
+        <hr>
+        <div class="list">
+            <label for="Phone-number">Phone Number</label>
+            <br>
+            <h6> {{ user.phone }} </h6>
+        </div>
+        <hr>
+        {% endfor %}
+        <div class="list">
+            <label for="Country">Country</label>
+            <h6>{{ address.country }} </h6>
+        </div>
+    </div>
+    <div class="profile" style="margin: 4em;">
+        <h3>Shipping Details</h3>
+        {% for address in address %}
+        <div class="list">
+            <label for="Shipping address">Shipping Address</label>
+            <br>
+            <h6> {{ address.shipping_address }} </h6>
+        </div>
+        <hr>
+        <div class="list">
+            <label for="City">City</label>
+            <br>
+            <h6> {{ address.city }} </h6>
+        </div>
+        <hr>
+        <div class="list">
+            <label for="State">State</label>
+            <br>
+            <h6> {{ address.state }} </h6>
+        </div>
+        <hr>
+        <div class="list">
+            <label for="Country">Country</label>
+            <h6> {{ address.country }}</h6>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

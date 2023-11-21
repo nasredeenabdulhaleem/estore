@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+{% for message in messages %}
+<div class="alert alert-success" role="alert">
+    {{message}}
+  </div>
+{% endfor %}
+<br>
+
+<div class="container">
+  <h4><a href="{% url 'store:profile' %}"><b><i>Return to Your Profile</i></b></a></h4>
+<form style="margin: 1.5em;"  action="{% url 'store:profile-update' %}" method="post">
+    {% csrf_token %}
+    <h2> User Details</h2>
+    {{ userform.as_div}}
+    <br>
+    <br>
+    <h2>Address</h2>
+    {{ addressform.as_div}}
+    <input type="submit" value="Submit" class="btn btn-primary">
+  </form>
+</div>
+{% endblock %}

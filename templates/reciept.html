@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<h1>I DEH COME</h1>
+<div class="container">
+    <div>
+        <div class="bd-example-snippet bd-code-snippet"><div class="bd-example">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">First</th>
+            <th scope="col">Last</th>
+            <th scope="col">Handle</th>
+          </tr>
+          </thead>
+          <tbody>
+            {% for order in order %}
+            {% for item in order.items.all %}
+          <tr>
+            <th scope="row">1</th>
+            
+            <td> {{ item.product.product.title }} </td>
+            <td>{{ item.product.product.price }}</td>
+            <td>{{ item.product.product.description }}</td>
+          </tr>
+          {% endfor %}
+          {% endfor %}
+          </tbody>
+        </table>
+        </div></div>
+</div>
+{% endblock %}

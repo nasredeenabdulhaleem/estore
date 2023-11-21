@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+
+        <div class="col-lg-12">
+            <div class="box-element">
+
+                <a class="btn btn-outline-dark" href="{% url 'store:store' %}">&#x2190; Continue Shopping</a>
+
+                <br>
+                <br>
+                <table class="table">
+                    <tr>
+                        <th>
+                            <h5>Items: <strong> {{ total_items }}</strong></h5>
+                        </th>
+
+                        <th>
+                            <h5>Total:<strong> &#8358;{{ total }}0</strong></h5>
+                        </th>
+
+                        <th>
+                            <a style="float:right; margin:5px;" class="btn btn-success"
+                                href="{% url 'store:checkout' %}">Checkout</a>
+                        </th>
+                    </tr>
+                </table>
+
+            </div>
+
+            <br>
+            {% for items in cart %}
+            <div class="box-element">
+                <div class="cart-row">
+                    <div style="flex:2"></div>
+                    <div style="flex:2"><strong>Item</strong></div>
+                    <div style="flex:1"><strong>Color/Size</strong></div>
+                    <div style="flex:1"><strong>Price</strong></div>
+                    <div style="flex:1"><strong>Quantity</strong></div>
+                    <div style="flex:1"><strong>Total</strong></div>
+                </div>
+
+                <div class="cart-row">
+                    <div style="flex:2"><img class="row-image" src="{{ items.product.product.image.url }}"></div>
+                    <div style="flex:2">
+                        <p>{{ items.product.product.title }}</p>
+                    </div>
+                    <div style="flex:1">
+                        <p>{{ items.product.color }}/{{ items.product.size }}</p>
+                    </div>
+                    <div style="flex:1">
+                        <p>{{ items.product.product.price }}</p>
+                    </div>
+                    <div style="flex:1">
+                        <p class="quantity">{{ items.quantity }}</p>
+                        <div class="quantity">
+                            <button data-slug="{{items.product.slug}}" data-action="add" class="update-cart">
+                                <i class="bi bi-caret-up-fill"></i>
+                            </button>
+
+                            <button data-slug="{{items.product.slug}}" data-action="reduce" class="update-cart">
+                                <i class="bi bi-caret-down-fill"></i>
+                            </button>
+
+                        </div>
+                    </div>
+                    <div style="flex:1">
+                        <p>{{items.get_total_item_price}}</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<!-- 
+  Bootstrap docs: https://getbootstrap.com/docs
+  Get more snippet on https://bootstraptor.com/snippets
+-->
+
+<!-- <section class="pt-5 pb-5">
+    <div class="container">
+      <div class="row w-100">
+          <div class="col-lg-12 col-md-12 col-12">
+              <h3 class="display-5 mb-2 text-center">Shopping Cart</h3>
+              <p class="mb-5 text-center">
+                  <i class="text-info font-weight-bold">3</i> items in your cart</p>
+              <table id="shoppingCart" class="table table-condensed table-responsive">
+                  <thead>
+                      <tr>
+                          <th style="width:60%">Product</th>
+                          <th style="width:12%">Price</th>
+                          <th style="width:10%">Quantity</th>
+                          <th style="width:16%"></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td data-th="Product">
+                              <div class="row">
+                                  <div class="col-md-3 text-left">
+                                      <img src="https://via.placeholder.com/250x250/5fa9f8/ffffff" alt="" class="img-fluid d-none d-md-block rounded mb-2 shadow ">
+                                  </div>
+                                  <div class="col-md-9 text-left mt-sm-2">
+                                      <h4>Product Name</h4>
+                                      <p class="font-weight-light">Brand &amp; Name</p>
+                                  </div>
+                              </div>
+                          </td>
+                          <td data-th="Price">$49.00</td>
+                          <td data-th="Quantity">
+                              <input type="number" class="form-control form-control-lg text-center" value="1">
+                          </td>
+                          <td class="actions" data-th="">
+                              <div class="text-right">
+                                  <button class="btn btn-white border-secondary bg-white btn-md mb-2">
+                                      <i class="fas fa-sync"></i>
+                                  </button>
+                                  <button class="btn btn-white border-secondary bg-white btn-md mb-2">
+                                      <i class="fas fa-trash"></i>
+                                  </button>
+                              </div>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td data-th="Product">
+                              <div class="row">
+                                  <div class="col-md-3 text-left">
+                                      <img src="https://via.placeholder.com/250x250/5fa9f8/ffffff" alt="" class="img-fluid d-none d-md-block rounded mb-2 shadow ">
+                                  </div>
+                                  <div class="col-md-9 text-left mt-sm-2">
+                                      <h4>Product Name</h4>
+                                      <p class="font-weight-light">Brand &amp; Name</p>
+                                  </div>
+                              </div>
+                          </td>
+                          <td data-th="Price">$49.00</td>
+                          <td data-th="Quantity">
+                              <input type="number" class="form-control form-control-lg text-center" value="1">
+                          </td>
+                          <td class="actions" data-th="">
+                              <div class="text-right">
+                                  <button class="btn btn-white border-secondary bg-white btn-md mb-2">
+                                      <i class="fas fa-sync"></i>
+                                  </button>
+                                  <button class="btn btn-white border-secondary bg-white btn-md mb-2">
+                                      <i class="fas fa-trash"></i>
+                                  </button>
+                              </div>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td data-th="Product">
+                              <div class="row">
+                                  <div class="col-md-3 text-left">
+                                      <img src="https://via.placeholder.com/250x250/5fa9f8/ffffff" alt="" class="img-fluid d-none d-md-block rounded mb-2 shadow ">
+                                  </div>
+                                  <div class="col-md-9 text-left mt-sm-2">
+                                      <h4>Product Name</h4>
+                                      <p class="font-weight-light">Brand &amp; Name</p>
+                                  </div>
+                              </div>
+                          </td>
+                          <td data-th="Price">$49.00</td>
+                          <td data-th="Quantity">
+                              <input type="number" class="form-control form-control-lg text-center" value="1">
+                          </td>
+                          <td class="actions" data-th="">
+                              <div class="text-right">
+                                  <button class="btn btn-white border-secondary bg-white btn-md mb-2">
+                                      <i class="fas fa-sync"></i>
+                                  </button>
+                                  <button class="btn btn-white border-secondary bg-white btn-md mb-2">
+                                      <i class="fas fa-trash"></i>
+                                  </button>
+                              </div>
+                          </td>
+                      </tr>
+                  </tbody>
+              </table>
+              <div class="float-right text-right">
+                  <h4>Subtotal:</h4>
+                  <h1>$99.00</h1>
+              </div>
+          </div>
+      </div>
+      <div class="row mt-4 d-flex align-items-center">
+          <div class="col-sm-6 order-md-2 text-right">
+              <a href="catalog.html" class="btn btn-primary mb-4 btn-lg pl-5 pr-5">Checkout</a>
+          </div>
+          <div class="col-sm-6 mb-3 mb-m-1 order-md-1 text-md-left">
+              <a href="catalog.html">
+                  <i class="fas fa-arrow-left mr-2"></i> Continue Shopping</a>
+          </div>
+      </div>
+  </div>
+  </section> -->
+
+{% endblock %}

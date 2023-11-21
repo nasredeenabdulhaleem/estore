@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- CSS only -->
+    <link href="{% static 'login.css' %}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nasdig</title>
+</head>
+
+<body>
+    <div class="container">
+        {% for message in messages %}
+        <h5>{{message}}</h5>
+        {% endfor %}
+        <h1>Sign up</h1>
+        <form method="post" action="{% url 'signup' %}">
+            {% csrf_token %}
+            <div class="form-control">
+                <input type="text" name="username" required />
+                <label>Your Username</label>
+            </div>
+            <div class="form-control">
+                <input type="text" name="email" required />
+                <label>Your Email</label>
+            </div>
+            <div class="form-control">
+                <input type="password" name="password" required />
+                <label>Your Password</label>
+            </div>
+            <div class="form-control">
+                <input type="password" name="password2" required />
+                <label>Repeat Password</label>
+            </div>
+            <button class="btn" type="submit" value="login">Submit</button>
+            <input type="hidden" name="next" value="{{ next }}">
+            <p class="text">Have an account?
+                <a href="{% url 'login' %}">Login</a>
+            </p>
+        </form>
+    </div>
+</body>
+
+<scripts>
+    const labels = document.querySelectorAll(".form-control label");
+
+    labels.ForEach((label) => {
+    label.innerHtml = label.innerText
+    .split("")
+    .map(
+    (letter, idx) =>
+    `<span style="transition-delay:{idx * 50}ms">${letter}</span>`
+    )
+    .join("");
+    });
+
+    )
+
+
+</scripts>
+
+</html>

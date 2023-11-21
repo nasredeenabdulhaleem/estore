@@ -1,0 +1,158 @@
+{% extends 'vendor/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Orders {% endblock title %}
+
+{% block content %}
+
+<div class="text-sm breadcrumbs">
+    <ul>
+      <li>
+        <a href="{% url 'store:vendor-home' %}">
+            <i class="fas fa-tachometer-alt"></i>                       Dashboard
+        </a>
+      </li> 
+      <li>
+        <span class="inline-flex gap-2 items-center">
+            <i class="fas fa-clipboard-list"></i>                      Orders
+        </span>
+      </li>
+    </ul>
+  </div>
+<!-- <div class="w-full md:w-4/5">
+
+    <div class="container mx-auto px-6 py-8">
+        <h2 class="text-2xl font-bold mb-4">Orders</h2>
+        <div class="bg-base-200 shadow-md rounded my-6">
+            <table class="w-full table-auto">
+                <thead>
+                    <tr class="bg-base-200 text-inherit uppercase text-sm leading-normal">
+                        <th class="py-3 px-6 text-left">Order ID</th>
+                        <th class="py-3 px-6 text-left">Customer Name</th>
+                        <th class="py-3 px-6 text-center">Total Amount</th>
+                        <th class="py-3 px-6 text-center">Status</th>
+                        <th class="py-3 px-6 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="text-inherit text-sm font-quicksand">
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left whitespace-nowrap">#ORD-001</td>
+                        <td class="py-3 px-6 text-left">John Doe</td>
+                        <td class="py-3 px-6 text-center">₦10,000</td>
+                        <td class="py-3 px-6 text-center">
+                            <span
+                                class="bg-green-200 text-green-600 py-1 px-3 rounded-full text-xs">Delivered</span>
+                        </td>
+                        <td class="py-3 px-6 text-center">
+                            <div class="flex item-center justify-center">
+                                <a href="#" class="text-gray-600 hover:text-gray-900 mr-2">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" class="text-gray-600 hover:text-gray-900">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left whitespace-nowrap">#ORD-002</td>
+                        <td class="py-3 px-6 text-left">Jane Doe</td>
+                        <td class="py-3 px-6 text-center">₦5,000</td>
+                        <td class="py-3 px-6 text-center">
+                            <span
+                                class="bg-yellow-200 text-yellow-600 py-1 px-3 rounded-full text-xs">Processing</span>
+                        </td>
+                        <td class="py-3 px-6 text-center">
+                            <div class="flex item-center justify-center">
+                                <a href="#" class="text-gray-600 hover:text-gray-900 mr-2">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" class="text-gray-600 hover:text-gray-900">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left whitespace-nowrap">#ORD-003</td>
+                        <td class="py-3 px-6 text-left">James Smith</td>
+                        <td class="py-3 px-6 text-center">₦7,500</td>
+                        <td class="py-3 px-6 text-center">
+                            <span
+                                class="bg-red-200 text-red-600 py-1 px-3 rounded-full text-xs">Cancelled</span>
+                        </td>
+                        <td class="py-3 px-6 text-center">
+                            <div class="flex item-center justify-center">
+                                <a href="#" class="text-gray-600 hover:text-gray-900 mr-2">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" class="text-gray-600 hover:text-gray-900">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div> -->
+<div class="p-6 space-y-6">
+    <!-- Page Title -->
+    <h1 class="text-3xl font-semibold">Vendor Orders</h1>
+
+    <!-- Filters and Search -->
+    <div class="flex items-center space-x-4">
+        <div class="w-1/2">
+            <input type="text" class="input input-bordered w-full" placeholder="Search orders..." />
+        </div>
+        <div class="w-1/4">
+            <select class="select select-bordered w-full">
+                <option selected disabled>Filter by status</option>
+                <option value="pending">Pending</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+            </select>
+        </div>
+        <div class="w-1/4">
+            <button class="btn btn-primary w-full">Apply Filter</button>
+        </div>
+    </div>
+
+    <!-- Order List -->
+    <div class="overflow-x-auto">
+        <table class="table w-full">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer Name</th>
+                    <th>Order Date</th>
+                    <th>Status</th>
+                    <th>Total Amount</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Repeat this row structure for each order -->
+                <tr>
+                    <td>#12345</td>
+                    <td>John Doe</td>
+                    <td>2023-11-15</td>
+                    <td>
+                        <span class="badge badge-success">Shipped</span>
+                    </td>
+                    <td>$150.00</td>
+                    <td>
+                        <button class="btn btn-primary">View Details</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock content %}

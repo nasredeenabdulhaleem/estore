@@ -1,0 +1,153 @@
+import datetime
+from django.shortcuts import render
+from django.contrib.auth import authenticate, login, logout
+from accounts.models import User
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import redirect, render
+from django.contrib import messages
+from django.views.generic import View
+from django.contrib.auth.views import LoginView
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+from django.conf import settings
+from store import settings
+from accounts.forms import SignupForm
+from pinax.eventlog.models import log
+from accounts.emailverification import EmailVerification
+
+# log(
+#         user=request.user,
+#         action="CREATED_FOO_WIDGET",
+#         obj=foo,
+#         extra={"title": foo.title},
+#     )
+# Create your views here.
+
+
+# USer SIGN UP View
+class UserSignup(View):
+    template_name = "accounts/user-signup.html"
+    # form = UserCreationForm()
+
+    def get(self, request):
+        form = SignupForm()
+        context = {
+            "form": form,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        form = SignupForm(request.POST)
+        print(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save(commit=False)
+                user.is_active = False
+                
+                email_verification = EmailVerification()
+
+                # Generate token and send verification email
+                token = email_verification.generate_token(user.email)
+                email_sent=email_verification.send_email(user, token)
+                if email_sent is not True:
+                    messages.info(request, "Email verification not delivered successfully")
+                    return render(request, self.template_name, {"form": form})
+                user.save()
+                # log(
+                #     user=user,
+                #     action="Created a User Account, Verification Email Sent",
+                #     obj=user,
+                #     # extra={"title": foo.title},
+                #     dateof=datetime.datetime.now(),
+                # )
+                
+                messages.info(
+                    request,
+                    f"Created User {user.username}, a verification email has been sent to activate account",
+                )
+                return redirect("login")
+            except Exception as e:
+                print(e)
+                messages.error(request, f"Error Creating Account, try again later")
+                return render(request, self.template_name, {"form": form})
+        else:
+            messages.error(request, f"Error Creating Account, Rectify error and retry")
+            return render(request, self.template_name, {"form": form})
+
+
+class Login(LoginView):
+    template_name: "login.html"
+
+    def get(self, request):
+        return render(request, "login.html")
+
+    def post(self, request):
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        next_url = request.POST.get("next")
+        print(next_url)
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            if next_url == None:
+                login(request, user)
+                return redirect("store:store")
+            else:
+                login(request, user)
+                return redirect("store:store")
+        else:
+            messages.info(request, "credentials Invalid")
+            return redirect("login")
+
+
+# VENDOR ACCOUNTS VIEW
+# VENDOR SIGNUP VIEW
+
+
+class VendorSignupView:
+    templatee_name = "account/vendor/signup.html"
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        password2 = request.POST.get("password2")
+
+        if password == password2:
+            if User.objects.filter(email=email).exists():
+                messages.info(request, "Email Already Used")
+                return redirect("signup")
+            elif User.objects.filter(username=username).exists():
+                messages.info(request, "Username Already Used")
+                return redirect("signup")
+            else:
+                user = User.objects.create_user(
+                    username=username, email=email, password=password
+                )
+                user.save()
+                mydict = {"username": username}
+
+                html_template = "register_email.html"
+                html_message = render_to_string(html_template, context=mydict)
+                subject = "Welcome to Service-Verse"
+                email_from = settings.EMAIL_HOST_USER
+                recipient_list = [email]
+                message = EmailMessage(
+                    subject, html_message, email_from, recipient_list
+                )
+                message.content_subtype = "html"
+                message.send()
+                messages.success(
+                    request, f"Account for {username} created successfully"
+                )
+                return redirect("login")
+        else:
+            messages.info(request, "Password not the Same")
+            return redirect("signup")
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("/")

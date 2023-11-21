@@ -1,19 +1,12 @@
 # Email verification and activation class
 
-import bcrypt
-from django.core.mail import send_mail
 from django.conf import settings
 import json
 from datetime import datetime, timedelta, timezone
 from accounts.models import User
 
-# from jwt import (
-#     JWT,
-#     jwk_from_dict,
-#     jwk_from_pem,
-# )
 import jwt
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, send_mail
 from django.template.loader import render_to_string
 
 # from jwt.utils import get_int_from_datetime
@@ -51,11 +44,6 @@ class EmailVerification:
         """
         Decode the message from JWT(JWS).
         """
-        # instance = JWT()
-
-        # # Create a JWK object from the SECRET_KEY
-        # jwk = JWK()
-        # jwk.load_key(self.SECRET_KEY)
 
         token = jwt.decode(token, self.SECRET_KEY, algorithms="HS256",verify=True)
 
@@ -86,7 +74,7 @@ class EmailVerification:
         verification_link = (
             f"http://{self.DOMAIN}/accounts/verify-email/{token}"
         )
-
+        print(f"sending to {user.email}")
         context = {
             "name": user.username,
             "subject": "Email Verification",
@@ -100,8 +88,9 @@ class EmailVerification:
         message.content_subtype = "html"
         # try:
             # Send the email
-        send_mail(subject=subject,from_email=email_from,recipient_list=recipient_list,html_message=email_content,message=email_content)
-        # message.send()
+        print("i got before sendining mail")
+        # print(send_mail(subject=subject,from_email=email_from,recipient_list=recipient_list,html_message=email_content,message="email_content"))
+        message.send()
         print("i sent")
         return True
         # except Exception as e:

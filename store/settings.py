@@ -131,6 +131,14 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Email Settings
+
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"#django.core.mail.backends.smtp.EmailBackend
+# EMAIL_HOST = "smtp.gmail.com"  # gmail
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = "naszattech@gmail.com"
+# EMAIL_HOST_PASSWORD = "slwn gerb ivty wped"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -155,14 +163,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 PAYSTACK_SECRET_KEY = os.environ.get("PAYSTACK_SECRET_KEY")
 PAYSTACK_PUBLIC_KEY = os.environ.get("PAYSTACK_PUBLIC_KEY")
 
-# Email Settings
 
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"#django.core.mail.backends.smtp.EmailBackend
-# EMAIL_HOST = "smtp.gmail.com"  # gmail
-# EMAIL_PORT = 465 #587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = "naszattech@gmail.com"
-# EMAIL_HOST_PASSWORD = "slwn gerb ivty wped"
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"#django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST = "smtp.mailgun.org"  # gmail

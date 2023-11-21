@@ -26,8 +26,8 @@ SECRET_KEY = "django-insecure-j1!-h4n#3&6=4*nxh(x-s6@zdveuesc1$q367*3k3-*s+v=l3t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.0.100", "127.0.0.1"]
-
+ALLOWED_HOSTS = ["192.168.0.100", "127.0.0.1", "localhost", "https:localhost:8000"]
+CSRF_COOKIE_DOMAIN = ".github.dev"
 
 # Application definition
 
@@ -86,18 +86,18 @@ WSGI_APPLICATION = "store.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "store",
-        "USER": "nasredeen",
-        "PASSWORD": "Hal@16eem",
-        "HOST": "localhost",
-        "PORT": 5432,
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
+    # "default": {
+    #     "ENGINE": "django.db.backends.postgresql",
+    #     "NAME": "store",
+    #     "USER": "nasredeen",
+    #     "PASSWORD": "Hal@16eem",
+    #     "HOST": "localhost",
+    #     "PORT": 5432,
+    # }
 }
 
 
@@ -133,12 +133,12 @@ USE_TZ = True
 
 # Email Settings
 
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"#django.core.mail.backends.smtp.EmailBackend
-# EMAIL_HOST = "smtp.gmail.com"  # gmail
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = "naszattech@gmail.com"
-# EMAIL_HOST_PASSWORD = "slwn gerb ivty wped"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"#django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST = "smtp.gmail.com"  # gmail
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "naszattech@gmail.com"
+EMAIL_HOST_PASSWORD = "slwn gerb ivty wped"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -165,12 +165,12 @@ PAYSTACK_PUBLIC_KEY = os.environ.get("PAYSTACK_PUBLIC_KEY")
 
 
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"#django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST = "smtp.mailgun.org"  # gmail
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "postmaster@sandboxb498bbf25d494b7598ddfb925e9ba85d.mailgun.org"
-EMAIL_HOST_PASSWORD = "2de418cca439c3d5d0bb8159ec88e6b3-5d2b1caa-c70a24a5"
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"#django.core.mail.backends.smtp.EmailBackend
+# EMAIL_HOST = "smtp.mailgun.org"  # gmail
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = "postmaster@sandboxb498bbf25d494b7598ddfb925e9ba85d.mailgun.org"
+# EMAIL_HOST_PASSWORD = "2de418cca439c3d5d0bb8159ec88e6b3-5d2b1caa-c70a24a5"
 
 MESSAGE_TAGS = {
     messages.ERROR: 'error',

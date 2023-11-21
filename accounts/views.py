@@ -11,7 +11,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.conf import settings
 from store import settings
-from accounts.forms import SignupForm
+from accounts.forms import SignupForm,LoginForm
 from pinax.eventlog.models import log
 from accounts.emailverification import EmailVerification
 
@@ -49,9 +49,6 @@ class UserSignup(View):
                 # Generate token and send verification email
                 token = email_verification.generate_token(user.email)
                 email_sent=email_verification.send_email(user, token)
-                if email_sent is not True:
-                    messages.info(request, "Email verification not delivered successfully")
-                    return render(request, self.template_name, {"form": form})
                 user.save()
                 # log(
                 #     user=user,
@@ -76,28 +73,34 @@ class UserSignup(View):
 
 
 class Login(LoginView):
-    template_name: "login.html"
+    template_name= "accounts/user-login.html"
 
     def get(self, request):
-        return render(request, "login.html")
+        form = LoginForm()
+        context = {
+            "form": form,
+        }
+        return render(request, self.template_name, context)
 
     def post(self, request):
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        next_url = request.POST.get("next")
-        print(next_url)
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            if next_url == None:
+        
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            # # Handle user authentication
+            # username = form.cleaned_data['username']
+            # password = form.cleaned_data['password']
+            # user = authenticate(request, username=username, password=password)
+            user = form.get_user()
+            if user is not None:
                 login(request, user)
-                return redirect("store:store")
+                return redirect('store:store')  # Redirect to a success page
             else:
-                login(request, user)
-                return redirect("store:store")
+                # Authentication failed, show an error message
+                form.add_error(None, 'Invalid login credentials')
+                return render(request, self.template_name, {"form": form})
         else:
-            messages.info(request, "credentials Invalid")
-            return redirect("login")
-
+            messages.error(request, f"Error Logging In, Rectify error and retry")
+            return render(request, self.template_name, {"form": form})
 
 # VENDOR ACCOUNTS VIEW
 # VENDOR SIGNUP VIEW

@@ -1,7 +1,7 @@
 import datetime
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
-from accounts.models import User
+from accounts.models import User, VerificationCount
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import redirect, render
 from django.contrib import messages
@@ -41,15 +41,14 @@ class UserSignup(View):
         print(request.POST)
         if form.is_valid():
             try:
-                user = form.save(commit=False)
-                user.is_active = False
+                user = form.save()
+                verification = VerificationCount.objects.create(user=user, email=user.email, count=1)
                 
                 email_verification = EmailVerification()
 
                 # Generate token and send verification email
                 token = email_verification.generate_token(user.email)
                 email_sent=email_verification.send_email(user, token)
-                user.save()
                 # log(
                 #     user=user,
                 #     action="Created a User Account, Verification Email Sent",
@@ -72,37 +71,59 @@ class UserSignup(View):
             return render(request, self.template_name, {"form": form})
 
 
+# class Login(LoginView):
+#     template_name= "accounts/user-login.html"
+
+#     def get(self, request):
+#         form = LoginForm()
+#         context = {
+#             "form": form,
+#         }
+#         return render(request, self.template_name, context)
+
+#     def post(self, request):
+        
+#         form = LoginForm(request.POST)
+
+#         if form.is_valid():
+#             # # Handle user authentication
+#             username = form.cleaned_data['username']
+#             password = form.cleaned_data['password']
+#             user = authenticate(request, username=username, password=password)
+#             print(user, username, password)
+#             # user = form.get_user()
+#             if user is not None:
+#                 login(request, user)
+#                 return redirect('store:store')  # Redirect to a success page
+#             else:
+#                 # Authentication failed, show an error message
+#                 form.add_error(None, 'Invalid login credentials')
+#                 return render(request, self.template_name, {"form": form})
+#         else:
+#             messages.error(request, f"Invalid login credentials")
+#             return render(request, self.template_name, {"form": form})
+
 class Login(LoginView):
     template_name= "accounts/user-login.html"
+    redirect_authenticated_user = True  # Redirect if user is already logged in
 
-    def get(self, request):
-        form = LoginForm()
-        context = {
-            "form": form,
-        }
-        return render(request, self.template_name, context)
+#     def get_success_url(self):
+#         user = self.request.user
+#         user_role = user.role  # Assuming you've stored the role in the user model
 
-    def post(self, request):
-        
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            # # Handle user authentication
-            # username = form.cleaned_data['username']
-            # password = form.cleaned_data['password']
-            # user = authenticate(request, username=username, password=password)
-            user = form.get_user()
-            if user is not None:
-                login(request, user)
-                return redirect('store:store')  # Redirect to a success page
-            else:
-                # Authentication failed, show an error message
-                form.add_error(None, 'Invalid login credentials')
-                return render(request, self.template_name, {"form": form})
-        else:
-            messages.error(request, f"Error Logging In, Rectify error and retry")
-            return render(request, self.template_name, {"form": form})
+#         # Redirect the user based on their role
+#         if user_role == 'Admin':
+#             return '/vendor/'
+#         elif user_role == 'Vendor':
+#             return '/vendor/'
+#         else:
+#             return '/'
 
-# VENDOR ACCOUNTS VIEW
+#     def form_valid(self, form):
+#         user = form.get_user()
+#         login(self.request, user)
+#         return redirect(self.get_success_url())
+# # VENDOR ACCOUNTS VIEW
 # VENDOR SIGNUP VIEW
 
 

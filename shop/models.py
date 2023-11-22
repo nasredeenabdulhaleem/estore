@@ -114,6 +114,7 @@ class Category(models.Model):
 
 class Label(models.Model):
     label = models.CharField(max_length=255)
+    color = models.CharField(max_length=25, default="blue")
 
     def __str__(self):
         return self.label
@@ -132,10 +133,10 @@ class Product(models.Model):
     image = models.ImageField(
         upload_to="product-image/", default="static/images/cart.png"
     )
-
-    slug = models.SlugField(max_length=255, unique=True, default=uuid.uuid1)
     label = models.ForeignKey(Label, on_delete=models.CASCADE, blank=True, null=True)
-
+    slug = models.SlugField(max_length=255, unique=True, default=uuid.uuid1)
+    price = models.FloatField()
+    discount_price = models.FloatField(blank=True, null=True)
     def __str__(self):
         return self.title
 
@@ -298,13 +299,29 @@ class Mostpopular(models.Model):
     def __str__(self):
         return self.product.title
 
+################# -----------Discounted Product---------#################
+
+class Discounted(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["product"], name="unique_discount_prod")]
+
+    def __str__(self):
+        return self.product.title
+    
+    def save(self, *args, **kwargs):
+        if self.product.discount_price is None:
+            raise ValueError("Product must have a discount price to be added to Discounted")
+        super().save(*args, **kwargs)
+
 
 ################# ----------- End Product---------#################
 
 
 class OrderItem(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ordered = models.BooleanField(default=False)
+    order_id = models.BooleanField(default=False)
     product = models.ForeignKey(ProductItem, on_delete=models.CASCADE, blank=True)
     quantity = models.IntegerField(default=1)
 
@@ -318,7 +335,17 @@ class OrderItem(models.Model):
     @property
     def get_final_price(self):
         return self.get_total_item_price()
-
+    @property
+    def get_total_order_price(self):
+        total = 0
+        order_items = OrderItem.objects.filter(order=self)
+        for item in order_items:
+            total += item.get_total_item_price()
+        return total
+    
+    @classmethod
+    def get_total_instances(cls, user):
+        return cls.objects.filter(user=user).count()
 
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

@@ -59,10 +59,9 @@ class CartAdmin(admin.ModelAdmin):
     model: Order
     list_display = [
         "user",
-        "ordered",
     ]
     list_display_links = ["user"]
-    list_filter = ["ordered", "user"]
+    list_filter = ["user"]
     search_fields = ["user__username"]
 
     # def render_change_form(self, request, context, *args, **kwargs):

@@ -1,0 +1,181 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Orders {% endblock title %}
+
+{% block content %}
+        <section id="products">
+            <div class="flex flex-wrap justify-center gap-8">
+                {% for product in products %}
+                <div class="max-w-1xl mx-auto relative">
+                    <div class="w-full overflow-hidden relative rounded-lg shadow-lg">
+                        <!-- Badge for New or Popular -->
+                        {% if product.label %}
+                        <div class="absolute top-0 left-0 mt-2 ml-2">
+                            <!-- <span class="inline-block bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                        New
+                    </span> -->
+                            <!-- Replace "New" with "Popular" if the product is popular -->
+                            <span
+                                class="inline-block bg-{{product.label.color}}-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                                {{product.label.label}}
+                            </span>
+                        </div>
+                        {% endif %}
+                        <!-- Product Image -->
+                        <img src="{{product.image.url}}"
+                            alt="{{product.title}} Image" class="w-full h-64 object-cover" />
+                        <!-- Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                        <!-- Product Information -->
+                        <div class="absolute inset-0 p-4 flex flex-col justify-end">
+                            <!-- Product Title -->
+                            <h2 class="text-white shadow-lg text-xl font-semibold">{{product.title}}</h2>
+                            <!-- Discount Price (if available) -->
+                            {% if product.discount_price %}
+                            <p class="text-yellow-300 text-sm font-semibold mt-1 line-through">{{product.price}}</p>
+                            <p class="text-white shadow-lg text-lg font-medium mt-1">{{product.discount_price}}</p>
+                            {% else %}
+                            <!-- Product Price -->
+                            <p class="text-white shadow-lg text-lg font-medium mt-1">{{product.price}}</p>
+                            <!-- Product Button (DaisyUI Button Component) -->
+                           {% endif %}
+                            <a href="{% url 'shop:product' product.slug %}">
+                                <button class="btn btn-primary mt-2">View</button>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="max-w-1xl mx-auto relative">
+                    <div class="w-full overflow-hidden relative rounded-lg shadow-lg">
+                        <!-- Badge for New or Popular -->
+                        <div class="absolute top-0 left-0 mt-2 ml-2">
+                            <!-- <span class="inline-block bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                        New
+                    </span> -->
+                            <!-- Replace "New" with "Popular" if the product is popular -->
+                            <span
+                                class="inline-block bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                                Popular
+                            </span>
+                        </div>
+                        <!-- Product Image -->
+                        <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp"
+                            alt="Product Image" class="w-full h-64 object-cover" />
+                        <!-- Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                        <!-- Product Information -->
+                        <div class="absolute inset-0 p-4 flex flex-col justify-end">
+                            <!-- Product Title -->
+                            <h2 class="text-white shadow-lg text-xl font-semibold">Product Title</h2>
+                            <!-- Discount Price (if available) -->
+                            <p class="text-yellow-300 text-sm font-semibold mt-1 line-through">$129.99</p>
+                            <!-- Product Price -->
+                            <p class="text-white shadow-lg text-lg font-medium mt-1">$99.99</p>
+                            <!-- Product Button (DaisyUI Button Component) -->
+                            <button class="btn btn-primary mt-2">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-1xl mx-auto">
+                    <div class="w-full overflow-hidden relative rounded-lg shadow-lg">
+                        <!-- Product Image -->
+                        <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp"
+                            alt="Product Image" class="w-full h-64 object-cover" />
+                        <!-- Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                        <!-- Product Information -->
+                        <div class="absolute inset-0 p-4 flex flex-col justify-end">
+                            <!-- Product Title -->
+                            <h2 class="text-white text-xl font-semibold">Product Title</h2>
+                            <!-- Product Price -->
+                            <p class="text-white text-lg font-medium mt-2">$99.99</p>
+                            <!-- Product Button (DaisyUI Button Component) -->
+                            <button class="btn btn-primary mt-4">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-1xl mx-auto">
+                    <div class="w-full overflow-hidden relative rounded-lg shadow-lg">
+                        <!-- Product Image -->
+                        <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp"
+                            alt="Product Image" class="w-full h-64 object-cover" />
+                        <!-- Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                        <!-- Product Information -->
+                        <div class="absolute inset-0 p-4 flex flex-col justify-end">
+                            <!-- Product Title -->
+                            <h2 class="text-white text-xl font-semibold">Product Title</h2>
+                            <!-- Product Price -->
+                            <p class="text-white text-lg font-medium mt-2">$99.99</p>
+                            <!-- Product Button (DaisyUI Button Component) -->
+                            <button class="btn btn-primary mt-4">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-1xl mx-auto">
+                    <div class="w-full overflow-hidden relative rounded-lg shadow-lg">
+                        <!-- Product Image -->
+                        <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp"
+                            alt="Product Image" class="w-full h-64 object-cover" />
+                        <!-- Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                        <!-- Product Information -->
+                        <div class="absolute inset-0 p-4 flex flex-col justify-end">
+                            <!-- Product Title -->
+                            <h2 class="text-white text-xl font-semibold">Product Title</h2>
+                            <!-- Product Price -->
+                            <p class="text-white text-lg font-medium mt-2">$99.99</p>
+                            <!-- Product Button (DaisyUI Button Component) -->
+                            <button class="btn btn-primary mt-4">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-1xl mx-auto">
+                    <div class="w-full overflow-hidden relative rounded-lg shadow-lg">
+                        <!-- Product Image -->
+                        <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp"
+                            alt="Product Image" class="w-full h-64 object-cover" />
+                        <!-- Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                        <!-- Product Information -->
+                        <div class="absolute inset-0 p-4 flex flex-col justify-end">
+                            <!-- Product Title -->
+                            <h2 class="text-white text-xl font-semibold">Product Title</h2>
+                            <!-- Product Price -->
+                            <p class="text-white text-lg font-medium mt-2">$99.99</p>
+                            <!-- Product Button (DaisyUI Button Component) -->
+                            <button class="btn btn-primary mt-4">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-1xl mx-auto">
+                    <div class="w-full overflow-hidden relative rounded-lg shadow-lg">
+                        <!-- Product Image -->
+                        <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp"
+                            alt="Product Image" class="w-full h-64 object-cover" />
+                        <!-- Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                        <!-- Product Information -->
+                        <div class="absolute inset-0 p-4 flex flex-col justify-end">
+                            <!-- Product Title -->
+                            <h2 class="text-white text-xl font-semibold">Product Title</h2>
+                            <!-- Product Price -->
+                            <p class="text-white text-lg font-medium mt-2">$99.99</p>
+                            <!-- Product Button (DaisyUI Button Component) -->
+                            <button class="btn btn-primary mt-4">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+               
+        {% endblock content %}

@@ -2,6 +2,8 @@ import datetime
 import json
 from sys import getsizeof
 from django.contrib import messages
+
+from shop.globalcontext import user_context_processor
 from .pay import initializepay
 from sqlite3 import DataError, DatabaseError, IntegrityError
 from django.urls import reverse
@@ -48,32 +50,21 @@ from pinax.eventlog.models import log
 # /////--------/////////////////////////////////------------------///////////////////
 ##HOMEVIEW
 class HomeView(ListView):
-    template_name = "home.html"
+    template_name = "shop/index.html"
 
     def get(self, request):
         product = Product.objects.all()
         user = request.user
         popular = Mostpopular.objects.all()
-        if user.is_authenticated == True:
-            cartitems = OrderItem.objects.filter(user_id=request.user.id)
-            total = 0
-            for item in cartitems:
-                total += item.quantity * item.product.product.price
-            total_items = OrderItem.objects.filter(user=request.user).count()
-            cart = OrderItem.objects.filter(user_id=request.user.id)
-        else:
-            cart = None
-            cartitems = None
-            total_items = None
-            total = None
 
         ctx = {
-            "product": product,
+            "title": "Home Page",
+            "Description":"",
+            "products": product,
             "popular": popular,
-            "total_items": total_items,
-            "total": total,
-            "cart": cart,
         }
+        ctx["data"] = user_context_processor(request)
+        
         return render(request, self.template_name, context=ctx)
 
 

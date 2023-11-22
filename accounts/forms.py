@@ -46,7 +46,7 @@ class SignupForm(UserCreationForm):
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Email'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
-    # next = forms.CharField(label="",widget=forms.HiddenInput(attrs={'value': '/'}))   
+    next = forms.CharField(label="",widget=forms.HiddenInput(attrs={'value': '/'}))   
 
 class VendorSignupForm(UserCreationForm):
     email = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': 'Email'}))

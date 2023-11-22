@@ -27,6 +27,7 @@ class User(AbstractUser):
 class VerificationCount(models.Model):
     user = models.OneToOneField("User",on_delete=models.CASCADE)
     email = models.EmailField(max_length=254, unique=True)
+    is_verified = models.BooleanField(default=False)
     count = models.IntegerField(default=0)
     last_attempt = models.DateTimeField(auto_now_add=True)
 

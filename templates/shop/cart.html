@@ -1,0 +1,220 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Orders {% endblock title %}
+
+{% block content %}
+
+
+  <div class="flex items-center justify-between border-t pt-4">
+    <p class="text-focus-content">Your cart is looking great!</p>
+
+    <!-- Button for Continue Shopping -->
+    <a href="{% url 'store:store' %}" class="group inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-focus focus:outline-none focus:ring focus:border-blue-700 transition duration-300 ease-in-out">
+      <i class="fas fa-arrow-left"></i>
+     <span class="mx-2"> Continue Shopping</span>
+    </a>
+  </div>
+    <div class="container mx-auto my-8">
+      <h2 class="text-3xl font-semibold mb-4">Shopping Cart</h2>
+  
+      <!-- Cart Items -->
+      <div class="bg-base-300 p-4 rounded-md grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Sample Cart Item -->
+          {% for item in cart %}
+          <div class="bg-base-200 p-4 rounded-md shadow-md">
+              <div class="flex justify-between items-center mb-4">
+                  <img src="{{item.product.product_image.url}}" alt="Product Image" class="w-16 h-16 object-cover rounded-md">
+                  <div class="ml-4">
+                      <h3 class="text-lg font-semibold">{{item.product.product.title}}</h3>
+                      <p class="text-accent-content">Price: {{item.get_total_item_price | floatformat:2 }}</p>
+                  </div>
+                  <a href="{% url 'store:removeitem' item.id %}">
+                  <button class="text-red-500">
+                    <i class="fa fa-trash"></i>
+                  </button></a>
+              </div>
+              <div class="flex items-center">
+                <label for="quantity" class="mr-2">Quantity:</label>
+                <a href="{% url 'store:reduceitem' item.id %}">
+                <button id="decrease" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+                  </svg>
+                </button></a>
+                <input type="number" id="quantity" name="quantity" class="input input-bordered w-16 text-center mx-2" value="{{item.quantity}}" readonly>
+                <a href="{% url 'store:additem' item.id %}">
+                <button id="increase" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button></a>
+              </div>
+          </div>
+          {% endfor %}
+          <div class="bg-base-200 p-4 rounded-md shadow-md">
+            <div class="flex justify-between items-center mb-4">
+                <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp" alt="Product Image" class="w-16 h-16 object-cover rounded-md">
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold">Product Name</h3>
+                    <p class="text-accent-content">Price: $99.99</p>
+                </div>
+                <button class="text-red-500">
+                  <i class="fa fa-trash"></i>
+                </button>
+            </div>
+           
+            <div class="flex items-center">
+              <label for="quantity" class="mr-2">Quantity:</label>
+              <button id="decrease" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+                </svg>
+              </button>
+              <input type="number" id="quantity" name="quantity" class="input input-bordered w-16 text-center mx-2" value="1" min="1">
+              <button id="increase" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
+            </div>
+        </div>
+        <div class="bg-base-200 p-4 rounded-md shadow-md">
+          <div class="flex justify-between items-center mb-4">
+              <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp" alt="Product Image" class="w-16 h-16 object-cover rounded-md">
+              <div class="ml-4">
+                  <h3 class="text-lg font-semibold">Product Name</h3>
+                  <p class="text-accent-content">Price: $99.99</p>
+              </div>
+              <button class="text-red-500">
+                <i class="fa fa-trash"></i>
+              </button>
+          </div>
+          <div class="flex items-center">
+            <label for="quantity" class="mr-2">Quantity:</label>
+            <button id="decrease" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+              </svg>
+            </button>
+            <input type="number" id="quantity" name="quantity" class="input input-bordered w-16 text-center mx-2" value="1" min="1">
+            <button id="increase" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </button>
+          </div>
+      </div>
+      <div class="bg-base-200 p-4 rounded-md shadow-md">
+        <div class="flex justify-between items-center mb-4">
+            <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp" alt="Product Image" class="w-16 h-16 object-cover rounded-md">
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold">Product Name</h3>
+                <p class="text-accent-content">Price: $99.99</p>
+            </div>
+            <button class="text-red-500">
+              <i class="fa fa-trash"></i>
+            </button>
+        </div>
+        <div class="flex items-center">
+          <label for="quantity" class="mr-2">Quantity:</label>
+          <button id="decrease" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+            </svg>
+          </button>
+          <input type="number" id="quantity" name="quantity" class="input input-bordered w-16 text-center mx-2" value="1" min="1">
+          <button id="increase" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </button>
+        </div>
+    </div>
+    <div class="bg-base-200 p-4 rounded-md shadow-md">
+      <div class="flex justify-between items-center mb-4">
+          <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp" alt="Product Image" class="w-16 h-16 object-cover rounded-md">
+          <div class="ml-4">
+              <h3 class="text-lg font-semibold">Product Name</h3>
+              <p class="text-accent-content">Price: $99.99</p>
+          </div>
+          <button class="text-red-500">
+            <i class="fa fa-trash"></i>
+          </button>
+      </div>
+      <div class="flex items-center">
+        <label for="quantity" class="mr-2">Quantity:</label>
+        <button id="decrease" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+          </svg>
+        </button>
+        <input type="number" id="quantity" name="quantity" class="input input-bordered w-16 text-center mx-2" value="1" min="1">
+        <button id="increase" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+        </button>
+      </div>
+  </div>
+  <div class="bg-base-200 p-4 rounded-md shadow-md">
+    <div class="flex justify-between items-center mb-4">
+        <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp" alt="Product Image" class="w-16 h-16 object-cover rounded-md">
+        <div class="ml-4">
+            <h3 class="text-lg font-semibold">Product Name</h3>
+            <p class="text-accent-content">Price: $99.99</p>
+        </div>
+        <button class="text-red-500">
+          <i class="fa fa-trash"></i>
+        </button>
+    </div>
+    <div class="flex items-center">
+      <label for="quantity" class="mr-2">Quantity:</label>
+      <button id="decrease" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+        </svg>
+      </button>
+      <input type="number" id="quantity" name="quantity" class="input input-bordered w-16 text-center mx-2" value="1" min="1">
+      <button id="increase" class="btn btn-outline mx-2 btn-accent btn-circle btn-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+      </button>
+    </div>
+</div>
+  
+      </div>
+  
+      <!-- Cart Summary -->
+      <div class="mt-8">
+          <div class="bg-base-300 p-4 rounded-md shadow-md">
+              <h3 class="text-xl font-semibold mb-4">Order Summary</h3>
+              <div class="flex justify-between items-center">
+                  <span class="text-gray-600">Subtotal:</span>
+                  <span class="text-lg font-semibold"> {{data.total_price | floatformat:2}}</span>
+              </div>
+              <div class="flex justify-between items-center mt-2">
+                  <span class="text-gray-600">Shipping:</span>
+                  <span class="text-lg font-semibold">$5.00</span>
+              </div>
+              <hr class="my-4">
+              <div class="flex justify-between items-center">
+                  <span class="text-xl font-semibold">Total:</span>
+                  <span class="text-xl font-semibold">$104.99</span>
+              </div>
+          </div>
+      </div>
+  
+      <!-- Checkout Button -->
+      <div class="mt-8 flex justify-end">
+        <a href="{% url 'store:checkout' %}">
+          <button class="btn btn-primary">Proceed to Checkout</button></a>
+      </div>
+  </div>
+
+
+{% endblock content %}

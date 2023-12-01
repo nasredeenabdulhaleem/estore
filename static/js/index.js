@@ -33,25 +33,25 @@ function toggleSideNav() {
   window.addEventListener('resize', checkScreenWidth);
   
 
-  document.addEventListener('DOMContentLoaded', function () {
-    // Set the delay before hiding the toast
-    const delay = 5000; // 5 seconds
+  // document.addEventListener('DOMContentLoaded', function () {
+  //   // Set the delay before hiding the toast
+  //   const delay = 5000; // 5 seconds
   
-    // Get the toast container and alerts
-    const toastContainer = document.getElementById('toastContainer');
-    const newMailAlert = document.getElementById('newMailAlert');
-    const messageSentAlert = document.getElementById('messageSentAlert');
+  //   // Get the toast container and alerts
+  //   const toastContainer = document.getElementById('toastContainer');
+  //   const newMailAlert = document.getElementById('newMailAlert');
+  //   const messageSentAlert = document.getElementById('messageSentAlert');
   
-    // Function to hide the toast after a delay
-    function hideToast() {
-      toastContainer.classList.add('hide-toast');
-    }
+  //   // Function to hide the toast after a delay
+  //   function hideToast() {
+  //     toastContainer.classList.add('hide-toast');
+  //   }
   
-    // Show the toast initially
-    setTimeout(hideToast, delay);
+  //   // Show the toast initially
+  //   setTimeout(hideToast, delay);
   
-    // Add click event listeners to hide the toast on click
-    newMailAlert.addEventListener('click', hideToast);
-    messageSentAlert.addEventListener('click', hideToast);
-  });
+  //   // Add click event listeners to hide the toast on click
+  //   newMailAlert.addEventListener('click', hideToast);
+  //   messageSentAlert.addEventListener('click', hideToast);
+  // });
   

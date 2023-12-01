@@ -1,0 +1,77 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} User Settings {% endblock title %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+      
+    <div class="max-w-lg mx-auto bg-base-200 p-6 rounded-md shadow-md">
+        <h1 class="text-2xl font-bold mb-4">User Settings</h1>
+        <!-- User Profile -->
+        <div class="mb-4">
+            <a href="{% url 'store:profile' %}" class="flex items-center justify-between p-4 bg-base-100 rounded-md transition duration-300 hover:bg-base-300">
+                <span class="text-lg font-medium">User Profile</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Orders Page -->
+        <div class="mb-4">
+            <a href="#" class="flex items-center justify-between p-4 bg-base-100 rounded-md transition duration-300 hover:bg-base-300">
+                <span class="text-lg font-medium">Orders Page</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Password Reset Page -->
+        <div class="mb-4">
+            <a href="#" class="flex items-center justify-between p-4 bg-base-100 rounded-md transition duration-300 hover:bg-base-300">
+                <span class="text-lg font-medium">Password Reset</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Deactivate Account Page -->
+        <div class="mb-4">
+            <a href="#" class="flex items-center justify-between p-4 bg-base-100 rounded-md transition duration-300 hover:bg-base-300">
+                <span class="text-lg font-medium">Deactivate Account</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Contact Support Page -->
+        <div class="mb-4">
+            <a href="#" class="flex items-center justify-between p-4 bg-base-100 rounded-md transition duration-300 hover:bg-base-300">
+                <span class="text-lg font-medium">Contact Support</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+{% endblock content %}

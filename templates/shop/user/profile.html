@@ -1,0 +1,86 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} User Profile {% endblock title %}
+
+{% block content %}
+
+<div class="text-sm breadcrumbs">
+    <ul>
+      <li>
+        <a href="{% url 'store:user_settings' %}">
+            <i class="fas fa-cogs"></i>                       Settings
+        </a>
+      </li> 
+      <li>
+        <span class="inline-flex gap-2 items-center">
+            <i class="fas fa-user"></i>                      User Profile
+        </span>
+      </li>
+    </ul>
+  </div>
+
+    <div class="max-w-lg mx-auto bg-base-200 p-6 rounded-md shadow-md mt-4">
+        <div class="mb-8">
+        <!-- User Profile Heading -->
+        <h2 class="text-2xl font-semibold mb-4">User Profile</h2>
+        {% if user_profile %}
+        <!-- User Profile Content -->
+        <div class="mb-4">
+            <p class="text-accent-content">Name: {{user_profile.fullname}}</p>
+            <p class="text-accent-content">Email: {{user_profile.email}}</p>
+            <p class="text-accent-content">Gender: {{user_profile.gender}}</p>
+            <p class="text-accent-content">Phone: {{user_profile.phone}}</p>            
+        </div>
+
+        <!-- Link to Update User Profile -->
+        <div class="mb-4">
+            <a href="{% url 'store:update-profile' %}" class="btn btn-primary">
+                Update User Profile
+            </a>
+        </div>
+        {% else %}
+        <h3 class="text-error"> User Profile not Completed</h3>
+
+<div class="mb-4">
+            <a href="{% url 'store:create-profile' %}" class="btn btn-primary">
+                Create User Profile
+            </a>
+        </div>
+        {% endif %}
+    </div>
+        <div class="mb-8">
+          <h2 class="text-2xl font-semibold mb-4">Shipping Information</h2>
+
+          <!-- Shipping Information Section -->
+          {% if address %}
+              <!-- Shipping Information Content -->
+              <div class="flex flex-col mb-4">
+                  <span class="text-accent-content">Name: {{user_profile.fullname}}</span>
+                  <span class="text-accent-content">Unit Number: {{address.address.unit_number}}</span>
+                  <span class="text-accent-content">Street Number: {{address.address.street_number}}</span>
+                  <span class="text-accent-content">Address: {{address.address.address_line1}}</span>
+                  <span class="text-accent-content">City: {{address.address.city}}</span>
+                  <span class="text-accent-content">State: {{address.address.state}}</span>
+                  <span class="text-accent-content">Country: {{address.address.country}}</span>
+                  <span class="text-accent-content">Phone: {{address.address.phone}}</span>
+              </div>
+
+              <!-- Update Shipping Information Button -->
+              <a href="{% url 'store:update-address' %}">
+              <button type="button" class="btn btn-primary">Update Shipping Information</button></a>
+          {%else%}
+          <h3 class="text-error">Shipping details not added yet click button below to add</h3>
+          <a href="{% url 'store:create-address' %}">
+          <button type="button" class="btn btn-primary">Add Shipping Information</button></a>
+          {%endif%}
+      </div>
+
+  
+    </div>
+</div>
+
+{% endblock content %}

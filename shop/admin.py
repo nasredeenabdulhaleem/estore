@@ -1,5 +1,8 @@
 from django.contrib import admin
 from .models import (
+    Cart,
+    CartItem,
+    Color,
     Country,
     Order_status,
     OrderHistory,
@@ -8,6 +11,9 @@ from .models import (
     PaymentType,
     ProductItem,
     ShippingMethod,
+    Size,
+    VendorProfile,
+    VendorStore,
     # Size,
     UserProfile,
     Product,
@@ -110,7 +116,11 @@ admin.site.register(OrderHistory)
 # admin.site.register(ProductVaraiant, Productvariant)
 admin.site.register(Address, AddressAdmin)
 admin.site.register(Category)
-# admin.site.register(Color)
-# admin.site.register(Size)
+admin.site.register(Color)
+admin.site.register(Size)
 admin.site.register(Payment)
 admin.site.register(Order_status)
+admin.site.register(VendorProfile)
+admin.site.register(VendorStore)
+admin.site.register(Cart)
+admin.site.register(CartItem)

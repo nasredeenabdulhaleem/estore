@@ -1,0 +1,81 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} User Shipping Address {% endblock title %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+    <div class="max-w-md mx-auto bg-base-200 p-6 rounded-md shadow-md">
+
+        <!-- User Shipping Address Update Form -->
+        <div>
+            <h2 class="text-2xl font-semibold mb-6">Update Your Shipping Address</h2>
+            <form method="post" action="{% url 'store:update-address' %}">
+                {% csrf_token %}
+                <!-- Display non-field errors -->
+                {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                <div role="alert" class="alert alert-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{error}}</span>
+                </div>
+                {% endfor %}
+                {% endif %}
+                <br>
+                {% for field in form %}
+                <div class="mb-4">
+                    <label class="block text-accent-content  mb-2" for="{{ field.id_for_label }}">
+                        {{ field.label | capfirst }}
+                    </label>
+                    {% if field.field.widget.input_type == 'select' %}
+                    <select class="select select-bordered w-full max-w-sm appearance-none text-sm block" name="{{ field.html_name }}" >
+                        <option disabled selected>Choose {{ field.label }}</option>
+                        {% for choice_value, choice_label in field.field.choices %}
+                        <option value="{{ choice_value }}" {% if field.value == choice_value %}selected{% endif %}>
+                            {{choice_label| upper }} 
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% elif field.field.widget.input_type == 'radio' %}
+                        {% for choice in field.field.choices %}
+                        <div class="form-control">
+                            <label class="label cursor-pointer">
+                                <span class="label-text">{{ choice.1 }}</span>
+                                <input type="radio" name="{{ field.html_name }}" value="{{ choice.0 }}"
+                                    class="radio checked:bg-{{ choice.1 }}-500" {% if field.value == choice.0 %} checked {% endif %} />
+                            </label>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <input class="input input-bordered w-full appearance-none block max-w-sm text-sm"
+                        type="{{ field.field.widget.input_type }}" id="{{ field.id_for_label }}"
+                        name="{{ field.name }}" value="{{ field.value | default:'' }}"
+                        placeholder="{{ field.field.widget.attrs.placeholder}}" />
+                    {% endif %}
+                    {% for error in field.errors %}
+                    <span class="text-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                
+                <div class="flex items-center place-content-center gap-2 justify-between">
+                    <button class="btn btn-outline btn-md w-2/3 flex place-content-center max-w-sm"
+                        type="submit">
+                        Update Shipping Address
+                    </button>
+                   
+                </div>
+            </form>
+        </div>
+    
+    </div>
+</div>
+
+{% endblock content %}

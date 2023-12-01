@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from shop.models import OrderItem
+from shop.models import Cart, CartItem, OrderItem
 
 def my_global_context_processor(request):
     return {
@@ -23,13 +23,13 @@ def user_context_processor(request):
     # #     total += item.quantity * item.product.product.price
     # total_items = cart.get_total_instances(request.user) 
 
-    if user.is_authenticated and OrderItem.objects.filter(user_id=user.id).exists():
-        cart = OrderItem.objects.filter(user_id=user.id)
-        cartitems = OrderItem.objects.filter(user_id=user.id)
-        total = cart.get_total_order_price
+    if user.is_authenticated and Cart.objects.filter(user_id=user.id).exists():
+        cart = Cart.objects.get(user=request.user)
+        cartitems = CartItem.objects.filter(cart=cart).all()
+        total = CartItem.get_total_order_price(cart=cart)
         # for item in cartitems:
         #     total += item.quantity * item.product.product.price
-        total_items = cart.get_total_instances(request.user) or cartitems.count() 
+        total_items = CartItem.get_total_instances(request.user) or cartitems.count() 
             
     else:
         cart = None

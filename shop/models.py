@@ -20,7 +20,7 @@ from .paystack import PayStack
 
 # Create your models here.
 
-Gender_choices = [("male", "MALE"), ("female", "FEMALE")]
+Gender_choices = [("Male", "MALE"), ("Female", "FEMALE")]
 
 Order_choices = [
     ("processing", "Processing"),
@@ -40,12 +40,16 @@ class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     firstname = models.CharField(max_length=255, null=False)
     lastname = models.CharField(max_length=255, null=False)
-    gender = models.CharField(max_length=11, null=False)
+    gender = models.CharField(max_length=11,choices=Gender_choices, null=False)
     email = models.EmailField(max_length=255, null=False)
     phone = models.BigIntegerField(null=False)
 
     def __str__(self):
         return self.user.username
+
+    @property
+    def fullname(self):
+        return f"{self.firstname} {self.lastname}"
 
 
 ################# -----------Country--------#################
@@ -72,15 +76,19 @@ class Address(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.id
+        return self.city
+    
+    @property
+    def full_address(self):
+        return f"{self.unit_number}, {self.street_number}, {self.address_line1} {self.city} "
 
 
 ################# -----------User Address--------#################
 
 
 class UserAddress(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    address = models.OneToOneField(Address, on_delete=models.CASCADE)
     is_default = models.BooleanField(default=False)
 
     def __str__(self):
@@ -106,7 +114,7 @@ class Category(models.Model):
     category = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.category_name
+        return self.category
 
 
 ################# -----------Label--------#################
@@ -134,9 +142,10 @@ class Product(models.Model):
         upload_to="product-image/", default="static/images/cart.png"
     )
     label = models.ForeignKey(Label, on_delete=models.CASCADE, blank=True, null=True)
-    slug = models.SlugField(max_length=255, unique=True, default=uuid.uuid1)
+    slug = models.SlugField(max_length=255, unique=True, default=uuid.uuid1)  # type: ignore
     price = models.FloatField()
     discount_price = models.FloatField(blank=True, null=True)
+
     def __str__(self):
         return self.title
 
@@ -158,14 +167,32 @@ class ProductItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     sku = models.CharField(max_length=15)
     quantity_in_stock = models.IntegerField()
+    description = models.TextField(blank=True, null=True)
     product_image = models.ImageField(
         upload_to="product-image/", default="static/images/cart.png"
     )
+    color = models.ForeignKey("Color", on_delete=models.CASCADE)
+    size = models.ForeignKey("Size", on_delete=models.CASCADE)
     price = models.FloatField()
 
     def __str__(self):
         return self.product.title
 
+    @classmethod
+    def get_by_color(cls, color):
+        return cls.objects.filter(color_id=color).first()
+
+    @classmethod
+    def get_by_size(cls, size):
+        return cls.objects.filter(size_id=size).first()
+
+    @classmethod
+    def get_by_color_and_size(cls, color, size):
+        return cls.objects.filter(color_id=color, size_id=size).first()
+
+    @classmethod
+    def get_by_product_slug(cls, slug):
+        return cls.objects.filter(product__slug=slug).first()
 
 # ################# -----------PVariation--------#################
 
@@ -267,6 +294,7 @@ class ProductVaraiant(models.Model):
     amount_in_stock = models.IntegerField()
     # available = models.BooleanField(default=False)
 
+
 #     class Meta:
 #         constraints = [
 #             models.UniqueConstraint(
@@ -299,34 +327,46 @@ class Mostpopular(models.Model):
     def __str__(self):
         return self.product.title
 
+
 ################# -----------Discounted Product---------#################
+
 
 class Discounted(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=["product"], name="unique_discount_prod")]
+        constraints = [
+            models.UniqueConstraint(fields=["product"], name="unique_discount_prod")
+        ]
 
     def __str__(self):
         return self.product.title
-    
+
     def save(self, *args, **kwargs):
         if self.product.discount_price is None:
-            raise ValueError("Product must have a discount price to be added to Discounted")
+            raise ValueError(
+                "Product must have a discount price to be added to Discounted"
+            )
         super().save(*args, **kwargs)
 
 
 ################# ----------- End Product---------#################
-
-
-class OrderItem(models.Model):
+################# ----------- Cart ---------#################
+class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    order_id = models.BooleanField(default=False)
-    product = models.ForeignKey(ProductItem, on_delete=models.CASCADE, blank=True)
-    quantity = models.IntegerField(default=1)
+    products = models.ManyToManyField(ProductItem, through='CartItem')
 
     def __str__(self):
-        return f"{self.quantity} of {self.product.title}"
+        return self.user.username
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    product = models.ForeignKey(ProductItem, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.quantity} of {self.product.product.title}"
 
     @property
     def get_total_item_price(self):
@@ -335,22 +375,27 @@ class OrderItem(models.Model):
     @property
     def get_final_price(self):
         return self.get_total_item_price()
-    @property
-    def get_total_order_price(self):
+
+    @classmethod
+    def get_total_order_price(cls,cart):
         total = 0
-        order_items = OrderItem.objects.filter(order=self)
+        order_items = cls.objects.filter(cart=cart)
         for item in order_items:
-            total += item.get_total_item_price()
+            total += item.get_total_item_price
         return total
-    
+
     @classmethod
     def get_total_instances(cls, user):
-        return cls.objects.filter(user=user).count()
+        return cls.objects.filter(cart__user=user).count()
+
+
+
+
 
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ordered_date = models.DateTimeField(auto_now_add=True)
-    items = models.ManyToManyField("OrderItem")
+    products = models.ManyToManyField(ProductItem, through='OrderItem')
     ref = models.CharField(max_length=200)
     order_notes = models.TextField(blank=True, null=True)
     ordered = models.BooleanField(default=False)
@@ -372,6 +417,37 @@ class Order(models.Model):
             if not object_with_similar_ref:
                 self.ref = ref
         super().save(*args, **kwargs)
+
+# Order Item
+class OrderItem(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    order = models.ForeignKey("Order", on_delete=models.CASCADE)
+    product = models.ForeignKey(ProductItem, on_delete=models.CASCADE, blank=True)
+    quantity = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.quantity} of {self.product.title}"
+
+    @property
+    def get_total_item_price(self):
+        return self.quantity * self.product.price
+
+    @property
+    def get_final_price(self):
+        return self.get_total_item_price()
+
+    @property
+    def get_total_order_price(self):
+        total = 0
+        order_items = OrderItem.objects.filter(order=self)
+        for item in order_items:
+            total += item.get_total_item_price()
+        return total
+
+    @classmethod
+    def get_total_instances(cls, user):
+        return cls.objects.filter(user=user).count()
+
 
 
 class OrderHistory(models.Model):
@@ -457,7 +533,7 @@ class VendorProfile(models.Model):
     vendor_id = models.CharField(max_length=255, null=False)
     firstname = models.CharField(max_length=255, null=False)
     lastname = models.CharField(max_length=255, null=False)
-    phone = models.CharField(max_length=11,null=False)
+    phone = models.CharField(max_length=11, null=False)
     email = models.EmailField(null=False)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
 
@@ -467,7 +543,7 @@ class VendorProfile(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.user.vendor_id
+        return self.vendor_id
 
 
 # Vendor Bank Information

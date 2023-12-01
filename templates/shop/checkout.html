@@ -1,0 +1,87 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Orders {% endblock title %}
+
+{% block content %}
+
+<main>
+    <div class="flex items-center justify-between border-t pt-4">
+      <p class="text-focus-content">Your cart is looking great!</p>
+  
+      <!-- Button for Continue Shopping -->
+      <a href="{% url 'store:cart' %}" class="group inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-focus focus:outline-none focus:ring focus:border-blue-700 transition duration-300 ease-in-out">
+        <i class="fas fa-arrow-left"></i>
+       <span class="mx-2">Return to Carrt</span>
+      </a>
+    </div>
+      <div class="max-w-screen-lg mx-auto p-6">
+          <div class="bg-inherit rounded-lg shadow-lg p-4">
+              <h1 class="text-2xl font-semibold mb-4">Checkout</h1>
+              <!-- Product Information -->
+              {% for item in cart %}
+              <div class="border-b border-gray-300 py-2">
+                  <div class="flex justify-between items-center">
+                      <div class="flex items-center space-x-4">
+                          <img src="{{item.product.product_image.url}}" alt="Product Image" class="w-16 h-16 object-cover rounded-lg">
+                          <div>
+                              <h2 class="text-lg font-semibold">{{item.product.product.title}}</h2>
+                              <p class="text-gray-500">{{item.product.description}}</p>
+                          </div>
+                      </div>
+                      <p class="text-xl font-semibold">$ {{item.get_total_item_price | floatformat:2 }}</p>
+                  </div>
+              </div>
+              {% endfor %}
+  
+              <!-- Shipping Information -->
+              {% if address %}
+              <div class="py-4">
+                <h2 class="text-xl font-semibold mb-4">Shipping Information</h2>
+                <div class="space-y-2">
+                    <p class="text-accent-content"><span class="text-gray-500">Name: </span>{{data.user.fullname}}</p>
+                    <p class="text-accent-content"><span class="text-gray-500">Adress: </span>{{address.address.full_address}}</p>
+                    <p class="text-accent-content"><span class="text-gray-500">City: </span>{{address.address.city}}</p>
+                    <div class="flex space-x-2">
+                        <p class="text-accent-content"><span class="text-gray-500">Location: </span>{{address.address.state}}, {{address.address.country}}</p>
+                        <p class="text-accent-content"><span class="text-gray-500">Postal Code: </span>{{address.address.postal_code}}</p>
+                    </div>
+                </div>
+            </div>
+              {% else %}
+              <div class="py-4">
+                  <h2 class="text-xl font-semibold mb-4">Shipping Information</h2>
+                  <div class="space-y-2">
+                      <input type="text" class="input input-bordered" placeholder="Full Name">
+                      <input type="text" class="input input-bordered" placeholder="Shipping Address">
+                      <input type="text" class="input input-bordered" placeholder="City">
+                      <div class="flex space-x-2">
+                          <input type="text" class="input input-bordered" placeholder="State">
+                          <input type="text" class="input input-bordered" placeholder="Zip Code">
+                      </div>
+                  </div>
+              </div>
+                {% endif %}
+  
+              <!-- Payment Information -->
+              <div class="py-4">
+                  <h2 class="text-xl font-semibold mb-4">Payment Information</h2>
+                  <div class="space-y-2">
+                      <input type="text" class="input input-bordered" placeholder="Card Number">
+                      <div class="flex space-x-2">
+                          <input type="text" class="input input-bordered" placeholder="Expiration Date">
+                          <input type="text" class="input input-bordered" placeholder="CVV">
+                      </div>
+                  </div>
+              </div>
+  
+              <!-- Place Order Button -->
+              <button class="btn btn-primary w-full mt-4">Place Order</button>
+          </div>
+      </div>
+  </main>
+
+{% endblock content %}

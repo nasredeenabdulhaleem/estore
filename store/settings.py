@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-j1!-h4n#3&6=4*nxh(x-s6@zdveuesc1$q367*3k3-*s+v=l3t
 DEBUG = True
 
 ALLOWED_HOSTS = ["192.168.0.100", "127.0.0.1", "localhost", "https:localhost:8000"]
-CSRF_COOKIE_DOMAIN = ".github.dev"
+CSRF_COOKIE_DOMAIN = ".uks1.devtunnels.ms"#".github.dev"
 
 # Application definition
 

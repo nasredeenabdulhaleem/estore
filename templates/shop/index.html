@@ -4,7 +4,7 @@
 
 {% endblock description %}
 
-{% block title %} Orders {% endblock title %}
+{% block title %} Home Page {% endblock title %}
 
 {% block content %}
         <section id="products">
@@ -43,8 +43,8 @@
                             <p class="text-white shadow-lg text-lg font-medium mt-1">{{product.price}}</p>
                             <!-- Product Button (DaisyUI Button Component) -->
                            {% endif %}
-                            <a href="{% url 'shop:product' product.slug %}">
-                                <button class="btn btn-primary mt-2">View</button>
+                            <a href="{% url 'store:detail' product.slug %}">
+                                <button type="button" class="btn btn-primary mt-2 w-full">View</button>
                             </a>
                             
                         </div>

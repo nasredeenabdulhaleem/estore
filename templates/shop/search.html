@@ -1,0 +1,57 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Orders {% endblock title %}
+
+{% block content %}
+
+<div class="mb-4">
+    <input type="text" placeholder="Search products..." class="input input-bordered w-full">
+</div>
+
+
+<!-- Product Results -->
+{% if results %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    {% for product in results %}
+  <div class="bg-base-200 p-4 card bordered shadow">
+    <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp" alt="Product Image" class="w-full h-40 object-cover mb-4 rounded">
+    <h2 class="text-lg font-semibold">{{product.title}}</h2>
+    <p class="text-gray-500">{{product.description}} lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+    <p class="text-focus-content font-semibold mt-2">{{ product.price | floatformat:2 }}</p>
+
+    <button class="btn btn-primary">    <a href="{% url 'store:detail' product.slug %}">View</a></button>
+  </div>
+  {% endfor %}
+
+ 
+
+</div>
+{% else %}
+<div class="flex items-center justify-center mt-8">
+    <div class="text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-16 h-16 text-gray-500 mx-auto">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+      </svg>
+      <p class="text-gray-600 text-lg mt-4">No products found</p>
+    </div>
+  </div>
+{% endif %}
+<br>
+
+<div class="flex items-center justify-center mt-8">
+<div class="join">
+    {% if page_obj.has_previous %}
+    < href="?page={{ page_obj.previous_page_number }}"><button class="join-item btn">«</button></a>
+    {% endif %}
+    <button class="join-item btn">Page {{ page_obj.number }}</button>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}"><button class="join-item btn">»</button></a>
+    {% endif %}
+  </div>
+</div>
+</div>
+{% endblock content %}

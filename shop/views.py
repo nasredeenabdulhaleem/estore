@@ -2,7 +2,8 @@ import datetime
 import json
 from sys import getsizeof
 from django.contrib import messages
-
+from django.core.paginator import Paginator
+from django.db.models import Q
 from shop.globalcontext import user_context_processor
 from .pay import initializepay
 from sqlite3 import DataError, DatabaseError, IntegrityError
@@ -16,6 +17,8 @@ from django.views.generic import ListView, View, DetailView
 from django.http import HttpResponseRedirect, JsonResponse, HttpRequest, HttpResponse
 from .models import (
     Address,
+    Cart,
+    CartItem,
     Mostpopular,
     OrderHistory,
     Payment,
@@ -24,11 +27,19 @@ from .models import (
     Product,
     OrderItem,
     Order,
+    ProductItem,
     ProductVaraiant,
+    UserAddress,
     UserProfile,
     VendorOrder,
 )
-from .forms import AddressUpdateForm, UserUpdateForm
+from .forms import (
+    AddressForm,
+    AddressUpdateForm,
+    ProductAddToCartForm,
+    UserProfileForm,
+    UserUpdateForm,
+)
 from . import forms
 from django.forms.models import model_to_dict
 
@@ -36,6 +47,7 @@ from django.forms.models import model_to_dict
 from .scripts import hurry, instock, productitem, quickviewres
 from django.conf import settings
 from pinax.eventlog.models import log
+
 # log(
 #         user=request.user,
 #         action="CREATED_FOO_WIDGET",
@@ -44,6 +56,7 @@ from pinax.eventlog.models import log
 #     )
 
 # Create your views here.
+
 
 # //////--------/////////////////////////////////------------------///////////////////
 # //////////////////---------------Detail View----------------------//////////////////
@@ -59,12 +72,12 @@ class HomeView(ListView):
 
         ctx = {
             "title": "Home Page",
-            "Description":"",
+            "Description": "",
             "products": product,
             "popular": popular,
         }
         ctx["data"] = user_context_processor(request)
-        
+
         return render(request, self.template_name, context=ctx)
 
 
@@ -86,41 +99,119 @@ def quickview(request):
 class DetailView(DetailView):
     template_name = "shop/detail.html"
 
-    def get(self, request, slug, *args, **kwargs):
+    def get_context_data(self, slug):
         product = Product.objects.get(slug=slug)
         image = Picture.objects.filter(product__slug=slug).all()
-        productvrt = ProductVaraiant.objects.filter(product__slug=slug)
-        in_stock = instock(slug)
-        # instock = sum(productvrt.amount_in_stock)
-        # instock = 0
-        # for item in productvrt:
-        #     total += (item.amount_in_stock)
-        # h = hurry(instock)
-        # color = Color.objects.filter(product__slug=slug).all()
+        productitem = ProductItem.objects.filter(product__slug=slug)
+        form = ProductAddToCartForm(product_slug=slug)
         ctx = {
             "product": product,
             "images": image,
-            "productvrt": productvrt,
-            "instock": in_stock,
-            # 'hurry': h
+            "productitem": productitem,
+            "form": form,
+            "slug": slug,
+            "data": user_context_processor(self.request),
         }
+        return ctx
+
+    def get(self, request, slug, *args, **kwargs):
+        ctx = self.get_context_data(slug)
         return render(request, self.template_name, context=ctx)
+
+    def post(self, request, slug, *args, **kwargs):
+        user = request.user
+        form = ProductAddToCartForm(request.POST, product_slug=slug)
+        if form.is_valid():
+            color = form.cleaned_data["color"]
+            size = form.cleaned_data["size"]
+            quantity = form.cleaned_data["quantity"]
+            print(color, size, quantity)
+
+            product = Product.objects.get(slug=slug)
+            # productitem = ProductItem.objects.filter(product=product).all()
+            productitem = ProductItem.get_by_color_and_size(color, size)
+            print(productitem)
+            # Get or create the cart for the current user
+            cart, created = Cart.objects.get_or_create(user=user)
+
+            # Get or create the cart item for the product
+            cart_item, created = CartItem.objects.get_or_create(
+                cart=cart, product=productitem
+            )
+
+            # If the cart item was just created, set the quantity
+            if created:
+                cart_item.quantity += quantity
+                cart_item.save()
+            else:
+                cart_item.quantity += quantity
+                cart_item.save()
+
+            # Redirect to the cart page
+            # return redirect("store:cart")
+            messages.success(request, "Product Added Successfully")
+            return redirect("store:detail", slug=slug)
+        else:
+            ctx = self.get_context_data(slug)
+            ctx["form"] = form  # Update form with the submitted one
+            messages.error(request, "Error Adding Product")
+            return render(request, self.template_name, ctx)
+
+"""
+Searh For Products View
+"""
+def search(request):
+    query = request.GET.get('q')
+    if query:
+        results = Product.objects.filter(Q(title__icontains=query) | Q(category__category__icontains=query))
+    else:
+        results = Product.objects.all()
+
+
+    paginator = Paginator(results, 10)  # Show 10 products per page.
+    page_number = request.GET.get('page')
+    results = paginator.get_page(page_number)
+
+
+    return render(request, 'shop/search.html', {'results': results})
+
+
+"""
+User Settings
+"""
+
+
+def user_settings(request, *args, **kwargs):
+    context = {
+        "user": request.user,
+        "data": user_context_processor(request),
+    }
+    return render(request, "shop/user/settings.html", context=context)
 
 
 """ 
 Create Profile
 """
-##PROFILEVIEW
-class Profile(LoginRequiredMixin, View):
-    template_name = "profile.html"
-    login_url = "/login/"
-    redirect_field_name = "redirect_to"
 
-    def get(self, request):
-        user_detail = UserProfile.objects.filter(user_id=request.user.id).all()
-        user_address = Address.objects.filter(user_id=request.user.id).all()
-        context = {"user_detail": user_detail, "address": user_address}
-        return render(request, self.template_name, context)
+
+##PROFILEVIEW
+def Profile(request, *args, **kwargs):
+    template_name = "shop/user/profile.html"
+    try:
+        user_profile = UserProfile.objects.get(user_id=request.user.id)
+    except UserProfile.DoesNotExist:
+        user_profile = False
+    try:
+        user_address = UserAddress.objects.get(user_id=request.user.id)
+    except UserAddress.DoesNotExist:
+        user_address = False
+    context = {
+        "user_profile": user_profile,
+        "address": user_address,
+        "data": user_context_processor(request),
+    }
+
+    return render(request, template_name, context)
 
 
 ##PROFILECREATE
@@ -128,153 +219,244 @@ class Profile(LoginRequiredMixin, View):
 
 class CreateProfile(LoginRequiredMixin, View):
     model = UserProfile
-    template_name = "profile-create.html"
+    template_name = "shop/user/create-profile.html"
 
     def get(self, request):
-        return render(request, self.template_name)
+        form = UserProfileForm()
+
+        context = {
+            "form": form,
+            "data": user_context_processor(request),
+        }
+        return render(request, self.template_name, context=context)
 
     def post(self, request):
-        firstname = request.POST.get("firstname")
-        lastname = request.POST.get("lastname")
-        gender = request.POST.get("gender")
-        email = request.POST.get("email")
-        number = request.POST.get("number")
-        shipping_address = request.POST.get("shipping_address")
-        city = request.POST.get("city")
-        state = request.POST.get("state")
-        country = request.POST.get("country")
-        user = request.user.id
-
-        profile = self.model.objects.create(
-            user_id=user,
-            firstname=firstname,
-            lastname=lastname,
-            email=email,
-            gender=gender,
-            phone=number,
-        )
-        profile.save()
-        address = Address.objects.create(
-            user_id=user,
-            shipping_address=shipping_address,
-            country=country,
-            city=city,
-            state=state,
-        )
-        address.save()
-        messages.success(request, "Profile Created Successfully")
-        return redirect("store:profile")
+        form = UserProfileForm(request.POST)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.user_id = request.user.id
+            profile.save()
+            messages.success(request, "Profile Created Successfully")
+            return redirect("store:profile")
+        else:
+            context = {
+                "form": form,
+                "data": user_context_processor(request),
+            }
+            messages.error(request, "Error Creating Profile")
+            return render(request, self.template_name, context)
 
 
 ###PROFILEUPDATE
 
 
 class UpdateProfile(LoginRequiredMixin, View):
-    template_name = "profile-update.html"
+    template_name = "shop/user/update-profile.html"
 
     def get(self, request):
         try:
-
-            user = UserProfile.objects.get(user=request.user)
-            address = Address.objects.get(user=request.user)
-
-            address_form = AddressUpdateForm(instance=address)
-            user_form = UserUpdateForm(instance=user)
-            context = {"userform": user_form, "addressform": address_form}
-
-            return render(request, self.template_name, context)
-        except DatabaseError:
+            user_profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
             messages.info(
-                self.request,
-                "You have not saved your profile Info Please do that below",
+                request, "You have not saved your profile Info Please do that below"
             )
-            return redirect("store:profile-create")
+            return redirect("store:create-profile")
+
+        form = UserProfileForm(instance=user_profile)
+
+        context = {
+            "form": form,
+            "data": user_context_processor(request),
+        }
+
+        return render(request, self.template_name, context)
 
     def post(self, request):
-        user = request.user.id
-        userdetail = UserProfile.objects.get(user=request.user)
-        addressdetail = Address.objects.get(user=request.user)
-        userform = UserUpdateForm(request.POST, instance=userdetail)
-        addressform = AddressUpdateForm(request.POST, instance=addressdetail)
-        if userform.is_valid:
-            userdetail = userform.save(commit=False)
-            userdetail.user_id = user  # The logged-in user
-            userdetail.save()
-            if addressform.is_valid:
-                addressform.save()
-                addressdetail = addressform.save(commit=False)
-                addressdetail.user_id = user  # The logged-in user
-                addressdetail.save()
-                messages.info(request, "Your Profile was updated Successfully")
-                return redirect("store:profile")
-            else:
-                messages.info(
-                    request,
-                    "There was an Error Updating Your Address Details, Please Try again Later",
-                )
-                return redirect("store:profile")
-        else:
-            messages.info(
-                request,
-                "There was an Error Updating Your User Details, Please Try again Later",
-            )
+        user = request.user
+        userdetail = UserProfile.objects.get(user=user)
+
+        form = UserProfileForm(request.POST, instance=userdetail)
+
+        if form.is_valid:
+            userdetail = form.save()
+            # userdetail.user_id = user  # The logged-in user
+            # userdetail.save()
+            messages.success(request, "Profile Updated Successfully")
             return redirect("store:profile")
+        else:
+            messages.error(
+                request,
+                "There was an Error Updating Your User Profile, Please Try Again",
+            )
+            context = {
+                "form": form,
+                "data": user_context_processor(request),
+            }
+            return render(request, self.template_name, context)
+
+
+##AddressCREATE
+
+
+class CreateAddress(LoginRequiredMixin, View):
+    template_name = "shop/user/create-address.html"
+
+    def get(self, request):
+        form = AddressForm()
+
+        context = {
+            "form": form,
+            "data": user_context_processor(request),
+        }
+        return render(request, self.template_name, context=context)
+
+    def post(self, request):
+        form = AddressForm(request.POST)
+        if form.is_valid():
+            address = form.save(commit=False)
+            address.user_id = request.user.id
+            address.save()
+            UserAddress.objects.create(user_id=request.user.id, address=address)
+            messages.success(request, "Shipping Address Added Successfully")
+            return redirect("store:profile")
+        else:
+            context = {
+                "form": form,
+                "data": user_context_processor(request),
+            }
+            messages.error(request, "Error Adding Shipping Address")
+            return render(request, self.template_name, context)
+
+
+###AddressUPDATE
+
+
+class UpdateAddress(LoginRequiredMixin, View):
+    template_name = "shop/user/update-address.html"
+
+    def get(self, request):
+        try:
+            user_address = UserAddress.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            messages.info(
+                request, "You have not added Your ShippingInfo Please do that below"
+            )
+            return redirect("store:create-address")
+
+        form = AddressForm(instance=user_address.address)
+
+        context = {
+            "form": form,
+            "data": user_context_processor(request),
+        }
+
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        user = request.user
+        useraddress = UserAddress.objects.get(user=user)
+
+        form = AddressForm(request.POST, instance=useraddress.address)
+
+        if form.is_valid:
+            useraddress = form.save()
+            # userdetail.user_id = user  # The logged-in user
+            # userdetail.save()
+            messages.success(request, "Shipping Address Updated Successfully")
+            return redirect("store:profile")
+        else:
+            messages.error(
+                request,
+                "There was an Error Updating Your Shipping Address, Please Try Again",
+            )
+            context = {
+                "form": form,
+                "data": user_context_processor(request),
+            }
+            return render(request, self.template_name, context)
 
 
 # Cart View
 class CartView(LoginRequiredMixin, ListView):
     model = OrderItem
-    template_name = "cart.html"
+    template_name = "shop/cart.html"
 
     def get(self, request):
-        cartitems = OrderItem.objects.filter(user_id=request.user.id)
-        total = 0
-        for item in cartitems:
-            total += item.quantity * item.product.product.price
-        total_items = self.model.objects.filter(user=request.user).count()
-        cart = self.model.objects.filter(user_id=request.user.id)
-        context = {"total_items": total_items, "total": total, "cart": cart}
+        cartitems = CartItem.objects.filter(cart__user=request.user)
+        context = {
+            "cart": cartitems,
+            "data": user_context_processor(request),
+        }
 
         return render(request, self.template_name, context)
 
+# Increase item Quantity by one
+
+def increaseItem(request, id):
+    user = request.user
+    # product = CartItem.objects.get(id=id)
+    cart_qs = Cart.objects.filter(user=user)
+    if cart_qs.exists():
+        cart = cart_qs[0]
+        # check if the order item is in the order
+        cart_item = CartItem.objects.get(cart=cart, id=id)
+        if cart_item.quantity < cart_item.product.quantity_in_stock:
+            cart_item.quantity += 1
+            cart_item.save()
+        else:
+            messages.info(request, "You have reached the maximum quantity for this item, Item is now out of stock")
+    else:
+        messages.info(request, "You do not have an active order")
+    return redirect("store:cart")
+
+# Decrease item Quantity by one
+def decreaseItem(request, id):
+    user = request.user
+    # product = CartItem.objects.get(id=id)
+    cart_qs = Cart.objects.filter(user=user)
+    if cart_qs.exists():
+        cart = cart_qs[0]
+        # check if the order item is in the order
+        cart_item = CartItem.objects.get(cart=cart, id=id)
+        if cart_item.quantity > 1:
+            cart_item.quantity -= 1
+            cart_item.save()
+        else:
+            messages.info(request, "You have reached the minimum quantity for this item")
+    else:
+        messages.info(request, "You do not have an active order")
+    return redirect("store:cart")
+
+# Remove item from cart
+def removeItem(request, id):
+    user = request.user
+    cart_qs = Cart.objects.filter(user=user)
+    if cart_qs.exists():
+        cart = cart_qs[0]
+        # check if the order item is in the order
+        cart_item = CartItem.objects.get(cart=cart, id=id)
+        cart_item.delete()
+    else:
+        messages.info(request, "You do not have an active order")
+    return redirect("store:cart")
 
 ###CHECKOUTVIEW
 
 
 class CheckoutView(LoginRequiredMixin, View):
+    template_name = "shop/checkout.html"
     def get(self, request):
+        cartitems = CartItem.objects.filter(cart__user=request.user)
+        context = {
+            "cart": cartitems,
+            "data": user_context_processor(request),
+        }
         try:
-            address = Address.objects.get(user_id=request.user.id)
-            form = AddressUpdateForm(instance=address)
-            total_items = OrderItem.objects.filter(user=request.user).count()
-            cart = OrderItem.objects.filter(user_id=request.user.id, ordered=False)
-            order = Order.objects.filter(user=request.user)
-            user = UserProfile(user_id=request.user.id)
-            cartitems = OrderItem.objects.filter(user_id=request.user.id)
-            total = 0
-            for item in cartitems:
-                total += item.quantity * item.product.product.price
-            context = {
-                "cart": cart,
-                "form": form,
-                "order": order,
-                "total_items": total_items,
-                "total": total,
-            }
-            return render(request, "checkout.html", context)
-        except ObjectDoesNotExist:
-            if OrderItem.objects.all() == None:
-                messages.info(
-                    request,
-                    "You do not have an active order, Please add an item to your Cart",
-                )
-                return redirect("store:store")
-            elif Address.objects.all() == None:
-                messages.info(
-                    request, "Please complete your shipping address Information"
-                )
-                return redirect("store:profile-create")
-
+            user_address = get_object_or_404(UserAddress, user=request.user)
+            context['address'] = user_address
+        except Http404:
+            context['address'] = False
+        return render(request, self.template_name, context)
     def post(self, request):
         try:
             address = Address.objects.filter(pk=request.user.id).first()
@@ -294,7 +476,6 @@ class CheckoutView(LoginRequiredMixin, View):
 
 @login_required
 def makepayment(request):
-
     user = request.user
     order = Order.objects.get(user_id=user.id, ordered=False)
     cartitems = OrderItem.objects.filter(user_id=user.id)
@@ -382,7 +563,6 @@ def AddToCart(request):
 
 @login_required
 def UpdateCart(request):
-
     data = json.loads(request.body)
     slug = data["productId"]
     action = data["action"]
@@ -494,11 +674,11 @@ def reciept(request, slug):
 
 # Vendor Dashboard View Section
 
+
 class VendorHomeView(View):
     template_name = "vendor/store-front.html"
 
     def get(self, request):
-        
         # order = VendorOrder.objects.filter(user_user_id=request.user.id)
         # context ={
 
@@ -506,25 +686,27 @@ class VendorHomeView(View):
 
         return render(request, self.template_name)
 
+
 ####################################################################################################3
 ########################################VENDORS SECTION################################################
 ####################################################################################################################################
 # Vendor Dashboard
 
+
 class VendorDashboardView(View):
     template_name = "vendor/dashboard.html"
-    
-    def get(self, request, *args, **kwargs):
 
+    def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
-    
+
+
 # settings
 def VendorSettings(request, *args, **kwargs):
-
-
     return render(request, "vendor/settings.html")
 
+
 # Vendor Order
+
 
 def VendorOrderView(request, *args, **kwargs):
     # order = VendorOrder.objects.filter(user_user_id=request.user.id)
@@ -533,33 +715,36 @@ def VendorOrderView(request, *args, **kwargs):
     # }
     return render(request, "vendor/orders.html")
 
-#Product View
+
+# Product View
+
 
 class ProductView(View):
     template_name = "vendor/product.html"
 
     def get(self, request, *args, **kwargs):
         # product = Product.objects.filter(user_id=request.user.id)
-        context ={
+        context = {
             # "product": product,
             "title": "product"
         }
         return render(request, self.template_name, context)
 
-#Add product View
+
+# Add product View
+
 
 class AddProductView(View):
-
     template_name = "vendor/add-product.html"
 
     def get(self, request):
         # form = forms.AddProductForm()
         context = {
-        #     "form": form,
-        #     "category": category
+            #     "form": form,
+            #     "category": category
             "title": "Add Product"
         }
-        return render(request, self.template_name,context)
+        return render(request, self.template_name, context)
 
     def post(self, request):
         form = forms.AddProductForm(request.POST, request.FILES)
@@ -572,40 +757,33 @@ class AddProductView(View):
         else:
             messages.error(request, "Error Adding Product")
             return redirect("store:vendor-storefront")
-        
+
 
 # Update Product
 
-class UpdateProductView(View):
 
+class UpdateProductView(View):
     template_name = "vendor/update-product.html"
 
-    def get(self, request, *args,**kwargs):
-
-        context = {
-            "title": "Update Product"
-        }
+    def get(self, request, *args, **kwargs):
+        context = {"title": "Update Product"}
         return render(request, self.template_name, context)
+
 
 # Delete Product
 class DeleteProductView(View):
-
     template_name = "vendor/delete-product.html"
 
     def get(self, request, *args, **kwargs):
-
-        context = {
-            "title": "Delete Product"
-        }
+        context = {"title": "Delete Product"}
         return render(request, self.template_name, context)
+
 
 # Vendor Customers
 
-class VendorCustomersView(View):
 
+class VendorCustomersView(View):
     template_name = "vendor/customers.html"
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
-    
-

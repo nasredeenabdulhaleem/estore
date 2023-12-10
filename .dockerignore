@@ -1,0 +1,19 @@
+# Ignore Python compiled files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore Django migration files
+*/migrations/*
+
+# Ignore all log files
+*.log
+
+# Ignore all .env files
+*.env
+
+# Ignore other non-essential files
+.DS_Store
+*.swp
+*~

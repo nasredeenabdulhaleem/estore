@@ -10,6 +10,10 @@ class CustomUserAdmin(UserAdmin):
     list_display = ['email', 'role','first_name', 'role']
     search_fields = ('email', 'username','role','is_staff','groups')
 
+    fieldsets = UserAdmin.fieldsets + (
+        ("Role", {'fields': ('role',)}),
+    )
+
 
 class VerificationCountAdmin(admin.ModelAdmin):
     list_display = ['email', 'count', 'last_attempt']

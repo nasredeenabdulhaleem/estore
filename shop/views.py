@@ -4,6 +4,7 @@ from sys import getsizeof
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from shop.vendorforms.addproduct import AddProductForm
 from shop.globalcontext import user_context_processor
 from .pay import initializepay
 from sqlite3 import DataError, DatabaseError, IntegrityError
@@ -15,6 +16,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.views.generic import ListView, View, DetailView
 from django.http import HttpResponseRedirect, JsonResponse, HttpRequest, HttpResponse
+# from shop.forms.addproduct import AddProductForm
 from .models import (
     Address,
     Cart,
@@ -32,6 +34,7 @@ from .models import (
     UserAddress,
     UserProfile,
     VendorOrder,
+    VendorProfile,
 )
 from .forms import (
     AddressForm,
@@ -738,25 +741,31 @@ class AddProductView(View):
     template_name = "vendor/add-product.html"
 
     def get(self, request):
-        # form = forms.AddProductForm()
+        form = AddProductForm()
         context = {
-            #     "form": form,
-            #     "category": category
+            "form": form,
+            # "category": category
             "title": "Add Product"
         }
         return render(request, self.template_name, context)
 
     def post(self, request):
-        form = forms.AddProductForm(request.POST, request.FILES)
+        vendor = VendorProfile.objects.get(user_id=request.user.id)
+        form = AddProductForm(request.POST, request.FILES)
+        context = {
+            "form": form,
+            # "category": category
+            "title": "Add Product"
+        }
         if form.is_valid():
             product = form.save(commit=False)
-            product.user = request.user
+            product.vendor = vendor
             product.save()
             messages.success(request, "Product Added Successfully")
             return redirect("store:vendor-storefront")
         else:
             messages.error(request, "Error Adding Product")
-            return redirect("store:vendor-storefront")
+            return render(request, self.template_name, context)
 
 
 # Update Product

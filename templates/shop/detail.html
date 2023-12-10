@@ -1,5 +1,6 @@
 {% extends 'shop/base.html' %}
 {% load static %}
+{% load cloudinary_tags %}
 {% block description %}
 
 {% endblock description %}
@@ -10,7 +11,7 @@
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-            <img src="https://via.placeholder.com/600x400" alt="Product Image" class="w-full rounded-lg shadow-lg">
+            <img src="{% product_detail_image product.image.url %}" alt="Product Image" class="w-full rounded-lg shadow-lg">
         </div>
         <div class="block">
         <div>

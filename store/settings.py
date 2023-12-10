@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
+import cloudinary
+from decouple import config
 from pathlib import Path
 from django.contrib.messages import constants as messages
 
@@ -24,7 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-j1!-h4n#3&6=4*nxh(x-s6@zdveuesc1$q367*3k3-*s+v=l3t"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
+
 
 ALLOWED_HOSTS = ["192.168.0.100", "127.0.0.1", "localhost", "https:localhost:8000"]
 CSRF_COOKIE_DOMAIN = ".uks1.devtunnels.ms"#".github.dev"
@@ -181,3 +185,9 @@ MESSAGE_TAGS = {
 
 DOMAIN_NAME = '127.0.0.1:8000'
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+cloudinary.config(
+  cloud_name = config("CLOUDINARY_CLOUD_NAME"),  
+  api_key = config("CLOUDINARY_API_KEY"),  
+  api_secret = config("CLOUDINARY_API_SECRET")  
+)

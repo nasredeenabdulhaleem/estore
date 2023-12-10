@@ -2,7 +2,8 @@ import secrets
 import uuid
 from django.db import models
 from django.conf import settings
-from django.urls import reverse
+
+from shop.utils.cloudinary import CloudinaryManager
 from shop.utils.enums import transaction_type_status
 
 # for validators in user form
@@ -12,7 +13,7 @@ from django_countries.fields import CountryField
 # to list colors in the model fields
 from colorfield.fields import ColorField
 
-from shop.utils.utils import generate_order_id, generate_vendor_id
+from shop.utils.utils import generate_order_id, generate_vendor_id, slugify_product_title
 
 # this is used to add multiple images in the image field
 # from autoslug import AutoSlugField
@@ -34,13 +35,19 @@ PROVIDERCHOICES = [
     ("delivered", "Delivered"),
     ("completed", "Order Completed"),
 ]
+# Variation Choices
+VARIATIONCHOICES = [
+    ("Default", "Default"),
+    ("Size", "Size"),
+    ("Color and Size", "Color and Size"),
+]
 
 
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     firstname = models.CharField(max_length=255, null=False)
     lastname = models.CharField(max_length=255, null=False)
-    gender = models.CharField(max_length=11,choices=Gender_choices, null=False)
+    gender = models.CharField(max_length=11, choices=Gender_choices, null=False)
     email = models.EmailField(max_length=255, null=False)
     phone = models.BigIntegerField(null=False)
 
@@ -77,7 +84,7 @@ class Address(models.Model):
 
     def __str__(self):
         return self.city
-    
+
     @property
     def full_address(self):
         return f"{self.unit_number}, {self.street_number}, {self.address_line1} {self.city} "
@@ -96,6 +103,7 @@ class UserAddress(models.Model):
 
 
 ################# -----------Shipping Method---------#################
+
 
 
 class ShippingMethod(models.Model):
@@ -133,21 +141,63 @@ class Label(models.Model):
 
 class Product(models.Model):
     title = models.CharField(max_length=255, null=False, blank=False)
-    vendor = models.OneToOneField(
+    vendor = models.ForeignKey(
         "VendorProfile", on_delete=models.CASCADE, null=False, blank=False
     )
-    category = models.OneToOneField("Category", on_delete=models.CASCADE, null=False)
+    category = models.ForeignKey("Category", on_delete=models.CASCADE, null=False)
     description = models.TextField(null=False, blank=False)
     image = models.ImageField(
         upload_to="product-image/", default="static/images/cart.png"
     )
+    variation = models.ForeignKey('Variation', on_delete=models.CASCADE)
     label = models.ForeignKey(Label, on_delete=models.CASCADE, blank=True, null=True)
-    slug = models.SlugField(max_length=255, unique=True, default=uuid.uuid1)  # type: ignore
+    slug = models.SlugField(max_length=255, unique=True)  # type: ignore
     price = models.FloatField()
     discount_price = models.FloatField(blank=True, null=True)
 
     def __str__(self):
         return self.title
+
+    # override the default save method to upload images to cloudinary and save the url in the image field
+    def save(self, *args, **kwargs):
+        """
+        Save the model instance.
+
+        If an image is provided, upload it to Cloudinary and update the image field with the secure URL.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            None
+        """
+        if self.image:
+            cloudinary = CloudinaryManager("product-image")
+            response = cloudinary.upload_image(self.image)
+            self.image = response["secure_url"]
+
+        if not self.slug:
+            self.slug = slugify_product_title(self.title)
+
+        super().save(*args, **kwargs)
+
+    # delete images from cloudinary when delete is initiated
+    def delete(self, *args, **kwargs):
+        """
+        Deletes the current instance and its associated image from Cloudinary.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            None
+        """
+        cloudinary = CloudinaryManager("product-image")
+        public_id = cloudinary.get_public_id(self.image)
+        cloudinary.delete_image(public_id)
+        super().delete(*args, **kwargs)
 
     # def add_to_cart_url(self):
     #     return reverse("store:add_to_cart", kwargs={"pk": self.pk})
@@ -193,16 +243,56 @@ class ProductItem(models.Model):
     @classmethod
     def get_by_product_slug(cls, slug):
         return cls.objects.filter(product__slug=slug).first()
+    
+    # override the default save method to upload images to cloudinary and save the url in the image field
+    def save(self, *args, **kwargs):
+        """
+        Save the model instance.
+
+        If an image is provided, upload it to Cloudinary and update the image field with the secure URL.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            None
+        """
+        if self.product_image:
+            cloudinary = CloudinaryManager("product-image")
+            response = cloudinary.upload_image(self.product_image)
+            self.product_image = response["secure_url"]
+
+        super().save(*args, **kwargs)
+        
+        # delete images from cloudinary when delete is initiated
+    def delete(self, *args, **kwargs):
+        """
+        Deletes the current instance and its associated image from Cloudinary.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            None
+        """
+        cloudinary = CloudinaryManager("product-image")
+        public_id = cloudinary.get_public_id(self.product_image)
+        cloudinary.delete_image(public_id)
+        super().delete(*args, **kwargs)
+
+
+
 
 # ################# -----------PVariation--------#################
 
 
-# class Variation(models.Model):
-#     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-#     name = models.CharField(max_length=33)
+class Variation(models.Model):
+    name = models.CharField(max_length=33, default="Default" )#choices=VARIATIONCHOICES,default="Default")
 
-#     def __str__(self):
-#         return self.name
+    def __str__(self):
+        return self.name
 
 
 # ################# -----------Variation Option---------#################
@@ -260,6 +350,7 @@ class Picture(models.Model):
 
     def __str__(self):
         return self.picture.url
+    
 
 
 class Color(models.Model):
@@ -354,7 +445,7 @@ class Discounted(models.Model):
 ################# ----------- Cart ---------#################
 class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    products = models.ManyToManyField(ProductItem, through='CartItem')
+    products = models.ManyToManyField(ProductItem, through="CartItem")
 
     def __str__(self):
         return self.user.username
@@ -377,7 +468,7 @@ class CartItem(models.Model):
         return self.get_total_item_price()
 
     @classmethod
-    def get_total_order_price(cls,cart):
+    def get_total_order_price(cls, cart):
         total = 0
         order_items = cls.objects.filter(cart=cart)
         for item in order_items:
@@ -389,13 +480,10 @@ class CartItem(models.Model):
         return cls.objects.filter(cart__user=user).count()
 
 
-
-
-
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ordered_date = models.DateTimeField(auto_now_add=True)
-    products = models.ManyToManyField(ProductItem, through='OrderItem')
+    products = models.ManyToManyField(ProductItem, through="OrderItem")
     ref = models.CharField(max_length=200)
     order_notes = models.TextField(blank=True, null=True)
     ordered = models.BooleanField(default=False)
@@ -417,6 +505,7 @@ class Order(models.Model):
             if not object_with_similar_ref:
                 self.ref = ref
         super().save(*args, **kwargs)
+
 
 # Order Item
 class OrderItem(models.Model):
@@ -447,7 +536,6 @@ class OrderItem(models.Model):
     @classmethod
     def get_total_instances(cls, user):
         return cls.objects.filter(user=user).count()
-
 
 
 class OrderHistory(models.Model):

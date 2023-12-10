@@ -102,3 +102,9 @@ aside {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
 }
+/* max-w240{
+  max-width: 240px !important;
+} */
+.z-20{
+  z-index: 20;
+}

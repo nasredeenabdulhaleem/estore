@@ -1,5 +1,6 @@
 {% extends 'vendor/base.html' %}
 {% load static %}
+{% load form_filters %}
 {% block description %}
 
 {% endblock description %}
@@ -21,71 +22,93 @@
       </li>
     </ul>
   </div>
+
+
             <div class="p-6 space-y-6">
                 <!-- Page Title -->
                 <h1 class="text-3xl font-semibold">Add New Product</h1>
-
+<div class="bg-blue-100 border-t-4 border-blue-500 rounded-b text-blue-900 px-4 py-3 shadow-md my-3" role="alert">
+    <div class="flex">
+        <div class="py-1">
+            <svg class="fill-current h-6 w-6 text-blue-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M2 2v15.5a.5.5 0 0 0 .74.439L8 14.069l5.26 3.87A.5.5 0 0 0 14 18V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zm6 11.388l-6-4.41V4a1 1 0 0 1 1-1h2v7.879l3 2.21 3-2.21V3h2a1 1 0 0 1 1 1v4.979l-6 4.409z"/>
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Adding a Product</p>
+            <p class="text-sm">When adding a product, select the appropriate variation from the dropdown. Each variation has specific attributes associated with it. Make sure to fill out all fields before submitting the form.</p>
+        </div>
+    </div>
+</div>
                 <!-- Product Form -->
-                <form>
-                    <!-- Product Name -->
-                    <div class="form-control">
-                        <label for="product-name" class="label">Product Name</label>
-                        <input type="text" id="product-name" class="input input-bordered"
-                            placeholder="Enter product name" />
-                    </div>
-
-                    <!-- Price and Stock -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Price -->
+            <form method="post" action="{% url 'store:add-product' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <!-- Display non-field errors -->
+                {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                <div role="alert" class="alert alert-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{error}}</span>
+                </div>
+                {% endfor %}
+                {% endif %}
+                <br>
+                {% for field in form %}
+                <div class="mb-4 form-control">
+                    <label class="block text-accent-content  mb-2" for="{{ field.id_for_label }}">
+                        {{ field.label | capfirst }}
+                    </label>
+                    {% if field.field.widget.input_type == 'select' %}
+                    <select title="select {{ field.label }}" class="select select-bordered" name="{{ field.html_name }}" >
+                        <option disabled selected>Choose {{ field.label }}</option>
+                        {% for choice_value, choice_label in field.field.choices %}
+                        <option value="{{ choice_value }}" {% if field.value == choice_value %}selected{% endif %}>
+                            {{choice_label| upper }} 
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% elif field.field.widget.input_type == 'radio' %}
+                        {% for choice in field.field.choices %}
                         <div class="form-control">
-                            <label for="product-price" class="label">Price</label>
-                            <input type="number" id="product-price" class="input input-bordered"
-                                placeholder="Enter price" />
+                            <label class="label cursor-pointer">
+                                <span class="label-text">{{ choice.1 }}</span>
+                                <input type="radio" name="{{ field.html_name }}" value="{{ choice.0 }}"
+                                    class="radio checked:bg-{{ choice.1 }}-500" {% if field.value == choice.0 %} checked {% endif %} />
+                            </label>
                         </div>
+                        {% endfor %}
+                        {% elif field.field.widget.input_type == 'file' %}
+                        <input type="file" name="image" id="product-image" accept="image/*"
+                            class="file-input file-input-bordered  w-full" />
+                        
+                        {% elif field|is_textarea %}
+                        <textarea  id="{{ field.id_for_label }}" class="textarea textarea-bordered"
+                        name="{{ field.name }}" placeholder="{{ field.field.widget.attrs.placeholder}}" value="{{ field.value | default:'' }}" rows="4"></textarea>
+                        {% else %}
+                    <input class="input input-bordered "
+                        type="{{ field.field.widget.input_type }}" id="{{ field.id_for_label }}"
+                        name="{{ field.name }}" value="{{ field.value | default:'' }}"
+                        placeholder="{{ field.field.widget.attrs.placeholder}}" />
+                        
+                    {% endif %}
+                    {% for error in field.errors %}
+                    <span class="text-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                
+                <div class="flex items-center place-content-center gap-2 justify-between">
+                    <button class="btn btn-outline w-full"
+                        type="submit">
+                        Add to cart
+                    </button>
+                   
+                </div>
+            </form>
+       </div>
 
-                        <!-- Stock -->
-                        <div class="form-control">
-                            <label for="product-stock" class="label">Stock</label>
-                            <input type="number" id="product-stock" class="input input-bordered"
-                                placeholder="Enter stock quantity" />
-                        </div>
-                    </div>
-
-                    <!-- Category -->
-                    <div class="form-control">
-                        <label for="product-category" class="label">Category</label>
-                        <select id="product-category" class="select select-bordered">
-                            <option selected disabled>Select category</option>
-                            <option value="electronics">Electronics</option>
-                            <option value="clothing">Clothing</option>
-                            <option value="books">Books</option>
-                            <!-- Add more categories -->
-                        </select>
-                    </div>
-
-                    <!-- Description -->
-                    <div class="form-control">
-                        <label for="product-description" class="label">Description</label>
-                        <textarea id="product-description" class="textarea textarea-bordered"
-                            placeholder="Enter product description" rows="4"></textarea>
-                    </div>
-
-                    <!-- Image Upload -->
-                    <div class="form-control">
-                        <label for="product-image" class="label">Product Image</label>
-                        <input type="file" id="product-image" accept="image/*"
-                            class="hidden file-input file-input-bordered file-input-primary w-full max-w-xs" />
-                        <label for="product-image" class="btn btn-outline cursor-pointer">
-                            Upload Product Image
-                        </label>
-                    </div>
-
-                    <!-- Add Product Button -->
-                    <div class="form-control mt-4">
-                        <button class="btn btn-primary w-full">Add Product</button>
-                    </div>
-                </form>
-            </div>
-
-       
 {% endblock content %}

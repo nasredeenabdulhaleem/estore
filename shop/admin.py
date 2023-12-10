@@ -12,6 +12,7 @@ from .models import (
     ProductItem,
     ShippingMethod,
     Size,
+    # Variation,
     VendorProfile,
     VendorStore,
     # Size,
@@ -124,3 +125,4 @@ admin.site.register(VendorProfile)
 admin.site.register(VendorStore)
 admin.site.register(Cart)
 admin.site.register(CartItem)
+# admin.site.register(Variation)

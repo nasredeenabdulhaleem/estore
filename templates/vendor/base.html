@@ -15,6 +15,7 @@
 </head>
 
 <body class="font-quicksand">
+   
     <header class="bg-base-100 fixed z-10 w-full bg-opacity-90 transition-shadow duration-100 [transform:translate3d(0,0,0)] shadow backdrop-blur top-0">
         <div class="container mx-auto px-4 md:px-6 py-3">
             <div class="flex items-center justify-between">
@@ -61,6 +62,7 @@
                 </div>
             </div>
         </div>
+
     </header>
     <div class="flex relative md:flex-row">
         <!-- side navbar -->
@@ -99,13 +101,30 @@
             </div>
         </div>
         <!-- sidenav -->
-        <main class="w-full md:ml-[16.666%] mt-[15vh]">
+        <main class="w-full relative md:ml-[16.666%] mt-[15vh]">
+            <div id="toastContainer" class="toast z-20 toast-top toast-end" id="toastContainer">
+                {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" id="alert">
+                <span>{{message}}</span>
+                {% endfor %}
+            </div>
+            </div>
             {% block content %}
 
 
             {% endblock %}
         </main>
     </div>
+    <script>
+        window.onload = function() {
+        setTimeout(function() {
+            var toastContainer = document.getElementById('toastContainer');
+            if (toastContainer) {
+                toastContainer.style.display = 'none';
+            }
+        }, 5000);  // 5000 milliseconds = 5 seconds
+    }
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/theme-change@2.0.2/index.js"></script>
     <script src="{% static 'js/index.js' %}"></script>

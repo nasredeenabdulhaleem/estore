@@ -1,5 +1,6 @@
 {% extends 'shop/base.html' %}
 {% load static %}
+{% load cloudinary_tags %}
 {% block description %}
 
 {% endblock description %}
@@ -26,7 +27,7 @@
                         </div>
                         {% endif %}
                         <!-- Product Image -->
-                        <img src="{{product.image.url}}"
+                        <img src="{% transform_image product.image.url  %}"
                             alt="{{product.title}} Image" class="w-full h-64 object-cover" />
                         <!-- Gradient Overlay -->
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
@@ -101,12 +102,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="max-w-1xl mx-auto">
+                <div class=" mx-auto max-w240">
                     <div class="w-full overflow-hidden relative rounded-lg shadow-lg">
                         <!-- Product Image -->
-                        <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp"
+                        <!-- <img src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp"
+                            alt="Product Image" class="w-full h-64 object-cover" /> -->
+                            <img src="{% transform_image 'https://res.cloudinary.com/drjerwkgo/image/upload/v1692981305/cld-sample-5.jpg' %}"
                             alt="Product Image" class="w-full h-64 object-cover" />
-                        <!-- Gradient Overlay -->
+                            
+                            <!-- Gradient Overlay -->
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
                         <!-- Product Information -->
                         <div class="absolute inset-0 p-4 flex flex-col justify-end">

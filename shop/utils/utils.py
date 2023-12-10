@@ -13,3 +13,8 @@ def generate_vendor_id(firstname, lastname):
 def generate_order_id():
     order_id = f"ORD-{uuid.uuid4}{secrets.token_urlsafe(10)}"
     return slugify(order_id)
+
+# Sluggify Product Title
+def slugify_product_title(product_title):
+    
+    return slugify(product_title)

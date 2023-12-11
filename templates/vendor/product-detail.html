@@ -1,5 +1,6 @@
 {% extends 'vendor/base.html' %}
 {% load static %}
+{% load cloudinary_tags %}
 {% block description %}
 
 {% endblock description %}
@@ -16,8 +17,8 @@
         <!-- Product Image -->
         <div class="w-full">
             <img
-                src="https://res.cloudinary.com/drjerwkgo/image/upload/c_thumb,g_face,w_200,x_423,y_338/v1692981295/samples/shoe.webp"
-                alt="Product Image"
+                src="{% transform_image product.image.url%}"
+                alt="{{product.title}} Image"
                 class="w-full h-auto rounded-lg"
             />
         </div>
@@ -25,20 +26,119 @@
         <!-- Product Details -->
         <div>
             <h2 class="text-2xl font-semibold text-primary">Sample Product</h2>
-            <p class= text-sm">Product ID: #P12345</p>
-            <p class= text-sm">Price: $50.00</p>
-            <p class= text-sm">Stock: 100</p>
-            <p class= text-sm">Category: Electronics</p>
-            <p class= text-sm">Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            <p class= text-sm">Product ID: #{{product.id}}</p>
+            <p class= text-sm">Price: ${{product.price}}</p>
+            <p class= text-sm">Stock: {{product.total_quantity}}</p>
+            <p class= text-sm">Category: {{ product.category.category}}</p>
+            <p class= text-sm">Description: {{product.description}}.</p>
+            <p class= text-sm">Variation: {{product.variation}}.</p>
 
             <!-- Action Buttons -->
             <div class="flex justify-between mt-4">
-                <button class="btn btn-primary">Update Product</button>
+                <a href="{% url 'store:update-product' product.slug %}"><button class="btn btn-primary">Update</button></a>
                 <button class="btn btn-error">Delete Product</button>
             </div>
         </div>
     </div>
 
+    <!-- Product Variants -->
+    <div class="mt-6">
+        <h2 class="text-2xl font-semibold text-primary">Product Variants</h2>
+        <p class="text-sm">Variants are the different options for a product. For example, a T-Shirt can have different sizes and colors.</p>
+
+        <!-- Variant Table -->
+        {% if product.variation == 'Default' %}
+        <div class="mt-4 overflow-x-auto">
+            <table class="table-auto w-full">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Variant ID</th>
+                        <th class="px-4 py-2">Variant Name</th>
+                        <th class="px-4 py-2">Variant Price</th>
+                        <th class="px-4 py-2">Variant Stock</th>
+                        <th class="px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for variant in productitem %}
+                    <tr>
+                        <td class="border px-4 py-2">{{variant.id}}</td>
+                        <td class="border px-4 py-2">{{variant.product.title}}</td>
+                        <td class="border px-4 py-2">${{variant.price}}</td>
+                        <td class="border px-4 py-2">{{variant.quantity_in_stock}}</td>
+                        <td class="border px-4 py-2 flex flex-nowrap gap-2">
+                            <a href="{% url 'store:update-product' variant.id %}"><button class="btn btn-primary">Update</button></a>
+                            <a href="{% url 'store:delete-product' variant.id %}"><button class="btn btn-error">Delete</button></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                   
+                </tbody>
+            </table>
+        </div>
+        {% elif product.variation == 'Size'%}
+        <div class="mt-4 overflow-x-auto">
+            <table class="table-auto w-full">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Variant ID</th>
+                        <th class="px-4 py-2">Variant Name</th>
+                        <th class="px-4 py-2">Variant Price</th>
+                        <th class="px-4 py-2">Variant Stock</th>
+                        <th class="px-4 py-2">Variation </th>
+                        <th class="px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for variant in productitem %}
+                    <tr>
+                        <td class="border px-4 py-2">{{variant.id}}</td>
+                        <td class="border px-4 py-2">{{variant.product.title}}</td>
+                        <td class="border px-4 py-2">${{variant.price}}</td>
+                        <td class="border px-4 py-2">{{variant.quantity_in_stock}}</td>
+                        <td class="border px-4 py-2">{{variant.size.title}}</td>
+                        <td class="border px-4 py-2 flex flex-nowrap gap-2">
+                            <a href="{% url 'store:update-product' variant.id %}"><button class="btn btn-primary">Update</button></a>
+                            <a href="{% url 'store:delete-product' variant.id %}"><button class="btn btn-error">Delete</button></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                   
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="mt-4 overflow-x-auto">
+            <table class="table-auto w-full">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Variant ID</th>
+                        <th class="px-4 py-2">Variant Name</th>
+                        <th class="px-4 py-2">Variant Price</th>
+                        <th class="px-4 py-2">Variant Stock</th>
+                        <th class="px-4 py-2">Variation </th>
+                        <th class="px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for variant in productitem %}
+                    <tr>
+                        <td class="border px-4 py-2">{{variant.id}}</td>
+                        <td class="border px-4 py-2">{{variant.product.title}}</td>
+                        <td class="border px-4 py-2">${{variant.price}}</td>
+                        <td class="border px-4 py-2">{{variant.quantity_in_stock}}</td>
+                        <td class="border px-4 py-2">{{variant.color.name}}/{{variant.size.title}}</td>
+                        <td class="border px-4 py-2 flex flex-nowrap gap-2">
+                            <a href="{% url 'store:update-product' variant.id %}"><button class="btn btn-primary">Update</button></a>
+                            <a href="{% url 'store:delete-product' variant.id %}"><button class="btn btn-error">Delete</button></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                   
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
     <!-- Action Buttons -->
     
 </div>

@@ -14,13 +14,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
-from django.views.generic import ListView, View, DetailView
+from django.views.generic import ListView, View, DetailView, UpdateView
 from django.http import HttpResponseRedirect, JsonResponse, HttpRequest, HttpResponse
+
 # from shop.forms.addproduct import AddProductForm
 from .models import (
     Address,
     Cart,
     CartItem,
+    Color,
     Mostpopular,
     OrderHistory,
     Payment,
@@ -31,8 +33,10 @@ from .models import (
     Order,
     ProductItem,
     ProductVaraiant,
+    Size,
     UserAddress,
     UserProfile,
+    Variation,
     VendorOrder,
     VendorProfile,
 )
@@ -50,6 +54,9 @@ from django.forms.models import model_to_dict
 from .scripts import hurry, instock, productitem, quickviewres
 from django.conf import settings
 from pinax.eventlog.models import log
+from django.views.generic import DeleteView, CreateView
+from django.urls import reverse_lazy
+from .models import Product
 
 # log(
 #         user=request.user,
@@ -160,23 +167,26 @@ class DetailView(DetailView):
             messages.error(request, "Error Adding Product")
             return render(request, self.template_name, ctx)
 
+
 """
 Searh For Products View
 """
+
+
 def search(request):
-    query = request.GET.get('q')
+    query = request.GET.get("q")
     if query:
-        results = Product.objects.filter(Q(title__icontains=query) | Q(category__category__icontains=query))
+        results = Product.objects.filter(
+            Q(title__icontains=query) | Q(category__category__icontains=query)
+        )
     else:
         results = Product.objects.all()
 
-
     paginator = Paginator(results, 10)  # Show 10 products per page.
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     results = paginator.get_page(page_number)
 
-
-    return render(request, 'shop/search.html', {'results': results})
+    return render(request, "shop/search.html", {"results": results})
 
 
 """
@@ -393,7 +403,9 @@ class CartView(LoginRequiredMixin, ListView):
 
         return render(request, self.template_name, context)
 
+
 # Increase item Quantity by one
+
 
 def increaseItem(request, id):
     user = request.user
@@ -407,10 +419,14 @@ def increaseItem(request, id):
             cart_item.quantity += 1
             cart_item.save()
         else:
-            messages.info(request, "You have reached the maximum quantity for this item, Item is now out of stock")
+            messages.info(
+                request,
+                "You have reached the maximum quantity for this item, Item is now out of stock",
+            )
     else:
         messages.info(request, "You do not have an active order")
     return redirect("store:cart")
+
 
 # Decrease item Quantity by one
 def decreaseItem(request, id):
@@ -425,10 +441,13 @@ def decreaseItem(request, id):
             cart_item.quantity -= 1
             cart_item.save()
         else:
-            messages.info(request, "You have reached the minimum quantity for this item")
+            messages.info(
+                request, "You have reached the minimum quantity for this item"
+            )
     else:
         messages.info(request, "You do not have an active order")
     return redirect("store:cart")
+
 
 # Remove item from cart
 def removeItem(request, id):
@@ -443,11 +462,13 @@ def removeItem(request, id):
         messages.info(request, "You do not have an active order")
     return redirect("store:cart")
 
+
 ###CHECKOUTVIEW
 
 
 class CheckoutView(LoginRequiredMixin, View):
     template_name = "shop/checkout.html"
+
     def get(self, request):
         cartitems = CartItem.objects.filter(cart__user=request.user)
         context = {
@@ -456,10 +477,11 @@ class CheckoutView(LoginRequiredMixin, View):
         }
         try:
             user_address = get_object_or_404(UserAddress, user=request.user)
-            context['address'] = user_address
+            context["address"] = user_address
         except Http404:
-            context['address'] = False
+            context["address"] = False
         return render(request, self.template_name, context)
+
     def post(self, request):
         try:
             address = Address.objects.filter(pk=request.user.id).first()
@@ -726,12 +748,21 @@ class ProductView(View):
     template_name = "vendor/product.html"
 
     def get(self, request, *args, **kwargs):
-        # product = Product.objects.filter(user_id=request.user.id)
-        context = {
-            # "product": product,
-            "title": "product"
-        }
+        product = Product.objects.filter(vendor__user=request.user).all()
+        context = {"products": product, "title": "product"}
         return render(request, self.template_name, context)
+
+
+# A view to show a detail of a vendor product
+def vendor_product_detail(request, slug, *args, **kwargs):
+    product = Product.objects.get(vendor__user=request.user, slug=slug)
+    productitem = ProductItem.objects.filter(product=product)
+    context = {
+        "product": product,
+        "productitem": productitem,
+        "title": "Product Details",
+    }
+    return render(request, "vendor/product-detail.html", context)
 
 
 # Add product View
@@ -745,7 +776,7 @@ class AddProductView(View):
         context = {
             "form": form,
             # "category": category
-            "title": "Add Product"
+            "title": "Add Product",
         }
         return render(request, self.template_name, context)
 
@@ -754,40 +785,104 @@ class AddProductView(View):
         form = AddProductForm(request.POST, request.FILES)
         context = {
             "form": form,
-            # "category": category
-            "title": "Add Product"
+            "title": "Add Product",
         }
         if form.is_valid():
             product = form.save(commit=False)
             product.vendor = vendor
             product.save()
+            
+            product_variation = form.cleaned_data.get("variation")
+            if product_variation.name == "Default":
+                default_color = Color.objects.get(name="Default")
+                default_size = Size.objects.get(title="Default")
+                ProductItem.objects.create(
+                    product=product,
+                    quantity_in_stock=1,
+                    description=product.description,
+                    product_image=product.image.url,
+                    color=default_color,
+                    size=default_size,
+                    price=product.price,
+                )
+            
             messages.success(request, "Product Added Successfully")
-            return redirect("store:vendor-storefront")
+            return redirect("store:vendor_product_detail", slug=product.slug)
         else:
             messages.error(request, "Error Adding Product")
             return render(request, self.template_name, context)
-
-
 # Update Product
 
 
-class UpdateProductView(View):
+class UpdateProductView(UpdateView):
     template_name = "vendor/update-product.html"
+    model = Product
+    form_class = AddProductForm
 
-    def get(self, request, *args, **kwargs):
-        context = {"title": "Update Product"}
-        return render(request, self.template_name, context)
+    def get_queryset(self):
+        return self.model.objects.filter(vendor__user=self.request.user, slug=self.kwargs["slug"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Update Product"
+        return context
+
+    # def get(self, request,slug, *args, **kwargs):
+    #     product = Product.objects.get(vendor__user=request.user, slug=slug)
+    #     form = AddProductForm(instance=product)
+    #     context = {
+    #         "form": form,
+    #         "title": "Update Product",
+    #     }
+    #     return render(request, self.template_name, context)
 
 
 # Delete Product
-class DeleteProductView(View):
+
+class DeleteProductView(DeleteView):
     template_name = "vendor/delete-product.html"
+    model = Product
+    success_url = reverse_lazy('store:vendor-products')
 
-    def get(self, request, *args, **kwargs):
-        context = {"title": "Delete Product"}
-        return render(request, self.template_name, context)
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Product deleted successfully')
+        return super().delete(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Delete Product"
+        return context
 
 
+##Product Item
+
+# Add product item 
+
+class AddProductItem(CreateView):
+    model = ProductItem
+    template_name = "vendor/add-product-item.html"
+
+    # def get_queryset(self):
+    #     return self.model.objects.filter(product__vendor__user=self.request.user, slug=self.kwargs["slug"])
+    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Update Product"
+        return context
+
+#Update Product
+class UpdateProduct(UpdateView):
+    model = ProductItem
+
+    def get_queryset(self):
+        return self.model.objects.filter(product__vendor__user=self.request.user, pk=self.kwargs["pk"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Update Product"
+        return context
+    
 # Vendor Customers
 
 

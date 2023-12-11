@@ -63,6 +63,81 @@ class ProductAddToCartForm(forms.ModelForm):
         # self.fields['color'].choices = [('', 'Choose color')] + list(self.fields['color'].choices)
         # self.fields['size'].choices = [('', 'Choose size')] + list(self.fields['size'].choices)
 
+
+class ProductAddToCartFormV2(forms.ModelForm):
+    quantity = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Quantity',
+            'id': 'qty',
+            'type': 'number',
+            'value': '1',
+            'min': '1',
+            'max': '100',
+            'step': '1',
+        }),
+        initial=1
+    )
+
+    size = forms.ModelChoiceField(
+        queryset=Size.objects.none(),  # Empty queryset initially
+        widget=forms.Select(attrs={'class': 'size-radio'}),
+        empty_label=None,
+    )
+    class Meta:
+        model = ProductItem
+        fields = ['quantity', 'color', 'size']
+
+    def __init__(self, *args, **kwargs):
+        # Extract the 'product_slug' parameter from the form's kwargs
+        product_slug = kwargs.pop('product_slug', None)
+
+        # Call the parent class's __init__ method
+        super().__init__(*args, **kwargs)
+
+        # Update the queryset for the color and size fields based on the selected product_slug
+        if product_slug:
+            product_items = ProductItem.objects.filter(product__slug=product_slug)
+            self.fields['size'].queryset = Size.objects.filter(productitem__in=product_items)
+        
+
+class ProductAddToCartFormV3(forms.ModelForm):
+    quantity = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Quantity',
+            'id': 'qty',
+            'type': 'number',
+            'value': '1',
+            'min': '1',
+            'max': '100',
+            'step': '1',
+        }),
+        initial=1
+    )
+    class Meta:
+        model = ProductItem
+        fields = ['quantity']
+
+    # def __init__(self, *args, **kwargs):
+        # # Extract the 'product_slug' parameter from the form's kwargs
+        # product_slug = kwargs.pop('product_slug', None)
+
+        # # Call the parent class's __init__ method
+        # super().__init__(*args, **kwargs)
+
+        # # Update the queryset for the color and size fields based on the selected product_slug
+        # if product_slug:
+        #     product_items = ProductItem.objects.filter(product__slug=product_slug)
+        #     self.fields['color'].queryset = Color.objects.filter(productitem__in=product_items)
+        #     self.fields['size'].queryset = Size.objects.filter(productitem__in=product_items)
+        
+        # # self.fields['color'].choices = [('', 'Choose color')] + list(self.fields['color'].choices)
+        # # self.fields['size'].choices = [('', 'Choose size')] + list(self.fields['size'].choices)
+
+
+
+
 from django import forms
 from .models import UserProfile, Gender_choices
 

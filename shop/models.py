@@ -1,5 +1,9 @@
 import secrets
 import uuid
+from django.urls import reverse
+import validators
+from cloudinary.models import CloudinaryField
+from django.db.models import Sum
 from django.db import models
 from django.conf import settings
 
@@ -146,9 +150,7 @@ class Product(models.Model):
     )
     category = models.ForeignKey("Category", on_delete=models.CASCADE, null=False)
     description = models.TextField(null=False, blank=False)
-    image = models.ImageField(
-        upload_to="product-image/", default="static/images/cart.png"
-    )
+    image = CloudinaryField()
     variation = models.ForeignKey('Variation', on_delete=models.CASCADE)
     label = models.ForeignKey(Label, on_delete=models.CASCADE, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True)  # type: ignore
@@ -157,13 +159,20 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+    
+    @property
+    def total_quantity(self):
+        return self.productitem_set.aggregate(total=Sum('quantity_in_stock'))['total'] or 0
 
+    def get_absolute_url(self):
+        return reverse('store:vendor_product_detail', args=[str(self.slug)])
     # override the default save method to upload images to cloudinary and save the url in the image field
     def save(self, *args, **kwargs):
         """
         Save the model instance.
 
-        If an image is provided, upload it to Cloudinary and update the image field with the secure URL.
+        If a new image file is uploaded, upload it to Cloudinary and update the image field with the secure URL.
+        If no new image file is uploaded, keep the existing image URL.
 
         Args:
             *args: Variable length argument list.
@@ -172,7 +181,7 @@ class Product(models.Model):
         Returns:
             None
         """
-        if self.image:
+        if self.image and hasattr(self.image, 'file'):
             cloudinary = CloudinaryManager("product-image")
             response = cloudinary.upload_image(self.image)
             self.image = response["secure_url"]
@@ -181,7 +190,6 @@ class Product(models.Model):
             self.slug = slugify_product_title(self.title)
 
         super().save(*args, **kwargs)
-
     # delete images from cloudinary when delete is initiated
     def delete(self, *args, **kwargs):
         """
@@ -218,9 +226,7 @@ class ProductItem(models.Model):
     sku = models.CharField(max_length=15)
     quantity_in_stock = models.IntegerField()
     description = models.TextField(blank=True, null=True)
-    product_image = models.ImageField(
-        upload_to="product-image/", default="static/images/cart.png"
-    )
+    product_image = CloudinaryField()
     color = models.ForeignKey("Color", on_delete=models.CASCADE)
     size = models.ForeignKey("Size", on_delete=models.CASCADE)
     price = models.FloatField()
@@ -244,6 +250,9 @@ class ProductItem(models.Model):
     def get_by_product_slug(cls, slug):
         return cls.objects.filter(product__slug=slug).first()
     
+    def get_absolute_url(self):
+        return reverse('store:vendor_product_detail', args=[str(self.product.slug)])
+
     # override the default save method to upload images to cloudinary and save the url in the image field
     def save(self, *args, **kwargs):
         """
@@ -258,6 +267,15 @@ class ProductItem(models.Model):
         Returns:
             None
         """
+        # if self.product_image:
+        # # Check if image is a URL
+        #     if validators.url(str(self.product_image)):
+        #         pass  # If it's a URL, do nothing
+        #     else:
+        #         # If it's a file, upload it to Cloudinary
+        #         cloudinary = CloudinaryManager("product-image")
+        #         response = cloudinary.upload_image(self.product_image)
+        #         self.product_image = response["secure_url"]
         if self.product_image:
             cloudinary = CloudinaryManager("product-image")
             response = cloudinary.upload_image(self.product_image)

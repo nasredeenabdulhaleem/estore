@@ -31,6 +31,7 @@ from .views import (
     Profile,
     CreateProfile,
     UpdateProfile,
+    vendor_product_detail,
 )
 from django.contrib.auth import views as auth_views
 
@@ -70,8 +71,9 @@ urlpatterns = [
     path("vendor/settings/", VendorSettings, name="vendor-settings"), #vendor settings
     path("vendor/orders/", VendorOrderView, name="vendor-orders"), #vendor orders
     path("vendor/products/", ProductView.as_view(), name="vendor-products"), #vendors Products
+    path('vendor/product/<slug:slug>/', vendor_product_detail, name='vendor_product_detail'),
     path("vendor/add-product/", AddProductView.as_view(),name="add-product"),# vendor add products
-    path("vendor/update-product/", UpdateProductView.as_view(),name="update-product"),# vendor update products
-    path("vendor/delete-product/", DeleteProductView.as_view(),name="delete-product"),# vendor delete products
+    path("vendor/update-product/<slug:slug>/", UpdateProductView.as_view(),name="update-product"),# vendor update products
+    path("vendor/delete-product/<slug:slug>/", DeleteProductView.as_view(),name="delete-product"),# vendor delete products
     path("vendor/customers/", VendorCustomersView.as_view(),name="vendor customers"),# vendor customers
 ]

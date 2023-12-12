@@ -45,7 +45,11 @@
     <div class="mt-6">
         <h2 class="text-2xl font-semibold text-primary">Product Variants</h2>
         <p class="text-sm">Variants are the different options for a product. For example, a T-Shirt can have different sizes and colors.</p>
-
+        <!-- Action Buttons -->
+        <div class="flex justify-between mt-4">
+            
+            <a href="{% url 'store:add-product-item' product.slug %}"><button class="btn btn-primary">Add Product Item</button></a>
+        </div>
         <!-- Variant Table -->
         {% if product.variation == 'Default' %}
         <div class="mt-4 overflow-x-auto">
@@ -67,7 +71,7 @@
                         <td class="border px-4 py-2">${{variant.price}}</td>
                         <td class="border px-4 py-2">{{variant.quantity_in_stock}}</td>
                         <td class="border px-4 py-2 flex flex-nowrap gap-2">
-                            <a href="{% url 'store:update-product' variant.id %}"><button class="btn btn-primary">Update</button></a>
+                            <a href="{% url 'store:update-product-item' variant.id %}"><button class="btn btn-primary">Update</button></a>
                             <a href="{% url 'store:delete-product' variant.id %}"><button class="btn btn-error">Delete</button></a>
                         </td>
                     </tr>
@@ -98,7 +102,7 @@
                         <td class="border px-4 py-2">{{variant.quantity_in_stock}}</td>
                         <td class="border px-4 py-2">{{variant.size.title}}</td>
                         <td class="border px-4 py-2 flex flex-nowrap gap-2">
-                            <a href="{% url 'store:update-product' variant.id %}"><button class="btn btn-primary">Update</button></a>
+                            <a href="{% url 'store:update-product-item' variant.id %}"><button class="btn btn-primary">Update</button></a>
                             <a href="{% url 'store:delete-product' variant.id %}"><button class="btn btn-error">Delete</button></a>
                         </td>
                     </tr>
@@ -129,7 +133,7 @@
                         <td class="border px-4 py-2">{{variant.quantity_in_stock}}</td>
                         <td class="border px-4 py-2">{{variant.color.name}}/{{variant.size.title}}</td>
                         <td class="border px-4 py-2 flex flex-nowrap gap-2">
-                            <a href="{% url 'store:update-product' variant.id %}"><button class="btn btn-primary">Update</button></a>
+                            <a href="{% url 'store:update-product-item' variant.id %}"><button class="btn btn-primary">Update</button></a>
                             <a href="{% url 'store:delete-product' variant.id %}"><button class="btn btn-error">Delete</button></a>
                         </td>
                     </tr>

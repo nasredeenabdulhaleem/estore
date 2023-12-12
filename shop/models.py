@@ -1,8 +1,10 @@
 import secrets
 import uuid
+from django.core.files.base import ContentFile
 from django.urls import reverse
+import requests
 import validators
-from cloudinary.models import CloudinaryField
+from cloudinary.models import CloudinaryField, CloudinaryResource
 from django.db.models import Sum
 from django.db import models
 from django.conf import settings
@@ -150,7 +152,7 @@ class Product(models.Model):
     )
     category = models.ForeignKey("Category", on_delete=models.CASCADE, null=False)
     description = models.TextField(null=False, blank=False)
-    image = CloudinaryField()
+    image = CloudinaryField('image')
     variation = models.ForeignKey('Variation', on_delete=models.CASCADE)
     label = models.ForeignKey(Label, on_delete=models.CASCADE, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True)  # type: ignore
@@ -226,7 +228,7 @@ class ProductItem(models.Model):
     sku = models.CharField(max_length=15)
     quantity_in_stock = models.IntegerField()
     description = models.TextField(blank=True, null=True)
-    product_image = CloudinaryField()
+    product_image = CloudinaryField('image')
     color = models.ForeignKey("Color", on_delete=models.CASCADE)
     size = models.ForeignKey("Size", on_delete=models.CASCADE)
     price = models.FloatField()
@@ -267,23 +269,29 @@ class ProductItem(models.Model):
         Returns:
             None
         """
-        # if self.product_image:
-        # # Check if image is a URL
-        #     if validators.url(str(self.product_image)):
-        #         pass  # If it's a URL, do nothing
-        #     else:
-        #         # If it's a file, upload it to Cloudinary
-        #         cloudinary = CloudinaryManager("product-image")
-        #         response = cloudinary.upload_image(self.product_image)
-        #         self.product_image = response["secure_url"]
-        if self.product_image:
+        if self.product_image and hasattr(self.product_image, 'file'):
             cloudinary = CloudinaryManager("product-image")
             response = cloudinary.upload_image(self.product_image)
             self.product_image = response["secure_url"]
 
         super().save(*args, **kwargs)
         
-        # delete images from cloudinary when delete is initiated
+    def delete(self, *args, **kwargs):
+        """
+        Deletes the current instance and its associated image from Cloudinary.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            None
+        """
+        cloudinary = CloudinaryManager("product-image")
+        public_id = cloudinary.get_public_id(self.product_image)
+        cloudinary.delete_image(public_id)
+        super().delete(*args, **kwargs)
+    
     def delete(self, *args, **kwargs):
         """
         Deletes the current instance and its associated image from Cloudinary.

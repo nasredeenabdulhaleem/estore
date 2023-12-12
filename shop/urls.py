@@ -1,6 +1,8 @@
 from django.urls import path
 
 from .views import (
+    # AddProductItemView,
+    AddProductItemView,
     AddProductView,
     CreateAddress,
     DeleteProductView,
@@ -9,12 +11,18 @@ from .views import (
     CheckoutView,
     ProductView,
     UpdateAddress,
+    UpdateProductItemView,
     UpdateProductView,
     VendorCustomersView,
     VendorDashboardView,
     VendorHomeView,
     VendorOrderView,
     VendorSettings,
+    # add_product_item,
+    # add_product_item_color,
+    # add_product_item_default,
+    # add_product_item_size,
+    # add_product_item_view,
     decreaseItem,
     increaseItem,
     makepayment,
@@ -75,5 +83,12 @@ urlpatterns = [
     path("vendor/add-product/", AddProductView.as_view(),name="add-product"),# vendor add products
     path("vendor/update-product/<slug:slug>/", UpdateProductView.as_view(),name="update-product"),# vendor update products
     path("vendor/delete-product/<slug:slug>/", DeleteProductView.as_view(),name="delete-product"),# vendor delete products
+    path("vendor/add-product-item/<slug:slug>/", AddProductItemView.as_view(),name="add-product-item"),# vendor add product item
+    #""" Add product item view broken to functional views"""
+    # path('add-product-item/default/<slug:slug>/', add_product_item_default, name='add_product_item_default'),
+    # path('add-product-item/size/<slug:slug>/', add_product_item_size, name='add_product_item_size'),
+    # path('add-product-item/color/<slug:slug>/', add_product_item_color, name='add_product_item_color'),
+    # path('add-product-item/<slug:slug>/', add_product_item, name='add_product_item'),
+    path("vendor/update-product-item/<pk>/", UpdateProductItemView.as_view(),name="update-product-item"),# vendor update product item
     path("vendor/customers/", VendorCustomersView.as_view(),name="vendor customers"),# vendor customers
 ]

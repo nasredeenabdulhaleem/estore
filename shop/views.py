@@ -1,10 +1,17 @@
 import datetime
 import json
 from sys import getsizeof
+from typing import Any
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from shop.vendorforms.addproduct import AddProductForm
+from shop.vendorforms.productitem import (
+    ProductItemForm,
+    ProductItemFormVariation1,
+    ProductItemFormVariation2,
+    ProductItemFormVariation3,
+)
 from shop.globalcontext import user_context_processor
 from .pay import initializepay
 from sqlite3 import DataError, DatabaseError, IntegrityError
@@ -791,7 +798,7 @@ class AddProductView(View):
             product = form.save(commit=False)
             product.vendor = vendor
             product.save()
-            
+
             product_variation = form.cleaned_data.get("variation")
             if product_variation.name == "Default":
                 default_color = Color.objects.get(name="Default")
@@ -805,12 +812,14 @@ class AddProductView(View):
                     size=default_size,
                     price=product.price,
                 )
-            
+
             messages.success(request, "Product Added Successfully")
             return redirect("store:vendor_product_detail", slug=product.slug)
         else:
             messages.error(request, "Error Adding Product")
             return render(request, self.template_name, context)
+
+
 # Update Product
 
 
@@ -820,12 +829,18 @@ class UpdateProductView(UpdateView):
     form_class = AddProductForm
 
     def get_queryset(self):
-        return self.model.objects.filter(vendor__user=self.request.user, slug=self.kwargs["slug"])
+        return self.model.objects.filter(
+            vendor__user=self.request.user, slug=self.kwargs["slug"]
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = "Update Product"
         return context
+
+    def form_valid(self, form):
+        messages.success(self.request, "Product updated successfully")
+        return super().form_valid(form)
 
     # def get(self, request,slug, *args, **kwargs):
     #     product = Product.objects.get(vendor__user=request.user, slug=slug)
@@ -839,13 +854,14 @@ class UpdateProductView(UpdateView):
 
 # Delete Product
 
+
 class DeleteProductView(DeleteView):
     template_name = "vendor/delete-product.html"
     model = Product
-    success_url = reverse_lazy('store:vendor-products')
+    success_url = reverse_lazy("store:vendor-products")
 
     def delete(self, request, *args, **kwargs):
-        messages.success(request, 'Product deleted successfully')
+        messages.success(request, "Product deleted successfully")
         return super().delete(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -856,33 +872,186 @@ class DeleteProductView(DeleteView):
 
 ##Product Item
 
-# Add product item 
+# Add product item
 
-class AddProductItem(CreateView):
+
+class AddProductItemView(CreateView):
     model = ProductItem
+    # form_class = ProductItemForm
     template_name = "vendor/add-product-item.html"
 
-    # def get_queryset(self):
-    #     return self.model.objects.filter(product__vendor__user=self.request.user, slug=self.kwargs["slug"])
-    
+    # success_url = reverse_lazy('store:vendor_product_detail')
+    def get_success_url(self):
+        return reverse_lazy(
+            "store:vendor_product_detail", kwargs={"slug": self.kwargs.get("slug")}
+        )
+
+    def get_form_class(self):
+        product_slug = self.kwargs.get("slug")
+        product = Product.objects.get(slug=product_slug)
+        if product.variation.name == "Default":
+            return ProductItemFormVariation1
+        elif product.variation.name == "Size":
+            return ProductItemFormVariation2
+        elif product.variation.name == "Color":
+            return ProductItemFormVariation3
+        else:
+            return ProductItemForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        product_slug = self.kwargs.get("slug")
+        product = Product.objects.get(slug=product_slug)
+        
+        if product.variation.name == "Default":
+            # For ProductItemFormVariation1, set initial values for color and size
+            kwargs["initial"]["color"] = Color.objects.get(name="Default")
+            kwargs["initial"]["size"] = Size.objects.get(title="Default")
+        elif product.variation.name == "Size":
+            # For ProductItemFormVariation2, set initial value for color
+            kwargs["initial"]["color"] = Color.objects.get(name="Default")
+        elif product.variation.name == "Color":
+            # For ProductItemFormVariation3, set initial value for size
+            kwargs["initial"]["size"] = Size.objects.get(title="Default")
+
+        # Set initial value for the product field
+        kwargs["initial"]["product"] = product
+        # print(kwargs)
+        return kwargs
+
+    # def get_form_kwargs(self):
+    #     kwargs = super().get_form_kwargs()
+    #     product = get_object_or_404(Product, slug=self.kwargs['slug'])
+    #     kwargs['product'] = product
+    #     return kwargs
+
+    def form_valid(self, form):
+        if form.is_valid():
+            form.save()
+            messages.success(self.request, "Product item added successfully")
+            return super().form_valid(form)
+        else:
+            print(form.errors)
+            return self.form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Update Product"
+        context["title"] = "Add Product Item"
         return context
 
-#Update Product
-class UpdateProduct(UpdateView):
+
+# def add_product_item_view(request, slug):
+#     product = get_object_or_404(Product, slug=slug)
+#     if product.variation.name == 'Default':
+#         form_class = ProductItemFormVariation1
+#     elif product.variation.name == 'Size':
+#         form_class = ProductItemFormVariation2
+#     elif product.variation.name == 'Color':
+#         form_class = ProductItemFormVariation3
+#     else:
+#         form_class = ProductItemForm
+
+#     if request.method == 'POST':
+#         form = form_class(request.POST, request.FILES, initial={'product': product})
+#         print(request.FILES.get('product_image'))
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, 'Product item added successfully')
+#             return redirect('store:vendor_product_detail', kwargs={slug:slug})  # replace 'some_view' with the name of the view to redirect to
+#     else:
+#         form = form_class(initial={'product': product})
+
+#     context = {
+#         'form': form,
+#         'title': 'Add Product Item',
+#     }
+#     return render(request, 'vendor/add-product-item.html', context)
+
+# def get_product(slug):
+#     return Product.objects.get(slug=slug)
+
+# def add_product_item_default(request, slug):
+#     if request.method == 'POST':
+#         form = ProductItemFormVariation1(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, 'Product item added successfully')
+#             return redirect('add_product_item_default', slug=slug)
+#     else:
+#         form = ProductItemFormVariation1(initial={'product': get_product(slug)})
+#     return render(request, 'vendor/add-product-item.html', {'form': form, 'title': 'Add Product Item'})
+
+# def add_product_item_size(request, slug):
+#     if request.method == 'POST':
+#         form = ProductItemFormVariation2(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, 'Product item added successfully')
+#             return redirect('add_product_item_size', slug=slug)
+#     else:
+#         form = ProductItemFormVariation2(initial={'product': get_product(slug)})
+#     return render(request, 'vendor/add-product-item.html', {'form': form, 'title': 'Add Product Item'})
+
+# def add_product_item_color(request, slug):
+#     if request.method == 'POST':
+#         form = ProductItemFormVariation3(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, 'Product item added successfully')
+#             return redirect('add_product_item_color', slug=slug)
+#     else:
+#         form = ProductItemFormVariation3(initial={'product': get_product(slug)})
+#     return render(request, 'vendor/add-product-item.html', {'form': form, 'title': 'Add Product Item'})
+
+# def add_product_item(request, slug):
+#     if request.method == 'POST':
+#         form = ProductItemForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, 'Product item added successfully')
+#             return redirect('add_product_item', slug=slug)
+#     else:
+#         form = ProductItemForm(initial={'product': get_product(slug)})
+#     return render(request, 'vendor/add-product-item.html', {'form': form, 'title': 'Add Product Item'})
+
+
+# Update Product
+class UpdateProductItemView(UpdateView):
     model = ProductItem
+    template_name = "vendor/update-product-item.html"
+
+    def get_form_class(self):
+        product = self.object.product
+        if product.variation.name == "Default":
+            return ProductItemFormVariation1
+        elif product.variation.name == "Size":
+            return ProductItemFormVariation2
+        elif product.variation.name == "Color":
+            return ProductItemFormVariation3
+        else:
+            return ProductItemForm
 
     def get_queryset(self):
-        return self.model.objects.filter(product__vendor__user=self.request.user, pk=self.kwargs["pk"])
+        return self.model.objects.filter(
+            product__vendor__user=self.request.user, pk=self.kwargs["pk"]
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = "Update Product"
         return context
-    
+
+    def get_initial(self):
+        initial = super().get_initial()
+        product = self.object.product
+        initial["product"] = product
+        return initial
+
+    def form_valid(self, form):
+        messages.success(self.request, "Product item updated successfully")
+        return super().form_valid(form)
+
+
 # Vendor Customers
 
 
@@ -891,3 +1060,14 @@ class VendorCustomersView(View):
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
+
+# {
+#     'initial': 
+#         {
+#             'color': <Color: Default>, 
+#             'size': <Size: Default>, 
+#             'product': <Product: Wrist watch>
+#         },
+#         'prefix': None, 
+#         'data': <QueryDict: {'csrfmiddlewaretoken': ['2DUFiuzjvweUmaPFD3qwIhDYMRH7ClIpdpIEvkNBgEhlDgVRFqinRdd807J0Cs85'], 'sku': ['watch'], 'quantity_in_stock': ['5'], 'description': ['ff'], 'price': ['6000']}>, 'files': <MultiValueDict: {'product_image': [<InMemoryUploadedFile: wallpaper_inside_pc.jpg (image/jpeg)>]}>, 'instance': None}
+

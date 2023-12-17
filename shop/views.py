@@ -933,6 +933,27 @@ class AddProductItemView(CreateView):
         else:
             print(form.errors)
             return self.form_invalid(form)
+    
+    def form_invalid(self, form):
+        kwargs = super().get_form_kwargs()
+        product_slug = self.kwargs.get("slug")
+        product = Product.objects.get(slug=product_slug)
+        form.initial['product'] = 'default_value'
+        if product.variation.name == "Default":
+            # For ProductItemFormVariation1, set initial values for color and size
+           form.initial["color"] = Color.objects.get(name="Default")
+           form.initial["size"] = Size.objects.get(title="Default")
+        elif product.variation.name == "Size":
+            # For ProductItemFormVariation2, set initial value for color
+           form.initial["color"] = Color.objects.get(name="Default")
+        elif product.variation.name == "Color":
+            # For ProductItemFormVariation3, set initial value for size
+           form.initial["size"] = Size.objects.get(title="Default")
+
+        # Set initial value for the product field
+        form.initial["product"] = product
+
+        return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1018,10 +1039,11 @@ class AddProductItemView(CreateView):
 # Update Product
 class UpdateProductItemView(UpdateView):
     model = ProductItem
+    form_class = ProductItemForm
     template_name = "vendor/update-product-item.html"
 
     def get_form_class(self):
-        product = self.object.product
+        product = self.object.product # type: ignore
         if product.variation.name == "Default":
             return ProductItemFormVariation1
         elif product.variation.name == "Size":
@@ -1031,19 +1053,49 @@ class UpdateProductItemView(UpdateView):
         else:
             return ProductItemForm
 
-    def get_queryset(self):
-        return self.model.objects.filter(
-            product__vendor__user=self.request.user, pk=self.kwargs["pk"]
-        )
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # product_slug = self.kwargs.get("slug")
+        product = Product.objects.get(slug=self.object.product.slug) # type: ignore Product.objects.get(slug=product_slug)
+        
+        if product.variation.name == "Default":
+            # For ProductItemFormVariation1, set initial values for color and size
+            kwargs["initial"]["color"] = Color.objects.get(name="Default")
+            kwargs["initial"]["size"] = Size.objects.get(title="Default")
+        elif product.variation.name == "Size":
+            # For ProductItemFormVariation2, set initial value for color
+            kwargs["initial"]["color"] = Color.objects.get(name="Default")
+        elif product.variation.name == "Color":
+            # For ProductItemFormVariation3, set initial value for size
+            kwargs["initial"]["size"] = Size.objects.get(title="Default")
+
+        # Set initial value for the product field
+        kwargs["initial"]["product"] = product
+        # print(kwargs)
+        return kwargs
+
+
+    # def get_queryset(self):
+    #     return self.model.objects.filter(
+    #         product__vendor__user=self.request.user, pk=self.kwargs["pk"]
+    #     )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = "Update Product"
+        is_update = self.object is not None # type: ignore
+        context['is_update'] = is_update
+        
         return context
 
+    def get_success_url(self):
+        return reverse_lazy(
+            "store:vendor_product_detail", kwargs={"slug": self.object.product.slug} # type: ignore
+        )
+    
     def get_initial(self):
         initial = super().get_initial()
-        product = self.object.product
+        product = Product.objects.get(slug=self.object.product.slug) # type: ignore
         initial["product"] = product
         return initial
 
@@ -1052,6 +1104,19 @@ class UpdateProductItemView(UpdateView):
         return super().form_valid(form)
 
 
+class DeleteProductItemView(DeleteView):
+    model = ProductItem
+    template_name = 'vendor/delete_productitem.html'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "Product item deleted successfully")
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "store:vendor_product_detail", kwargs={"slug": self.object.product.slug} # type: ignore
+        )
+    
 # Vendor Customers
 
 

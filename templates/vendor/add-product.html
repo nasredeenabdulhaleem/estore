@@ -9,19 +9,25 @@
 
 {% block content %}
 <div class="text-sm breadcrumbs">
-    <ul>
-      <li>
-        <a href="{% url 'store:vendor-home' %}">
-            <i class="fas fa-tachometer-alt"></i>                       Dashboard
-        </a>
-      </li> 
-      <li>
-        <span class="inline-flex gap-2 items-center">
-            <i class="fas fa-clipboard-list"></i>                      Add Product
-        </span>
-      </li>
-    </ul>
-  </div>
+        <ul>
+            <li>
+                <a href="{% url 'store:vendor-home' %}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'store:vendor-products' %}">
+                    <i class="fas fa-box"></i> Products
+                </a>
+            </li>
+            <li>
+                <span class="inline-flex gap-2 items-center">
+                    <i class="fas fa-info-circle"></i> Add New Product
+                </span>
+            </li>
+            
+        </ul>
+    </div>
 
 
             <div class="p-6 space-y-6">

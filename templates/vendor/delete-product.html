@@ -1,0 +1,51 @@
+{% extends 'vendor/base.html' %}
+{% load static %}
+{% load form_filters %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Delete Product {% endblock title %}
+
+{% block content %}
+
+<div class="text-sm breadcrumbs">
+  <ul>
+    <li>
+      <a href="{% url 'store:vendor-home' %}">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'store:vendor-products' %}">
+        <i class="fas fa-box"></i> Products
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'store:vendor_product_detail' object.slug %}">
+        <i class="fas fa-info-circle"></i> Product Detail
+      </a>
+    </li>
+    <li>
+      <span class="inline-flex gap-2 items-center">
+        <i class="fas fa-trash"></i> Delete Product
+      </span>
+    </li>
+  </ul>
+</div>
+
+
+<div class="container mx-auto px-4">
+  <div class="bg-base-300 rounded-lg shadow-md p-6 mt-20">
+    <h2 class="text-2xl mb-4 text-center">Confirm Delete</h2>
+    <p class="mb-6 text-center">Are you sure you want to delete the product "{{ object.title }}"?</p>
+    <p class="text-red-500 mb-4 text-center">Warning: Deleting this product will also delete all associated items.</p>
+    <form method="post" class="text-center">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Yes, delete</button>
+      <a href="{% url 'store:vendor-products' %}" class="btn btn-secondary ml-4">No, go back</a>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

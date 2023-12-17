@@ -19,7 +19,7 @@ from django_countries.fields import CountryField
 # to list colors in the model fields
 from colorfield.fields import ColorField
 
-from shop.utils.utils import generate_order_id, generate_vendor_id, slugify_product_title
+from shop.utils.utils import generate_order_id, generate_sku, generate_vendor_id, slugify_product_title
 
 # this is used to add multiple images in the image field
 # from autoslug import AutoSlugField
@@ -164,7 +164,7 @@ class Product(models.Model):
     
     @property
     def total_quantity(self):
-        return self.productitem_set.aggregate(total=Sum('quantity_in_stock'))['total'] or 0
+        return self.productitem_set.aggregate(total=Sum('quantity_in_stock'))['total'] or 0 # type: ignore
 
     def get_absolute_url(self):
         return reverse('store:vendor_product_detail', args=[str(self.slug)])
@@ -205,7 +205,7 @@ class Product(models.Model):
             None
         """
         cloudinary = CloudinaryManager("product-image")
-        public_id = cloudinary.get_public_id(self.image)
+        public_id = cloudinary.get_public_id(self.image.url)
         cloudinary.delete_image(public_id)
         super().delete(*args, **kwargs)
 
@@ -225,7 +225,7 @@ class Product(models.Model):
 
 class ProductItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    sku = models.CharField(max_length=15)
+    sku = models.CharField(max_length=45)
     quantity_in_stock = models.IntegerField()
     description = models.TextField(blank=True, null=True)
     product_image = CloudinaryField('image')
@@ -274,6 +274,10 @@ class ProductItem(models.Model):
             response = cloudinary.upload_image(self.product_image)
             self.product_image = response["secure_url"]
 
+        if not self.sku:
+            sku = generate_sku(self.product.title, self.product.slug, self.color.name, self.size.title)
+            self.sku = sku[:15]
+
         super().save(*args, **kwargs)
         
     def delete(self, *args, **kwargs):
@@ -288,25 +292,27 @@ class ProductItem(models.Model):
             None
         """
         cloudinary = CloudinaryManager("product-image")
-        public_id = cloudinary.get_public_id(self.product_image)
+        print(self.product_image)
+        public_id = cloudinary.get_public_id(self.product_image.url) # type: ignore
+        
         cloudinary.delete_image(public_id)
         super().delete(*args, **kwargs)
     
-    def delete(self, *args, **kwargs):
-        """
-        Deletes the current instance and its associated image from Cloudinary.
+    # def delete(self, *args, **kwargs):
+    #     """
+    #     Deletes the current instance and its associated image from Cloudinary.
 
-        Args:
-            *args: Variable length argument list.
-            **kwargs: Arbitrary keyword arguments.
+    #     Args:
+    #         *args: Variable length argument list.
+    #         **kwargs: Arbitrary keyword arguments.
 
-        Returns:
-            None
-        """
-        cloudinary = CloudinaryManager("product-image")
-        public_id = cloudinary.get_public_id(self.product_image)
-        cloudinary.delete_image(public_id)
-        super().delete(*args, **kwargs)
+    #     Returns:
+    #         None
+    #     """
+    #     cloudinary = CloudinaryManager("product-image")
+    #     public_id = cloudinary.get_public_id(self.product_image)
+    #     cloudinary.delete_image(public_id)
+    #     super().delete(*args, **kwargs)
 
 
 

@@ -10,97 +10,104 @@
 {% block content %}
 <div class="text-sm breadcrumbs">
     <ul>
-      <li>
-        <a href="{% url 'store:vendor-home' %}">
-            <i class="fas fa-tachometer-alt"></i>                       Dashboard
-        </a>
-      </li> 
-      <li>
-        <span class="inline-flex gap-2 items-center">
-            <i class="fas fa-clipboard-list"></i>                      Add Product
-        </span>
-      </li>
+        <li>
+            <a href="{% url 'store:vendor-home' %}">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'store:vendor-products' %}">
+                <i class="fas fa-box-open"></i> Products
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'store:vendor_product_detail' product.slug %}">
+                <i class="fas fa-info-circle"></i> Product Detail
+            </a>
+        </li>
+        <li>
+            <span class="inline-flex gap-2 items-center">
+                <i class="fas fa-plus-circle"></i> Add Product Item
+            </span>
+        </li>
     </ul>
-  </div>
+</div>
 
 
             <div class="p-6 space-y-6">
                 <!-- Page Title -->
                 <h1 class="text-3xl font-semibold">Add New Product Item</h1>
                 <!-- Product Form -->
-            <form method="post"  enctype="multipart/form-data">
+
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <!-- Display non-field errors -->
                 {% if form.non_field_errors %}
-                {% for error in form.non_field_errors %}
-                <div role="alert" class="alert alert-error">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>{{error}}</span>
-                </div>
-                {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <div role="alert" class="alert alert-error">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{{ error }}</span>
+                        </div>
+                    {% endfor %}
                 {% endif %}
                 <br>
                 {% for field in form %}
-                {# Debugging information #}
-<!-- <p>Field: {# field.name #}, Type: {# field.field.widget.input_type #}</p> -->
-
-                {% if field.field.widget.input_type != 'hidden' %}
-                <div class="mb-4 form-control">
-                    <label class="block text-accent-content  mb-2" for="{{ field.id_for_label }}">
-                        {{ field.label | capfirst }}
-                    </label>
-                    {% if field.field.widget.input_type == 'select' %}
-                    <select title="select {{ field.label }}" class="select select-bordered" name="{{ field.html_name }}" {% if field.disabled %}disabled{% endif %} >
-                        <option disabled selected>Choose {{ field.label }}</option>
-                        {% for choice_value, choice_label in field.field.choices %}
-                        <option value="{{ choice_value }}" {% if field.value == choice_value %}selected{% endif %}>
-                            {{choice_label| upper }} 
-                        </option>
-                        {% endfor %}
-                    </select>
-                    {% elif field.field.widget.input_type == 'radio' %}
-                        {% for choice in field.field.choices %}
-                        <div class="form-control">
-                            <label class="label cursor-pointer">
-                                <span class="label-text">{{ choice.1 }}</span>
-                                <input type="radio" name="{{ field.html_name }}" value="{{ choice.0 }}"
-                                    class="radio checked:bg-{{ choice.1 }}-500" {% if field.value == choice.0 %} checked {% endif %} />
+                    {# Debugging information #}
+                    <!-- <p>Field: {# field.name #}, Type: {# field.field.widget.input_type #}</p> -->
+                    {% if field.field.widget.input_type != 'hidden' %}
+                        <div class="mb-4 form-control">
+                            <label class="block text-accent-content mb-2" for="{{ field.id_for_label }}">
+                                {{ field.label | capfirst }}
                             </label>
+                            {% if field.field.widget.input_type == 'select' %}
+                                <select title="select {{ field.label }}" class="select select-bordered" name="{{ field.html_name }}"
+                                    {% if field.disabled %}disabled{% endif %} {% if field.field.widget.attrs.readonly %}readonly{% endif %}>
+                                    <option disabled selected>Choose {{ field.label }}</option>
+                                    {% for choice_value, choice_label in field.field.choices %}
+                                        <option value="{{ choice_value }}" {% if field.value == choice_value %}selected{% endif %}>
+                                            {{ choice_label | upper }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            {% elif field.field.widget.input_type == 'radio' %}
+                                {% for choice in field.field.choices %}
+                                    <div class="form-control">
+                                        <label class="label cursor-pointer">
+                                            <span class="label-text">{{ choice.1 }}</span>
+                                            <input type="radio" name="{{ field.html_name }}" value="{{ choice.0 }}"
+                                                class="radio checked:bg-{{ choice.1 }}-500" {% if field.value == choice.0 %} checked {% endif %}
+                                                {% if field.disabled %}disabled{% endif %} {% if field.field.widget.attrs.readonly %}readonly{% endif %} />
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            {% elif field.field.widget.input_type == 'file' %}
+                                <input type="file" name="{{ field.name }}" id="product-image" accept="image/*"
+                                    class="file-input file-input-bordered w-full" {% if field.disabled %}disabled{% endif %} />
+                            {% elif field|is_textarea %}
+                                <textarea id="{{ field.id_for_label }}" class="textarea textarea-bordered" name="{{ field.name }}"
+                                    placeholder="{{ field.field.widget.attrs.placeholder }}" value="{{ field.value | default:'' }}"
+                                    rows="4" {% if field.disabled %}disabled{% endif %} {% if field.field.widget.attrs.readonly %}readonly{% endif %}></textarea>
+                            {% else %}
+                                <input class="input input-bordered" type="{{ field.field.widget.input_type }}" id="{{ field.id_for_label }}"
+                                    name="{{ field.name }}" value="{{ field.value | default:'' }}"
+                                    placeholder="{{ field.field.widget.attrs.placeholder }}" {% if field.disabled %}disabled{% endif %}
+                                    {% if field.field.widget.attrs.readonly %}readonly{% endif %} />
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <span class="text-error">{{ error }}</span>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-                        {% elif field.field.widget.input_type == 'file' %}
-                        <input type="file" name="{{ field.name }}" id="product-image" accept="image/*"
-                            class="file-input file-input-bordered  w-full" />
-                        
-                        {% elif field|is_textarea %}
-                        <textarea  id="{{ field.id_for_label }}" class="textarea textarea-bordered"
-                        name="{{ field.name }}" placeholder="{{ field.field.widget.attrs.placeholder}}" value="{{ field.value | default:'' }}" rows="4"></textarea>
-                        {% else %}
-                    <input class="input input-bordered "
-                        type="{{ field.field.widget.input_type }}" id="{{ field.id_for_label }}"
-                        name="{{ field.name }}" value="{{ field.value | default:'' }}"
-                        placeholder="{{ field.field.widget.attrs.placeholder}}" />
-                        
                     {% endif %}
-                    {% for error in field.errors %}
-                    <span class="text-error">{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
                 {% endfor %}
-                
                 <div class="flex items-center place-content-center gap-2 justify-between">
-                    <button class="btn btn-outline w-full"
-                        type="submit">
-                        Add Product
-                    </button>
-                   
+                    <button class="btn btn-outline w-full" type="submit">Add Product</button>
                 </div>
             </form>
+            <!-- End of Product Form -->            
        </div>
 
 {% endblock content %}

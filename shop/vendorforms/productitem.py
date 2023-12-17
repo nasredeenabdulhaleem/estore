@@ -20,36 +20,34 @@ class ProductItemForm(forms.ModelForm):
         ]
 
         # widgets = {
-        #     "product": forms.ModelChoiceField(,attrs={"readonly": True}),
+        #     "product": forms.ModelChoiceField(attrs={"readonly": True}),
         # }
 
     def __init__(self, *args, **kwargs):
         # product = kwargs.pop('product', None)
         # print('Product in form:', product)
-        super().__init__(*args, **kwargs)
-        print(self.initial)
-        
-        self.fields['product'].initial = self.initial['product']
-
-        self.fields['product'].widget.attrs.update({"readonly": True})
+        super(ProductItemForm,self).__init__(*args, **kwargs)
         self.fields['product'] = forms.ModelChoiceField(
             queryset=Product.objects.filter(pk=self.initial['product'].id),
-            widget=forms.Select(attrs={"readonly": True})
+            widget=forms.Select(attrs={"readonly": True}), empty_label=None
         )
-        print(self.fields['product'])
+        self.fields['product'].widget.attrs['readonly'] = True
+        
         self.fields["color"] = forms.ModelChoiceField(
             queryset=Color.objects.all(), empty_label=None
         )
         self.fields["size"] = forms.ModelChoiceField(
             queryset=Size.objects.all(), empty_label=None
         )
-        self.fields["sku"].widget.attrs.update({"class": "form-control"})
-        self.fields["quantity_in_stock"].widget.attrs.update({"class": "form-control"})
-        self.fields["description"].widget.attrs.update({"class": "form-control"})
-        self.fields["product_image"].widget.attrs.update({"class": "form-control"})
-        self.fields["color"].widget.attrs.update({"class": "form-control"})
-        self.fields["size"].widget.attrs.update({"class": "form-control"})
-        self.fields["price"].widget.attrs.update({"class": "form-control"})
+        self.fields["sku"] = forms.CharField(initial="SKU will be generated automatically", widget=forms.TextInput(attrs={"readonly": True}))
+        
+        # self.fields["sku"].widget.attrs.update({"class": "form-control"})
+        # self.fields["quantity_in_stock"].widget.attrs.update({"class": "form-control"})
+        # self.fields["description"].widget.attrs.update({"class": "form-control"})
+        # self.fields["product_image"].widget.attrs.update({"class": "form-control"})
+        # self.fields["color"].widget.attrs.update({"class": "form-control"})
+        # self.fields["size"].widget.attrs.update({"class": "form-control"})
+        # self.fields["price"].widget.attrs.update({"class": "form-control"})
         # for field_name, field in self.fields.items():
         #     if isinstance(field.widget, forms.HiddenInput):
         #         field.required = False
@@ -73,19 +71,27 @@ class ProductItemFormVariation1(ProductItemForm):
         # exclude = ["color", "size"]
         widgets = {
             # "product": forms.HiddenInput(),
-            "color": forms.HiddenInput(),
-            "size": forms.HiddenInput(),
+            # "color": forms.HiddenInput(),
+            # "size": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['color'].initial = self.initial['color']
-        self.fields['size'].initial = self.initial['size']
+        # self.fields['color'].initial = self.initial['color']
+        # self.fields['size'].initial = self.initial['size']
+        self.fields['color'] = forms.ModelChoiceField(
+            queryset=Color.objects.filter(pk=self.initial['color'].id),
+            widget=forms.Select(attrs={"readonly": True}), empty_label=None
+        )
+        self.fields['size'] = forms.ModelChoiceField(
+            queryset=Size.objects.filter(pk=self.initial['size'].id),
+            widget=forms.Select(attrs={"readonly": True}), empty_label=None
+        )
         # self.fields['color'].initial = Color.objects.get(name='Default')
         # self.fields['size'].initial = Size.objects.get(title='Default')
         # self.fields["product"].widget = forms.HiddenInput()
-        self.fields["color"].widget = forms.HiddenInput()
-        self.fields["size"].widget = forms.HiddenInput()
+        # self.fields["color"].widget = forms.HiddenInput()
+        # self.fields["size"].widget = forms.HiddenInput()
 
     def clean(self):
         cleaned_data = super().clean()

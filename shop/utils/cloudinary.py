@@ -112,7 +112,7 @@ class CloudinaryManager:
 
         return url
 
-    def get_public_id(url):
+    def get_public_id(self,url):
         """
         Extracts the public ID from a Cloudinary URL.
 

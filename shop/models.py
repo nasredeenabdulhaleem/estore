@@ -19,7 +19,12 @@ from django_countries.fields import CountryField
 # to list colors in the model fields
 from colorfield.fields import ColorField
 
-from shop.utils.utils import generate_order_id, generate_sku, generate_vendor_id, slugify_product_title
+from shop.utils.utils import (
+    generate_order_id,
+    generate_sku,
+    generate_vendor_id,
+    slugify_product_title,
+)
 
 # this is used to add multiple images in the image field
 # from autoslug import AutoSlugField
@@ -111,7 +116,6 @@ class UserAddress(models.Model):
 ################# -----------Shipping Method---------#################
 
 
-
 class ShippingMethod(models.Model):
     name = models.CharField(max_length=50)
     price = models.FloatField()
@@ -152,8 +156,8 @@ class Product(models.Model):
     )
     category = models.ForeignKey("Category", on_delete=models.CASCADE, null=False)
     description = models.TextField(null=False, blank=False)
-    image = CloudinaryField('image')
-    variation = models.ForeignKey('Variation', on_delete=models.CASCADE)
+    image = CloudinaryField("image")
+    variation = models.ForeignKey("Variation", on_delete=models.CASCADE)
     label = models.ForeignKey(Label, on_delete=models.CASCADE, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True)  # type: ignore
     price = models.FloatField()
@@ -161,13 +165,14 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
-    
+
     @property
     def total_quantity(self):
-        return self.productitem_set.aggregate(total=Sum('quantity_in_stock'))['total'] or 0 # type: ignore
+        return self.productitem_set.aggregate(total=Sum("quantity_in_stock"))["total"] or 0  # type: ignore
 
     def get_absolute_url(self):
-        return reverse('store:vendor_product_detail', args=[str(self.slug)])
+        return reverse("store:vendor_product_detail", args=[str(self.slug)])
+
     # override the default save method to upload images to cloudinary and save the url in the image field
     def save(self, *args, **kwargs):
         """
@@ -183,7 +188,7 @@ class Product(models.Model):
         Returns:
             None
         """
-        if self.image and hasattr(self.image, 'file'):
+        if self.image and hasattr(self.image, "file"):
             cloudinary = CloudinaryManager("product-image")
             response = cloudinary.upload_image(self.image)
             self.image = response["secure_url"]
@@ -192,6 +197,7 @@ class Product(models.Model):
             self.slug = slugify_product_title(self.title)
 
         super().save(*args, **kwargs)
+
     # delete images from cloudinary when delete is initiated
     def delete(self, *args, **kwargs):
         """
@@ -228,7 +234,7 @@ class ProductItem(models.Model):
     sku = models.CharField(max_length=45)
     quantity_in_stock = models.IntegerField()
     description = models.TextField(blank=True, null=True)
-    product_image = CloudinaryField('image')
+    product_image = CloudinaryField("image")
     color = models.ForeignKey("Color", on_delete=models.CASCADE)
     size = models.ForeignKey("Size", on_delete=models.CASCADE)
     price = models.FloatField()
@@ -251,9 +257,9 @@ class ProductItem(models.Model):
     @classmethod
     def get_by_product_slug(cls, slug):
         return cls.objects.filter(product__slug=slug).first()
-    
+
     def get_absolute_url(self):
-        return reverse('store:vendor_product_detail', args=[str(self.product.slug)])
+        return reverse("store:vendor_product_detail", args=[str(self.product.slug)])
 
     # override the default save method to upload images to cloudinary and save the url in the image field
     def save(self, *args, **kwargs):
@@ -269,17 +275,19 @@ class ProductItem(models.Model):
         Returns:
             None
         """
-        if self.product_image and hasattr(self.product_image, 'file'):
+        if self.product_image and hasattr(self.product_image, "file"):
             cloudinary = CloudinaryManager("product-image")
             response = cloudinary.upload_image(self.product_image)
             self.product_image = response["secure_url"]
 
         if not self.sku:
-            sku = generate_sku(self.product.title, self.product.slug, self.color.name, self.size.title)
+            sku = generate_sku(
+                self.product.title, self.product.slug, self.color.name, self.size.title
+            )
             self.sku = sku[:15]
 
         super().save(*args, **kwargs)
-        
+
     def delete(self, *args, **kwargs):
         """
         Deletes the current instance and its associated image from Cloudinary.
@@ -293,11 +301,11 @@ class ProductItem(models.Model):
         """
         cloudinary = CloudinaryManager("product-image")
         print(self.product_image)
-        public_id = cloudinary.get_public_id(self.product_image.url) # type: ignore
-        
+        public_id = cloudinary.get_public_id(self.product_image.url)  # type: ignore
+
         cloudinary.delete_image(public_id)
         super().delete(*args, **kwargs)
-    
+
     # def delete(self, *args, **kwargs):
     #     """
     #     Deletes the current instance and its associated image from Cloudinary.
@@ -315,13 +323,13 @@ class ProductItem(models.Model):
     #     super().delete(*args, **kwargs)
 
 
-
-
 # ################# -----------PVariation--------#################
 
 
 class Variation(models.Model):
-    name = models.CharField(max_length=33, default="Default" )#choices=VARIATIONCHOICES,default="Default")
+    name = models.CharField(
+        max_length=33, default="Default"
+    )  # choices=VARIATIONCHOICES,default="Default")
 
     def __str__(self):
         return self.name
@@ -382,7 +390,6 @@ class Picture(models.Model):
 
     def __str__(self):
         return self.picture.url
-    
 
 
 class Color(models.Model):

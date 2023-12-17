@@ -10,18 +10,28 @@
 {% block content %}
 <div class="text-sm breadcrumbs">
     <ul>
-      <li>
-        <a href="{% url 'store:vendor-home' %}">
-            <i class="fas fa-tachometer-alt"></i>                       Dashboard
-        </a>
-      </li> 
-      <li>
-        <span class="inline-flex gap-2 items-center">
-            <i class="fas fa-clipboard-list"></i>                      Update Product Item
-        </span>
-      </li>
+        <li>
+            <a href="{% url 'store:vendor-home' %}">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'store:vendor-products' %}">
+                <i class="fas fa-box-open"></i> Products
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'store:vendor_product_detail' object.product.slug %}">
+              <i class="fas fa-info-circle"></i> Product Detail
+            </a>
+          </li>
+        <li>
+            <span class="inline-flex gap-2 items-center">
+                <i class="fas fa-pencil-alt"></i> Update Product Item
+            </span>
+        </li>
     </ul>
-  </div>
+</div>
 
             <!-- <div class="w-full md:w-10/12 p-4">
                 <h1 class="text-2xl font-bold mb-4">Update Product</h1>

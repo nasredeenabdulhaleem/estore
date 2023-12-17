@@ -1,4 +1,4 @@
-# create a new instance of ProductItem object from product 
+# create a new instance of ProductItem object from product
 
 from shop.models import ProductItem
 

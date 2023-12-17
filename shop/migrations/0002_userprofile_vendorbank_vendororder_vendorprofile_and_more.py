@@ -7,201 +7,307 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('shop', '0001_initial'),
+        ("shop", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('firstname', models.CharField(max_length=255)),
-                ('lastname', models.CharField(max_length=255)),
-                ('gender', models.CharField(max_length=11)),
-                ('email', models.EmailField(max_length=255)),
-                ('phone', models.BigIntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("firstname", models.CharField(max_length=255)),
+                ("lastname", models.CharField(max_length=255)),
+                ("gender", models.CharField(max_length=11)),
+                ("email", models.EmailField(max_length=255)),
+                ("phone", models.BigIntegerField()),
             ],
         ),
         migrations.CreateModel(
-            name='VendorBank',
+            name="VendorBank",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('bank_name', models.CharField(max_length=255)),
-                ('account_number', models.CharField(max_length=255)),
-                ('account_name', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("bank_name", models.CharField(max_length=255)),
+                ("account_number", models.CharField(max_length=255)),
+                ("account_name", models.CharField(max_length=255)),
             ],
         ),
         migrations.CreateModel(
-            name='VendorOrder',
+            name="VendorOrder",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='VendorProfile',
+            name="VendorProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('vendor_id', models.CharField(max_length=255)),
-                ('firstname', models.CharField(max_length=255)),
-                ('lastname', models.CharField(max_length=255)),
-                ('phone', models.CharField(max_length=11)),
-                ('email', models.EmailField(max_length=254)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("vendor_id", models.CharField(max_length=255)),
+                ("firstname", models.CharField(max_length=255)),
+                ("lastname", models.CharField(max_length=255)),
+                ("phone", models.CharField(max_length=11)),
+                ("email", models.EmailField(max_length=254)),
             ],
         ),
         migrations.CreateModel(
-            name='VendorStore',
+            name="VendorStore",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('store_name', models.CharField(max_length=255)),
-                ('store_theme', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("store_name", models.CharField(max_length=255)),
+                ("store_theme", models.CharField(max_length=255)),
             ],
         ),
         migrations.CreateModel(
-            name='VendorWallet',
+            name="VendorWallet",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('wallet_balance', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("wallet_balance", models.IntegerField()),
             ],
         ),
         migrations.CreateModel(
-            name='VendorWalletHistory',
+            name="VendorWalletHistory",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('reference', models.CharField(default=uuid.uuid4, max_length=255)),
-                ('wallet_balance', models.IntegerField()),
-                ('transaction_type', models.CharField(choices=[('credit', 'Credit'), ('debit', 'Debit')], max_length=255)),
-                ('description', models.TextField(max_length=610)),
-                ('date', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("reference", models.CharField(default=uuid.uuid4, max_length=255)),
+                ("wallet_balance", models.IntegerField()),
+                (
+                    "transaction_type",
+                    models.CharField(
+                        choices=[("credit", "Credit"), ("debit", "Debit")],
+                        max_length=255,
+                    ),
+                ),
+                ("description", models.TextField(max_length=610)),
+                ("date", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.RemoveField(
-            model_name='productconfiguration',
-            name='product_item',
+            model_name="productconfiguration",
+            name="product_item",
         ),
         migrations.RemoveField(
-            model_name='productconfiguration',
-            name='variation_option',
+            model_name="productconfiguration",
+            name="variation_option",
         ),
         migrations.RemoveField(
-            model_name='promotioncategory',
-            name='category',
+            model_name="promotioncategory",
+            name="category",
         ),
         migrations.RemoveField(
-            model_name='promotioncategory',
-            name='promotion',
+            model_name="promotioncategory",
+            name="promotion",
         ),
         migrations.RemoveField(
-            model_name='user_profile',
-            name='user',
+            model_name="user_profile",
+            name="user",
         ),
         migrations.RemoveField(
-            model_name='variation',
-            name='category',
+            model_name="variation",
+            name="category",
         ),
         migrations.RemoveField(
-            model_name='variationoption',
-            name='variation',
+            model_name="variationoption",
+            name="variation",
         ),
         migrations.RemoveConstraint(
-            model_name='productvaraiant',
-            name='unique_prod_color_combo',
+            model_name="productvaraiant",
+            name="unique_prod_color_combo",
         ),
         migrations.AlterField(
-            model_name='order_status',
-            name='status',
-            field=models.CharField(choices=[('processing', 'Processing'), ('Shipped', 'Shipped'), ('delivered', 'Delivered'), ('completed', 'Order Completed')], default='processing', max_length=20),
+            model_name="order_status",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("processing", "Processing"),
+                    ("Shipped", "Shipped"),
+                    ("delivered", "Delivered"),
+                    ("completed", "Order Completed"),
+                ],
+                default="processing",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='paymentmethod',
-            name='provider',
-            field=models.CharField(choices=[('processing', 'Processing'), ('Shipped', 'Shipped'), ('delivered', 'Delivered'), ('completed', 'Order Completed')], max_length=60),
+            model_name="paymentmethod",
+            name="provider",
+            field=models.CharField(
+                choices=[
+                    ("processing", "Processing"),
+                    ("Shipped", "Shipped"),
+                    ("delivered", "Delivered"),
+                    ("completed", "Order Completed"),
+                ],
+                max_length=60,
+            ),
         ),
         migrations.AlterField(
-            model_name='product',
-            name='category',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='shop.category'),
+            model_name="product",
+            name="category",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, to="shop.category"
+            ),
         ),
         migrations.DeleteModel(
-            name='ProductConfiguration',
+            name="ProductConfiguration",
         ),
         migrations.DeleteModel(
-            name='Promotion',
+            name="Promotion",
         ),
         migrations.DeleteModel(
-            name='PromotionCategory',
+            name="PromotionCategory",
         ),
         migrations.DeleteModel(
-            name='User_profile',
+            name="User_profile",
         ),
         migrations.DeleteModel(
-            name='Variation',
+            name="Variation",
         ),
         migrations.DeleteModel(
-            name='VariationOption',
+            name="VariationOption",
         ),
         migrations.AddField(
-            model_name='vendorwallethistory',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shop.vendorprofile'),
+            model_name="vendorwallethistory",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="shop.vendorprofile"
+            ),
         ),
         migrations.AddField(
-            model_name='vendorwallet',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='shop.vendorprofile'),
+            model_name="vendorwallet",
+            name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, to="shop.vendorprofile"
+            ),
         ),
         migrations.AddField(
-            model_name='vendorstore',
-            name='store_address',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shop.address'),
+            model_name="vendorstore",
+            name="store_address",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="shop.address"
+            ),
         ),
         migrations.AddField(
-            model_name='vendorstore',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='shop.vendorprofile'),
+            model_name="vendorstore",
+            name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, to="shop.vendorprofile"
+            ),
         ),
         migrations.AddField(
-            model_name='vendorprofile',
-            name='address',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shop.address'),
+            model_name="vendorprofile",
+            name="address",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="shop.address"
+            ),
         ),
         migrations.AddField(
-            model_name='vendorprofile',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="vendorprofile",
+            name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='vendororder',
-            name='customer',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shop.userprofile'),
+            model_name="vendororder",
+            name="customer",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="shop.userprofile"
+            ),
         ),
         migrations.AddField(
-            model_name='vendororder',
-            name='order',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shop.order'),
+            model_name="vendororder",
+            name="order",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="shop.order"
+            ),
         ),
         migrations.AddField(
-            model_name='vendororder',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shop.vendorprofile'),
+            model_name="vendororder",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="shop.vendorprofile"
+            ),
         ),
         migrations.AddField(
-            model_name='vendorbank',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='shop.vendorprofile'),
+            model_name="vendorbank",
+            name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, to="shop.vendorprofile"
+            ),
         ),
         migrations.AddField(
-            model_name='userprofile',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="userprofile",
+            name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='product',
-            name='vendor',
-            field=models.OneToOneField(default=1, on_delete=django.db.models.deletion.CASCADE, to='shop.vendorprofile'),
+            model_name="product",
+            name="vendor",
+            field=models.OneToOneField(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="shop.vendorprofile",
+            ),
             preserve_default=False,
         ),
     ]

@@ -71,26 +71,52 @@ urlpatterns = [
     path("item-detail/<slug:slug>/", DetailView.as_view(), name="detail"),
     path("add-to-cart/", AddToCart, name="add-to-cart"),
     path("update_item/", UpdateCart, name="update-item"),
-    path("remove_from_cart/<slug:slug>/", remove_from_cart, name="remove_from_cart"),
+    path("remove_from_cart/<slug:slug>/", remove_from_cart, name="remove_from_cart"),  # type: ignore
     path("get-item/", quickview),
-
     # Vendor Urls
     path("vendor/", VendorDashboardView.as_view(), name="vendor-home"),
-    path("vendor/storefront/", VendorHomeView.as_view(),name="vendor-storefront"),#vendore storefront
-    path("vendor/settings/", VendorSettings, name="vendor-settings"), #vendor settings
-    path("vendor/orders/", VendorOrderView, name="vendor-orders"), #vendor orders
-    path("vendor/products/", ProductView.as_view(), name="vendor-products"), #vendors Products
-    path('vendor/product/<slug:slug>/', vendor_product_detail, name='vendor_product_detail'),
-    path("vendor/add-product/", AddProductView.as_view(),name="add-product"),# vendor add products
-    path("vendor/update-product/<slug:slug>/", UpdateProductView.as_view(),name="update-product"),# vendor update products
-    path("vendor/delete-product/<slug:slug>/", DeleteProductView.as_view(),name="delete-product"),# vendor delete products
-    path("vendor/productitem/<slug:slug>/create", AddProductItemView.as_view(),name="add-product-item"),# vendor add product item
-    #""" Add product item view broken to functional views"""
-    # path('add-product-item/default/<slug:slug>/', add_product_item_default, name='add_product_item_default'),
-    # path('add-product-item/size/<slug:slug>/', add_product_item_size, name='add_product_item_size'),
-    # path('add-product-item/color/<slug:slug>/', add_product_item_color, name='add_product_item_color'),
-    # path('add-product-item/<slug:slug>/', add_product_item, name='add_product_item'),
-    path("vendor/productitem/<int:pk>/update", UpdateProductItemView.as_view(),name="update-product-item"),# vendor update product item
-     path('vendor/productitem/<int:pk>/delete/', DeleteProductItemView.as_view(), name='delete-product-item'),
-    path("vendor/customers/", VendorCustomersView.as_view(),name="vendor customers"),# vendor customers
+    path(
+        "vendor/storefront/", VendorHomeView.as_view(), name="vendor-storefront"
+    ),  # vendore storefront
+    path("vendor/settings/", VendorSettings, name="vendor-settings"),  # vendor settings
+    path("vendor/orders/", VendorOrderView, name="vendor-orders"),  # vendor orders
+    path(
+        "vendor/products/", ProductView.as_view(), name="vendor-products"
+    ),  # vendors Products
+    path(
+        "vendor/product/<slug:slug>/",
+        vendor_product_detail,
+        name="vendor_product_detail",
+    ),
+    path(
+        "vendor/add-product/", AddProductView.as_view(), name="add-product"
+    ),  # vendor add products
+    path(
+        "vendor/update-product/<slug:slug>/",
+        UpdateProductView.as_view(),
+        name="update-product",
+    ),  # vendor update products
+    path(
+        "vendor/delete-product/<slug:slug>/",
+        DeleteProductView.as_view(),
+        name="delete-product",
+    ),  # vendor delete products
+    path(
+        "vendor/productitem/<slug:slug>/create",
+        AddProductItemView.as_view(),
+        name="add-product-item",
+    ),  # vendor add product item
+    path(
+        "vendor/productitem/<int:pk>/update",
+        UpdateProductItemView.as_view(),
+        name="update-product-item",
+    ),  # vendor update product item
+    path(
+        "vendor/productitem/<int:pk>/delete/",
+        DeleteProductItemView.as_view(),
+        name="delete-product-item",
+    ),
+    path(
+        "vendor/customers/", VendorCustomersView.as_view(), name="vendor customers"
+    ),  # vendor customers
 ]

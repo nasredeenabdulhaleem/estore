@@ -4,30 +4,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0002_userprofile_vendorbank_vendororder_vendorprofile_and_more'),
+        ("shop", "0002_userprofile_vendorbank_vendororder_vendorprofile_and_more"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='orderitem',
-            old_name='ordered',
-            new_name='order_id',
+            model_name="orderitem",
+            old_name="ordered",
+            new_name="order_id",
         ),
         migrations.AddField(
-            model_name='label',
-            name='color',
-            field=models.CharField(default='blue', max_length=25),
+            model_name="label",
+            name="color",
+            field=models.CharField(default="blue", max_length=25),
         ),
         migrations.AddField(
-            model_name='product',
-            name='discount_price',
+            model_name="product",
+            name="discount_price",
             field=models.FloatField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='product',
-            name='price',
+            model_name="product",
+            name="price",
             field=models.FloatField(default=0),
             preserve_default=False,
         ),

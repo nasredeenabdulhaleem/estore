@@ -3,6 +3,7 @@ from django.forms import Textarea
 
 register = template.Library()
 
+
 @register.filter
 def is_textarea(field):
     """

@@ -1,2 +1,1 @@
-
-transaction_type_status = [("credit","Credit"),("debit","Debit")]
+transaction_type_status = [("credit", "Credit"), ("debit", "Debit")]

@@ -36,9 +36,11 @@ from django.forms.models import model_to_dict
 from PIL import Image
 from django.forms.models import model_to_dict
 from itertools import chain
+
 # from rest_framework import serializers
 from .serializers import product_variant_serializer, size_serializer
 import json
+
 # {
 #     'product_title': 'Wrist watch',
 #     'product_slug': '19a9515d-c8c8-11ed-9b60-8b569fb40be2',
@@ -66,8 +68,7 @@ def image_details(img):
     return formated
 
 
-
-def to_dict(instance,fields=None, exclude=None):
+def to_dict(instance, fields=None, exclude=None):
     opts = instance._meta
     data = {}
     for f in chain(opts.concrete_fields, opts.private_fields, opts.many_to_many):
@@ -75,6 +76,7 @@ def to_dict(instance,fields=None, exclude=None):
     for f in opts.many_to_many:
         data[f.name] = [i.id for i in f.value_from_object(instance)]
     return data
+
 
 def hurry(instock):
     if instock <= 15:
@@ -150,6 +152,7 @@ def instock(slug):
 
 # a function to generate the product item details
 
+
 def productitem(slug):
     product = Product.objects.get(slug=slug)
     productvrt = ProductVaraiant.objects.filter(product__slug=slug).all()
@@ -167,16 +170,18 @@ def productitem(slug):
 
     # color = {}
     # size = []
-    
+
     pvrt = {}
- 
+
     # for vrt in productvrt:
     #     pvrt[vrt.color.name] = product_variant_serializer(
     #         "json", vrt.size.all())
     # for vrt in productvrt:
     #     pvrt[vrt.color.name] = to_dict(vrt.size.all())
     for vrt in productvrt:
-        pvrt[vrt.color.name] = serializers.serialize("json", vrt.size.all().only("size"), fields=("size"))
+        pvrt[vrt.color.name] = serializers.serialize(
+            "json", vrt.size.all().only("size"), fields=("size")
+        )
 
     item = {
         "product_title": title,

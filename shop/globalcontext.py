@@ -2,11 +2,13 @@ from django.conf import settings
 
 from shop.models import Cart, CartItem, OrderItem
 
+
 def my_global_context_processor(request):
     return {
-        'site_name': settings.SITE_NAME,
-        'site_url': settings.SITE_URL,
+        "site_name": settings.SITE_NAME,
+        "site_url": settings.SITE_URL,
     }
+
 
 def user_context_processor(request):
     user = request.user
@@ -16,12 +18,12 @@ def user_context_processor(request):
             "total_items": 0,
             "total_price": 0,
         }
-    
+
     # cart = OrderItem.objects.filter(user_id=user.id)
     # total = cart.get_total_order_price
     # # for item in cartitems:
     # #     total += item.quantity * item.product.product.price
-    # total_items = cart.get_total_instances(request.user) 
+    # total_items = cart.get_total_instances(request.user)
 
     if user.is_authenticated and Cart.objects.filter(user_id=user.id).exists():
         cart = Cart.objects.get(user=request.user)
@@ -29,8 +31,8 @@ def user_context_processor(request):
         total = CartItem.get_total_order_price(cart=cart)
         # for item in cartitems:
         #     total += item.quantity * item.product.product.price
-        total_items = CartItem.get_total_instances(request.user) or cartitems.count() 
-            
+        total_items = CartItem.get_total_instances(request.user) or cartitems.count()
+
     else:
         cart = None
         cartitems = None
@@ -38,7 +40,7 @@ def user_context_processor(request):
         total = 0
 
     return {
-        'user': user,
+        "user": user,
         "cart": cart,
         "total_items": total_items,
         "total_price": total,

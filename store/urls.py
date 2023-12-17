@@ -20,12 +20,12 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('shop.urls')),
-    path('accounts/', include('accounts.urls')),
-    path('dashboard/', include('dashboard.urls')),
-]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
- 
+    path("admin/", admin.site.urls),
+    path("", include("shop.urls")),
+    path("accounts/", include("accounts.urls")),
+    path("dashboard/", include("dashboard.urls")),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 admin.site.site_header = "Nasdig Administrator"
 admin.site.site_title = "Nasdig Dashboard"
 admin.site.index_title = "Welcome to Nasdig"

@@ -5,16 +5,19 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0008_variation_alter_product_slug'),
+        ("shop", "0008_variation_alter_product_slug"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='variation',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='shop.variation'),
+            model_name="product",
+            name="variation",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="shop.variation",
+            ),
             preserve_default=False,
         ),
     ]

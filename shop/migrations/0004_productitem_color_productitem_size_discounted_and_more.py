@@ -5,33 +5,51 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('shop', '0003_rename_ordered_orderitem_order_id_label_color_and_more'),
+        ("shop", "0003_rename_ordered_orderitem_order_id_label_color_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='productitem',
-            name='color',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='shop.color'),
+            model_name="productitem",
+            name="color",
+            field=models.ForeignKey(
+                default=1, on_delete=django.db.models.deletion.CASCADE, to="shop.color"
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='productitem',
-            name='size',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='shop.size'),
+            model_name="productitem",
+            name="size",
+            field=models.ForeignKey(
+                default=1, on_delete=django.db.models.deletion.CASCADE, to="shop.size"
+            ),
             preserve_default=False,
         ),
         migrations.CreateModel(
-            name='Discounted',
+            name="Discounted",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shop.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="shop.product"
+                    ),
+                ),
             ],
         ),
         migrations.AddConstraint(
-            model_name='discounted',
-            constraint=models.UniqueConstraint(fields=('product',), name='unique_discount_prod'),
+            model_name="discounted",
+            constraint=models.UniqueConstraint(
+                fields=("product",), name="unique_discount_prod"
+            ),
         ),
     ]

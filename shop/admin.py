@@ -42,13 +42,9 @@ class Popular(admin.ModelAdmin):
 
 
 class ProductAdmin(admin.ModelAdmin):
-
     inlines = [PictureInline]
     prepopulated_fields = {"slug": ("title",)}
-    list_display = [
-        "title",
-        "category_id"
-    ]
+    list_display = ["title", "category_id"]
 
     class Meta:
         model = Product
@@ -74,6 +70,7 @@ class CartAdmin(admin.ModelAdmin):
     # def render_change_form(self, request, context, *args, **kwargs):
     #      context['adminform'].form.fields['items'].queryset = Order.objects.filter(user=Order.items.user)
     #      return super(OrderAdmin, self).render_change_form(request, context, *args, **kwargs)
+
 
 # class SizeInline(admin.StackedInline):
 #     model = Size

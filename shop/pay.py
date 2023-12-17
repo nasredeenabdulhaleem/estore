@@ -3,21 +3,19 @@ import requests
 from django.conf import settings
 
 
-
-
 def initializepay(email, total, ref):
-    url = 'https://api.paystack.co/transaction/initialize'
-    
+    url = "https://api.paystack.co/transaction/initialize"
+
     headers = {
-        'Authorization' : 'Bearer ' + settings.PAYSTACK_SECRET_KEY,
-        'Content-Type' : 'application/json'
+        "Authorization": "Bearer " + settings.PAYSTACK_SECRET_KEY,
+        "Content-Type": "application/json",
     }
 
     body = {
-        'email': email,
-        'amount' : total* 100 ,
-        'reference' : ref,
-        'currency': 'NGN',
+        "email": email,
+        "amount": total * 100,
+        "reference": ref,
+        "currency": "NGN",
     }
 
     get_response = requests.request("POST", url, headers=headers, json=body)

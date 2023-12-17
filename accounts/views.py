@@ -11,7 +11,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.conf import settings
 from store import settings
-from accounts.forms import SignupForm,LoginForm
+from accounts.forms import SignupForm, LoginForm
 from pinax.eventlog.models import log
 from accounts.emailverification import EmailVerification
 
@@ -42,13 +42,15 @@ class UserSignup(View):
         if form.is_valid():
             try:
                 user = form.save()
-                verification = VerificationCount.objects.create(user=user, email=user.email, count=1)
-                
+                verification = VerificationCount.objects.create(
+                    user=user, email=user.email, count=1
+                )
+
                 email_verification = EmailVerification()
 
                 # Generate token and send verification email
                 token = email_verification.generate_token(user.email)
-                email_sent=email_verification.send_email(user, token)
+                email_sent = email_verification.send_email(user, token)
                 # log(
                 #     user=user,
                 #     action="Created a User Account, Verification Email Sent",
@@ -56,7 +58,7 @@ class UserSignup(View):
                 #     # extra={"title": foo.title},
                 #     dateof=datetime.datetime.now(),
                 # )
-                
+
                 messages.info(
                     request,
                     f"Created User {user.username}, a verification email has been sent to activate account",
@@ -82,7 +84,7 @@ class UserSignup(View):
 #         return render(request, self.template_name, context)
 
 #     def post(self, request):
-        
+
 #         form = LoginForm(request.POST)
 
 #         if form.is_valid():
@@ -103,9 +105,11 @@ class UserSignup(View):
 #             messages.error(request, f"Invalid login credentials")
 #             return render(request, self.template_name, {"form": form})
 
+
 class Login(LoginView):
-    template_name= "accounts/user-login.html"
+    template_name = "accounts/user-login.html"
     redirect_authenticated_user = True  # Redirect if user is already logged in
+
 
 #     def get_success_url(self):
 #         user = self.request.user

@@ -1,7 +1,5 @@
 import datetime
 import json
-from sys import getsizeof
-from typing import Any
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -14,15 +12,13 @@ from shop.vendorforms.productitem import (
 )
 from shop.globalcontext import user_context_processor
 from .pay import initializepay
-from sqlite3 import DataError, DatabaseError, IntegrityError
-from django.urls import reverse
-from django.core.exceptions import ObjectDoesNotExist
+from sqlite3 import DatabaseError
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.views.generic import ListView, View, DetailView, UpdateView
-from django.http import HttpResponseRedirect, JsonResponse, HttpRequest, HttpResponse
+from django.http import HttpResponseRedirect, JsonResponse
 
 # from shop.forms.addproduct import AddProductForm
 from .models import (
@@ -43,24 +39,22 @@ from .models import (
     Size,
     UserAddress,
     UserProfile,
-    Variation,
-    VendorOrder,
     VendorProfile,
 )
 from .forms import (
     AddressForm,
     AddressUpdateForm,
     ProductAddToCartForm,
+    ProductAddToCartFormV1,
+    ProductAddToCartFormV3,
+    ProductAddToCartFormV2,
     UserProfileForm,
-    UserUpdateForm,
 )
 from . import forms
-from django.forms.models import model_to_dict
 
 # from django.core import serializers
-from .scripts import hurry, instock, productitem, quickviewres
+from .scripts import productitem
 from django.conf import settings
-from pinax.eventlog.models import log
 from django.views.generic import DeleteView, CreateView
 from django.urls import reverse_lazy
 from .models import Product
@@ -116,11 +110,24 @@ def quickview(request):
 class DetailView(DetailView):
     template_name = "shop/detail.html"
 
+    def get_form_class(self):
+        slug = self.kwargs.get("slug")
+        product = Product.objects.get(slug=slug)
+        if product.variation.name == "Default":
+            return ProductAddToCartFormV1
+        elif product.variation.name == "Size":
+            return ProductAddToCartFormV3
+        elif product.variation.name == "Color":
+            return ProductAddToCartFormV2
+        else:
+            return ProductAddToCartForm
+
     def get_context_data(self, slug):
         product = Product.objects.get(slug=slug)
         image = Picture.objects.filter(product__slug=slug).all()
         productitem = ProductItem.objects.filter(product__slug=slug)
-        form = ProductAddToCartForm(product_slug=slug)
+        form_class = self.get_form_class()
+        form = form_class(product_slug=slug)
         ctx = {
             "product": product,
             "images": image,
@@ -137,17 +144,15 @@ class DetailView(DetailView):
 
     def post(self, request, slug, *args, **kwargs):
         user = request.user
-        form = ProductAddToCartForm(request.POST, product_slug=slug)
+        form_class = self.get_form_class()
+        form = form_class(request.POST, product_slug=slug)
         if form.is_valid():
-            color = form.cleaned_data["color"]
-            size = form.cleaned_data["size"]
             quantity = form.cleaned_data["quantity"]
-            print(color, size, quantity)
 
-            product = Product.objects.get(slug=slug)
-            # productitem = ProductItem.objects.filter(product=product).all()
-            productitem = ProductItem.get_by_color_and_size(color, size)
-            print(productitem)
+            productitem = (
+                form.get_product_item()
+            )  # ProductItem.get_by_color_and_size(color, size)
+
             # Get or create the cart for the current user
             cart, created = Cart.objects.get_or_create(user=user)
 
@@ -164,8 +169,6 @@ class DetailView(DetailView):
                 cart_item.quantity += quantity
                 cart_item.save()
 
-            # Redirect to the cart page
-            # return redirect("store:cart")
             messages.success(request, "Product Added Successfully")
             return redirect("store:detail", slug=slug)
         else:
@@ -629,7 +632,7 @@ def UpdateCart(request):
     return JsonResponse("item was added", safe=False)
 
 
-@login_required
+@login_required  # type: ignore
 def remove_from_cart(request, pk):
     item = get_object_or_404(Product, pk=pk)
     OrderItem = OrderItem.objects.get_or_create(product=item)
@@ -902,7 +905,7 @@ class AddProductItemView(CreateView):
         kwargs = super().get_form_kwargs()
         product_slug = self.kwargs.get("slug")
         product = Product.objects.get(slug=product_slug)
-        
+
         if product.variation.name == "Default":
             # For ProductItemFormVariation1, set initial values for color and size
             kwargs["initial"]["color"] = Color.objects.get(name="Default")
@@ -916,14 +919,8 @@ class AddProductItemView(CreateView):
 
         # Set initial value for the product field
         kwargs["initial"]["product"] = product
-        # print(kwargs)
-        return kwargs
 
-    # def get_form_kwargs(self):
-    #     kwargs = super().get_form_kwargs()
-    #     product = get_object_or_404(Product, slug=self.kwargs['slug'])
-    #     kwargs['product'] = product
-    #     return kwargs
+        return kwargs
 
     def form_valid(self, form):
         if form.is_valid():
@@ -933,22 +930,22 @@ class AddProductItemView(CreateView):
         else:
             print(form.errors)
             return self.form_invalid(form)
-    
+
     def form_invalid(self, form):
         kwargs = super().get_form_kwargs()
         product_slug = self.kwargs.get("slug")
         product = Product.objects.get(slug=product_slug)
-        form.initial['product'] = 'default_value'
+        form.initial["product"] = "default_value"
         if product.variation.name == "Default":
             # For ProductItemFormVariation1, set initial values for color and size
-           form.initial["color"] = Color.objects.get(name="Default")
-           form.initial["size"] = Size.objects.get(title="Default")
+            form.initial["color"] = Color.objects.get(name="Default")
+            form.initial["size"] = Size.objects.get(title="Default")
         elif product.variation.name == "Size":
             # For ProductItemFormVariation2, set initial value for color
-           form.initial["color"] = Color.objects.get(name="Default")
+            form.initial["color"] = Color.objects.get(name="Default")
         elif product.variation.name == "Color":
             # For ProductItemFormVariation3, set initial value for size
-           form.initial["size"] = Size.objects.get(title="Default")
+            form.initial["size"] = Size.objects.get(title="Default")
 
         # Set initial value for the product field
         form.initial["product"] = product
@@ -958,82 +955,10 @@ class AddProductItemView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = "Add Product Item"
+        product_slug = self.kwargs.get("slug")
+        product = Product.objects.get(slug=product_slug)
+        context["product"] = product
         return context
-
-
-# def add_product_item_view(request, slug):
-#     product = get_object_or_404(Product, slug=slug)
-#     if product.variation.name == 'Default':
-#         form_class = ProductItemFormVariation1
-#     elif product.variation.name == 'Size':
-#         form_class = ProductItemFormVariation2
-#     elif product.variation.name == 'Color':
-#         form_class = ProductItemFormVariation3
-#     else:
-#         form_class = ProductItemForm
-
-#     if request.method == 'POST':
-#         form = form_class(request.POST, request.FILES, initial={'product': product})
-#         print(request.FILES.get('product_image'))
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Product item added successfully')
-#             return redirect('store:vendor_product_detail', kwargs={slug:slug})  # replace 'some_view' with the name of the view to redirect to
-#     else:
-#         form = form_class(initial={'product': product})
-
-#     context = {
-#         'form': form,
-#         'title': 'Add Product Item',
-#     }
-#     return render(request, 'vendor/add-product-item.html', context)
-
-# def get_product(slug):
-#     return Product.objects.get(slug=slug)
-
-# def add_product_item_default(request, slug):
-#     if request.method == 'POST':
-#         form = ProductItemFormVariation1(request.POST, request.FILES)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Product item added successfully')
-#             return redirect('add_product_item_default', slug=slug)
-#     else:
-#         form = ProductItemFormVariation1(initial={'product': get_product(slug)})
-#     return render(request, 'vendor/add-product-item.html', {'form': form, 'title': 'Add Product Item'})
-
-# def add_product_item_size(request, slug):
-#     if request.method == 'POST':
-#         form = ProductItemFormVariation2(request.POST, request.FILES)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Product item added successfully')
-#             return redirect('add_product_item_size', slug=slug)
-#     else:
-#         form = ProductItemFormVariation2(initial={'product': get_product(slug)})
-#     return render(request, 'vendor/add-product-item.html', {'form': form, 'title': 'Add Product Item'})
-
-# def add_product_item_color(request, slug):
-#     if request.method == 'POST':
-#         form = ProductItemFormVariation3(request.POST, request.FILES)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Product item added successfully')
-#             return redirect('add_product_item_color', slug=slug)
-#     else:
-#         form = ProductItemFormVariation3(initial={'product': get_product(slug)})
-#     return render(request, 'vendor/add-product-item.html', {'form': form, 'title': 'Add Product Item'})
-
-# def add_product_item(request, slug):
-#     if request.method == 'POST':
-#         form = ProductItemForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Product item added successfully')
-#             return redirect('add_product_item', slug=slug)
-#     else:
-#         form = ProductItemForm(initial={'product': get_product(slug)})
-#     return render(request, 'vendor/add-product-item.html', {'form': form, 'title': 'Add Product Item'})
 
 
 # Update Product
@@ -1043,7 +968,7 @@ class UpdateProductItemView(UpdateView):
     template_name = "vendor/update-product-item.html"
 
     def get_form_class(self):
-        product = self.object.product # type: ignore
+        product = self.object.product  # type: ignore
         if product.variation.name == "Default":
             return ProductItemFormVariation1
         elif product.variation.name == "Size":
@@ -1056,8 +981,8 @@ class UpdateProductItemView(UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         # product_slug = self.kwargs.get("slug")
-        product = Product.objects.get(slug=self.object.product.slug) # type: ignore Product.objects.get(slug=product_slug)
-        
+        product = Product.objects.get(slug=self.object.product.slug)  # type: ignore Product.objects.get(slug=product_slug)
+
         if product.variation.name == "Default":
             # For ProductItemFormVariation1, set initial values for color and size
             kwargs["initial"]["color"] = Color.objects.get(name="Default")
@@ -1074,7 +999,6 @@ class UpdateProductItemView(UpdateView):
         # print(kwargs)
         return kwargs
 
-
     # def get_queryset(self):
     #     return self.model.objects.filter(
     #         product__vendor__user=self.request.user, pk=self.kwargs["pk"]
@@ -1083,19 +1007,19 @@ class UpdateProductItemView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = "Update Product"
-        is_update = self.object is not None # type: ignore
-        context['is_update'] = is_update
-        
+        is_update = self.object is not None  # type: ignore
+        context["is_update"] = is_update
+
         return context
 
     def get_success_url(self):
         return reverse_lazy(
-            "store:vendor_product_detail", kwargs={"slug": self.object.product.slug} # type: ignore
+            "store:vendor_product_detail", kwargs={"slug": self.object.product.slug}  # type: ignore
         )
-    
+
     def get_initial(self):
         initial = super().get_initial()
-        product = Product.objects.get(slug=self.object.product.slug) # type: ignore
+        product = Product.objects.get(slug=self.object.product.slug)  # type: ignore
         initial["product"] = product
         return initial
 
@@ -1106,7 +1030,7 @@ class UpdateProductItemView(UpdateView):
 
 class DeleteProductItemView(DeleteView):
     model = ProductItem
-    template_name = 'vendor/delete_productitem.html'
+    template_name = "vendor/delete_productitem.html"
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "Product item deleted successfully")
@@ -1114,9 +1038,10 @@ class DeleteProductItemView(DeleteView):
 
     def get_success_url(self):
         return reverse_lazy(
-            "store:vendor_product_detail", kwargs={"slug": self.object.product.slug} # type: ignore
+            "store:vendor_product_detail", kwargs={"slug": self.object.product.slug}  # type: ignore
         )
-    
+
+
 # Vendor Customers
 
 
@@ -1125,14 +1050,3 @@ class VendorCustomersView(View):
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
-
-# {
-#     'initial': 
-#         {
-#             'color': <Color: Default>, 
-#             'size': <Size: Default>, 
-#             'product': <Product: Wrist watch>
-#         },
-#         'prefix': None, 
-#         'data': <QueryDict: {'csrfmiddlewaretoken': ['2DUFiuzjvweUmaPFD3qwIhDYMRH7ClIpdpIEvkNBgEhlDgVRFqinRdd807J0Cs85'], 'sku': ['watch'], 'quantity_in_stock': ['5'], 'description': ['ff'], 'price': ['6000']}>, 'files': <MultiValueDict: {'product_image': [<InMemoryUploadedFile: wallpaper_inside_pc.jpg (image/jpeg)>]}>, 'instance': None}
-

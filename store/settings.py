@@ -23,15 +23,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY =config("SECRET_KEY") #"django-insecure-j1!-h4n#3&6=4*nxh(x-s6@zdveuesc1$q367*3k3-*s+v=l3t"
+SECRET_KEY = config(
+    "SECRET_KEY"
+)  # "django-insecure-j1!-h4n#3&6=4*nxh(x-s6@zdveuesc1$q367*3k3-*s+v=l3t"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config("DEBUG", default=False, cast=bool)
 
 
 ALLOWED_HOSTS = ["192.168.0.100", "127.0.0.1", "localhost", "https:localhost:8000"]
-CSRF_COOKIE_DOMAIN = ".uks1.devtunnels.ms"#".github.dev"
+CSRF_COOKIE_DOMAIN = ".uks1.devtunnels.ms"  # ".github.dev"
 
 # Application definition
 
@@ -77,7 +79,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                'shop.utils.context_processors.global_context',
+                "shop.utils.context_processors.global_context",
             ],
         },
     },
@@ -91,9 +93,9 @@ WSGI_APPLICATION = "store.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
     # "default": {
     #     "ENGINE": "django.db.backends.postgresql",
@@ -138,7 +140,7 @@ USE_TZ = True
 
 # Email Settings
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"#django.core.mail.backends.smtp.EmailBackend
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"  # django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST = "smtp.gmail.com"  # gmail
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
@@ -169,7 +171,6 @@ PAYSTACK_SECRET_KEY = os.environ.get("PAYSTACK_SECRET_KEY")
 PAYSTACK_PUBLIC_KEY = os.environ.get("PAYSTACK_PUBLIC_KEY")
 
 
-
 # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"#django.core.mail.backends.smtp.EmailBackend
 # EMAIL_HOST = "smtp.mailgun.org"  # gmail
 # EMAIL_PORT = 587
@@ -178,17 +179,17 @@ PAYSTACK_PUBLIC_KEY = os.environ.get("PAYSTACK_PUBLIC_KEY")
 # EMAIL_HOST_PASSWORD = "2de418cca439c3d5d0bb8159ec88e6b3-5d2b1caa-c70a24a5"
 
 MESSAGE_TAGS = {
-    messages.ERROR: 'error',
-    messages.WARNING: 'warning',
-    messages.SUCCESS: 'success',
-    messages.INFO: 'info',
+    messages.ERROR: "error",
+    messages.WARNING: "warning",
+    messages.SUCCESS: "success",
+    messages.INFO: "info",
 }
 
-DOMAIN_NAME = '127.0.0.1:8000'
+DOMAIN_NAME = "127.0.0.1:8000"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 cloudinary.config(
-  cloud_name = config("CLOUDINARY_CLOUD_NAME"),  
-  api_key = config("CLOUDINARY_API_KEY"),  
-  api_secret = config("CLOUDINARY_API_SECRET")  
+    cloud_name=config("CLOUDINARY_CLOUD_NAME"),
+    api_key=config("CLOUDINARY_API_KEY"),
+    api_secret=config("CLOUDINARY_API_SECRET"),
 )

@@ -45,7 +45,7 @@ class EmailVerification:
         Decode the message from JWT(JWS).
         """
 
-        token = jwt.decode(token, self.SECRET_KEY, algorithms="HS256",verify=True)
+        token = jwt.decode(token, self.SECRET_KEY, algorithms="HS256", verify=True)
 
         print("Decoded TOKEN:", token)
         return token
@@ -71,9 +71,7 @@ class EmailVerification:
         """
         Sends email to user
         """
-        verification_link = (
-            f"http://{self.DOMAIN}/accounts/verify-email/{token}"
-        )
+        verification_link = f"http://{self.DOMAIN}/accounts/verify-email/{token}"
         print(f"sending to {user.email}")
         context = {
             "name": user.username,
@@ -87,7 +85,7 @@ class EmailVerification:
         message = EmailMessage(subject, email_content, email_from, recipient_list)
         message.content_subtype = "html"
         # try:
-            # Send the email
+        # Send the email
         print("i got before sendining mail")
         # print(send_mail(subject=subject,from_email=email_from,recipient_list=recipient_list,html_message=email_content,message="email_content"))
         message.send()

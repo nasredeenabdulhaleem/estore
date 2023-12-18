@@ -234,10 +234,10 @@ class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
         fields = [
-            "unit_number",
-            "street_number",
-            "address_line1",
-            "address_line2",
+            "first_name",
+            "last_name",
+            "shipping_address",
+            "billing_address",
             "city",
             "state",
             "postal_code",
@@ -253,3 +253,21 @@ class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
         fields = ("amount", "email")
+
+
+
+
+
+class CheckoutForm(forms.Form):
+    first_name = forms.CharField(max_length=30)
+    last_name = forms.CharField(max_length=30)
+    email = forms.EmailField()
+    phone_number = forms.CharField(max_length=15)
+    shipping_address = forms.CharField(widget=forms.Textarea)
+    billing_address = forms.CharField(widget=forms.Textarea)
+    city = forms.CharField(max_length=30)  # Add this line
+    state = forms.CharField(max_length=30)  # Add this line
+    postal_code = forms.CharField(max_length=10)  # Add this line
+    country = forms.CharField(max_length=30)  # Add this line
+    save_info = forms.BooleanField(required=False)
+    

@@ -108,3 +108,7 @@ aside {
 .z-20{
   z-index: 20;
 }
+
+.text-black{
+  color: black;
+}

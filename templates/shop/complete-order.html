@@ -1,0 +1,96 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Orders {% endblock title %}
+
+{% block content %}
+
+    <div class="container mx-auto max-w-2xl p-8">
+        <div class=" mx-auto bg-white rounded-md overflow-hidden shadow-md">
+            <div class="p-6">
+                <h2 class="text-2xl font-semibold mb-4">Order Summary</h2>
+
+                <!-- Display order details -->
+                <div class="mb-4">
+                    <p class="text-gray-600">Order ID: # {{ order.ref }}</p>
+                    <p class="text-gray-600">Date: {{ order.ordered_date }}</p>
+                    <!-- Include other order details as needed -->
+                    <div class="mb-4">
+                        <h3 class="text-xl font-semibold mb-2">Order Status</h3>
+                        <p class="text-black">{{ order.status }}</p>
+                    </div>
+                </div>
+
+                <!-- Display ordered items -->
+                <div class="mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Ordered Items</h3>
+                    <ul>
+                        <div class="border-b min-w-sm border-gray-300 py-2">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center space-x-4">
+                                        <p class="text-black">product image</p>
+                                    <div class="flex">
+                                        <h2 class="text-lg text-black" font-semibold">product title</h2>/
+                                        <p class="text-black">product description</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center text-black space-x-4">
+                                    <div>
+                                         color/size- qty x price
+                                    </div>
+                                </div>
+                                <p class="text-xl text-black font-semibold">total_item_price</p>
+                            </div>
+                        </div>
+                        {% for item in order_items %}
+            <div class="border-b min-w-sm border-gray-300 py-2">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <img src="{{item.product.product_image.url}}" alt="Product Image"
+                            class="w-16 h-16 object-cover rounded-lg">
+                        <div>
+                            <h2 class="text-lg font-semibold">{{item.product.product.title}}</h2>
+                            <p class="text-black">{{item.product.product.description}}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center text-black space-x-4">
+                        <div>
+                             {{item.product.color.name}}/{{item.product.size.title}}- {{ item.quantity }} x ${{ item.product.price }}
+                        </div>
+                    </div>
+                    <p class="text-xl font-semibold">$ {{item.get_total_item_price | floatformat:2 }}</p>
+                </div>
+            </div>
+            {% endfor %}
+                        
+                    </ul>
+                </div>
+
+                <!-- Order total -->
+                <div class="mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Order Total</h3>
+                    <p class="text-lg font-semibold">${{ total }}</p>
+                </div>
+
+                <!-- Payment and action buttons -->
+                <div class="flex justify-between items-center">
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline-blue active:bg-blue-800">
+                        Pay Now
+                    </button>
+
+                    <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline-gray active:bg-accent-content">
+                        Cancel Order
+                    </button>
+
+                    <a href="{#% url 'download_receipt' order.id %}" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline-green active:bg-green-800">
+                        Download Receipt
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

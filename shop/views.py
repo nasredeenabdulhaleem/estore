@@ -3,6 +3,7 @@ import json
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from shop.utils.utils import generate_order_id
 from shop.vendorforms.addproduct import AddProductForm
 from shop.vendorforms.productitem import (
     ProductItemForm,
@@ -18,7 +19,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.views.generic import ListView, View, DetailView, UpdateView
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 
 # from shop.forms.addproduct import AddProductForm
 from .models import (
@@ -26,8 +27,10 @@ from .models import (
     Cart,
     CartItem,
     Color,
+    Country,
     Mostpopular,
     OrderHistory,
+    OrderStatus,
     Payment,
     OrderItem,
     Picture,
@@ -44,6 +47,7 @@ from .models import (
 from .forms import (
     AddressForm,
     AddressUpdateForm,
+    CheckoutForm,
     ProductAddToCartForm,
     ProductAddToCartFormV1,
     ProductAddToCartFormV3,
@@ -476,38 +480,187 @@ def removeItem(request, id):
 ###CHECKOUTVIEW
 
 
-class CheckoutView(LoginRequiredMixin, View):
+# class CheckoutView(LoginRequiredMixin, View):
+#     template_name = "shop/checkout.html"
+
+#     def get(self, request):
+#         cartitems = CartItem.objects.filter(cart__user=request.user)
+#         context = {
+#             "cart": cartitems,
+#             "data": user_context_processor(request),
+#         }
+#         try:
+#             user_address = get_object_or_404(UserAddress, user=request.user)
+#             context["address"] = user_address
+#         except Http404:
+#             context["address"] = False
+#         return render(request, self.template_name, context)
+
+#     def post(self, request):
+#         try:
+#             address = Address.objects.filter(pk=request.user.id).first()
+#             form = AddressUpdateForm(request.POST, instance=address)
+#             if not form.is_valid():
+#                 context = {"form": form}
+#                 return render(request, self.template_name, context)
+#             else:
+#                 form.save()
+#             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+#         except DatabaseError:
+#             messages.info(
+#                 self.request, "Please complete your shipping address Information"
+#             )
+#             return redirect("store:profile-create")
+
+
+class CheckoutView(View):
     template_name = "shop/checkout.html"
 
     def get(self, request):
         cartitems = CartItem.objects.filter(cart__user=request.user)
+        # check if an address instance exist for the user if it does exist initialize the form with the values
+        try:
+            user_address = get_object_or_404(UserAddress, user=request.user)
+            form = CheckoutForm(initial={
+                'first_name': user_address.address.first_name,
+                'last_name': user_address.address.last_name,
+                'email': user_address.address.email,
+                'phone_number': user_address.address.phone_number,
+                'shipping_address': user_address.address.shipping_address,
+                'billing_address': user_address.address.billing_address,
+                'city' : user_address.address.city,
+                'state' : user_address.address.state,
+                'postal_code' : user_address.address.postal_code,
+                'country' : user_address.address.country,
+                'save_info' : user_address.is_default
+            })
+        except Http404:
+            form = CheckoutForm()
         context = {
+            "form": form,
             "cart": cartitems,
             "data": user_context_processor(request),
         }
-        try:
-            user_address = get_object_or_404(UserAddress, user=request.user)
-            context["address"] = user_address
-        except Http404:
-            context["address"] = False
         return render(request, self.template_name, context)
 
     def post(self, request):
-        try:
-            address = Address.objects.filter(pk=request.user.id).first()
-            form = AddressUpdateForm(request.POST, instance=address)
-            if not form.is_valid():
-                context = {"form": form}
-                return render(request, self.template_name, context)
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            try:
+                user_address = get_object_or_404(UserAddress, user=request.user)
+            except Http404:
+                user_address = None
+            if user_address: 
+                address = user_address.address   
             else:
-                form.save()
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
-        except DatabaseError:
-            messages.info(
-                self.request, "Please complete your shipping address Information"
+                address = Address.objects.create(
+                        first_name=form.cleaned_data["first_name"],
+                        last_name=form.cleaned_data["last_name"],
+                        email=form.cleaned_data["email"],
+                        phone_number=form.cleaned_data["phone_number"],
+                        shipping_address=form.cleaned_data["shipping_address"],
+                        billing_address=form.cleaned_data["billing_address"],
+                        city=form.cleaned_data["city"],
+                        state=form.cleaned_data["state"],
+                        postal_code=form.cleaned_data["postal_code"],
+                        country=country
+                    )
+            
+            
+            status = OrderStatus.objects.get(status="Awaiting Payment")
+            order = Order.objects.create(
+                user=request.user,
+                ref = generate_order_id(),
+                # Add other order fields here
+                status=status,
+                shipping_address=address
             )
-            return redirect("store:profile-create")
 
+            cart = Cart.objects.get(user=request.user)
+            cart_items = CartItem.objects.filter(cart=cart)
+            for cart_item in cart_items:
+                OrderItem.objects.create(
+                    user=request.user,
+                    order=order,
+                    product=cart_item.product,
+                    quantity=cart_item.quantity,
+                )
+                cart.products.remove(cart_item.product)
+
+            order.save()
+            cart.save()
+
+            if form.cleaned_data.get("save_info"):
+                if user_address:
+                    user_address.address = address
+                    user_address.save()
+                else:
+                    UserAddress.objects.create(user=request.user, address=address)
+            # messages.success("Checkou")
+            return redirect("store:complete_order", order_ref=order.ref)  # Redirect to the payment page
+
+        context = {"form": form}
+        return render(request, self.template_name, context)
+
+class CompleteOrderView(View):
+    template_name = 'shop/complete-order.html'
+
+    def get(self, request, *args, **kwargs):
+        order_id = kwargs.get('order_ref')
+        order = Order.objects.get(ref=order_id)
+        order_items = OrderItem.objects.filter(order=order)
+        user_address = UserAddress.objects.get(user=order.user)
+        total = OrderItem.get_total_order_price(order=order)
+
+        context = {
+            'order': order,
+            'order_items': order_items,
+            'user_address': user_address,
+            "data": user_context_processor(request),
+            'total': total,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        order_id = kwargs.get('order_id')
+        order = Order.objects.get(id=order_id)
+        action = request.POST.get('action')
+        if action == 'pay':
+            # Handle payment here
+            pass
+        elif action == 'cancel':
+            # Handle cancellation here
+            pass
+        return redirect('order_summary')
+
+
+# from django.http import FileResponse
+# from django.template.loader import get_template
+# from xhtml2pdf import pisa
+# from io import BytesIO
+# from .models import Order, OrderItem
+
+# class OrderSummaryPDFView(View):
+#     def get(self, request, *args, **kwargs):
+#         # Get the order
+#         order_id = kwargs.get('order_id')
+#         order = Order.objects.get(id=order_id)
+
+#         # Render the template with context
+#         template = get_template('order_summary.html')
+#         context = {
+#             'order': order,
+#             'order_items': OrderItem.objects.filter(order=order),
+#         }
+#         html = template.render(context)
+
+#         # Convert the HTML to PDF
+#         result = BytesIO()
+#         pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+#         if not pdf.err:
+#             return FileResponse(BytesIO(result.getvalue()), content_type='application/pdf')
+
+#         return None
 
 @login_required
 def makepayment(request):
@@ -749,6 +902,29 @@ def VendorOrderView(request, *args, **kwargs):
     #     'order': order
     # }
     return render(request, "vendor/orders.html")
+
+
+class SearchOrdersView(View):
+    template_name = "orders/search.html"
+
+    def get(self, request):
+        query = request.GET.get("q", "")
+        status = request.GET.get("status", "")
+        sort = request.GET.get("sort", "order_id")  # Default sort field is 'order_id'
+
+        if status:
+            orders = Order.objects.filter(
+                Q(order_id__icontains=query) | Q(customer__name__icontains=query),
+                status=status,
+            )
+        else:
+            orders = Order.objects.filter(
+                Q(order_id__icontains=query) | Q(customer__name__icontains=query)
+            )
+
+        orders = orders.order_by(sort)  # Sort the queryset
+
+        return render(request, self.template_name, {"orders": orders})
 
 
 # Product View

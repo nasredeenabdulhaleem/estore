@@ -78,19 +78,23 @@ class Country(models.Model):
 
     def __str__(self):
         return self.country_name
+    
+    
 
 
 ################# -----------Address---------#################
 
 
 class Address(models.Model):
-    unit_number = models.IntegerField()
-    street_number = models.IntegerField(verbose_name="Street Number")
-    address_line1 = models.TextField(verbose_name="Address Line 1")
-    address_line2 = models.TextField(verbose_name="Address Line 2")
-    city = models.CharField(max_length=50, verbose_name="City")
-    state = models.CharField(max_length=20)
-    postal_code = models.CharField(max_length=8, null=True)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=30,verbose_name='Phone Number')
+    shipping_address = models.TextField(verbose_name="Shipping Address ")
+    billing_address = models.TextField(verbose_name="Billing Address")
+    city = models.CharField(max_length=30, verbose_name="City")
+    state = models.CharField(max_length=30)
+    postal_code = models.CharField(max_length=10, null=True)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -98,7 +102,11 @@ class Address(models.Model):
 
     @property
     def full_address(self):
-        return f"{self.unit_number}, {self.street_number}, {self.address_line1} {self.city} "
+        return f" {self.shipping_address} {self.city} "
+    
+    @property
+    def fullname(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 ################# -----------User Address--------#################
@@ -530,12 +538,17 @@ class Order(models.Model):
         "Address", on_delete=models.SET_NULL, blank=True, null=True
     )
     status = models.ForeignKey(
-        "Order_status", on_delete=models.SET_NULL, blank=True, null=True
+        "OrderStatus", on_delete=models.SET_NULL, blank=True, null=True
     )
     received = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username
+
+    @property
+    def total_quantity(self):
+        return self.productitem_set.aggregate(total=Sum("quantity_in_stock"))["total"] or 0  # type: ignore
+
 
     def save(self, *args, **kwargs):
         while not self.ref:
@@ -554,7 +567,7 @@ class OrderItem(models.Model):
     quantity = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.quantity} of {self.product.title}"
+        return f"{self.quantity} of {self.product.product.title}"
 
     @property
     def get_total_item_price(self):
@@ -564,14 +577,15 @@ class OrderItem(models.Model):
     def get_final_price(self):
         return self.get_total_item_price()
 
-    @property
-    def get_total_order_price(self):
+    
+    @classmethod
+    def get_total_order_price(cls, order):
         total = 0
-        order_items = OrderItem.objects.filter(order=self)
+        order_items = cls.objects.filter(order=order)
         for item in order_items:
-            total += item.get_total_item_price()
+            total += item.get_total_item_price
         return total
-
+    
     @classmethod
     def get_total_instances(cls, user):
         return cls.objects.filter(user=user).count()
@@ -583,9 +597,9 @@ class OrderHistory(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
 
-class Order_status(models.Model):
+class OrderStatus(models.Model):
     status = models.CharField(
-        choices=Order_choices, max_length=20, default="processing", null=False
+        max_length=20,
     )
 
     def __str__(self):

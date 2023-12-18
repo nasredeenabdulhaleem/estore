@@ -8,7 +8,7 @@
 
 {% block content %}
 
-<div class="text-sm breadcrumbs">
+<div class="text-sm m-4 breadcrumbs">
     <ul>
       <li>
         <a href="{% url 'store:user_settings' %}">
@@ -59,14 +59,13 @@
           {% if address %}
               <!-- Shipping Information Content -->
               <div class="flex flex-col mb-4">
-                  <span class="text-accent-content">Name: {{user_profile.fullname}}</span>
-                  <span class="text-accent-content">Unit Number: {{address.address.unit_number}}</span>
-                  <span class="text-accent-content">Street Number: {{address.address.street_number}}</span>
-                  <span class="text-accent-content">Address: {{address.address.address_line1}}</span>
+                  <span class="text-accent-content">Name: {{address.address.fullname}}</span>
+                  <span class="text-accent-content">Phone: {{address.address.phone_number}}</span>
+                  <span class="text-accent-content">Email: {{address.address.email}}</span>
+                  <span class="text-accent-content">Address: {{address.address.shipping_address}}</span>
                   <span class="text-accent-content">City: {{address.address.city}}</span>
                   <span class="text-accent-content">State: {{address.address.state}}</span>
-                  <span class="text-accent-content">Country: {{address.address.country}}</span>
-                  <span class="text-accent-content">Phone: {{address.address.phone}}</span>
+                  <span class="text-accent-content">Country: {{address.address.country.country_name}}</span>
               </div>
 
               <!-- Update Shipping Information Button -->

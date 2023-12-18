@@ -4,6 +4,7 @@ from .views import (
     # AddProductItemView,
     AddProductItemView,
     AddProductView,
+    CompleteOrderView,
     CreateAddress,
     DeleteProductItemView,
     DeleteProductView,
@@ -54,6 +55,7 @@ urlpatterns = [
     # Shop Functionalities
     path("checkout/", CheckoutView.as_view(), name="checkout"),
     path("cart/", CartView.as_view(), name="cart"),
+    path('complete_order/<slug:order_ref>/', CompleteOrderView.as_view(), name='complete_order'), # Complete Order
     # User Urls
     path("settings/", user_settings, name="user_settings"),
     path("profile/", Profile, name="profile"),

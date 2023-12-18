@@ -10,78 +10,160 @@
 
 <main>
     <div class="flex items-center justify-between border-t pt-4">
-      <p class="text-focus-content">Your cart is looking great!</p>
-  
-      <!-- Button for Continue Shopping -->
-      <a href="{% url 'store:cart' %}" class="group inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-focus focus:outline-none focus:ring focus:border-blue-700 transition duration-300 ease-in-out">
-        <i class="fas fa-arrow-left"></i>
-       <span class="mx-2">Return to Carrt</span>
-      </a>
+        <p class="text-focus-content">Your cart is looking great!</p>
+
+        <!-- Button for Continue Shopping -->
+        <a href="{% url 'store:cart' %}"
+            class="group inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-focus focus:outline-none focus:ring focus:border-blue-700 transition duration-300 ease-in-out">
+            <i class="fas fa-arrow-left"></i>
+            <span class="mx-2">Return to Cart</span>
+        </a>
     </div>
-      <div class="max-w-screen-lg mx-auto p-6">
-          <div class="bg-inherit rounded-lg shadow-lg p-4">
-              <h1 class="text-2xl font-semibold mb-4">Checkout</h1>
-              <!-- Product Information -->
-              {% for item in cart %}
-              <div class="border-b border-gray-300 py-2">
-                  <div class="flex justify-between items-center">
-                      <div class="flex items-center space-x-4">
-                          <img src="{{item.product.product_image.url}}" alt="Product Image" class="w-16 h-16 object-cover rounded-lg">
-                          <div>
-                              <h2 class="text-lg font-semibold">{{item.product.product.title}}</h2>
-                              <p class="text-gray-500">{{item.product.description}}</p>
-                          </div>
-                      </div>
-                      <p class="text-xl font-semibold">$ {{item.get_total_item_price | floatformat:2 }}</p>
-                  </div>
-              </div>
-              {% endfor %}
-  
-              <!-- Shipping Information -->
-              {% if address %}
-              <div class="py-4">
-                <h2 class="text-xl font-semibold mb-4">Shipping Information</h2>
-                <div class="space-y-2">
-                    <p class="text-accent-content"><span class="text-gray-500">Name: </span>{{data.user.fullname}}</p>
-                    <p class="text-accent-content"><span class="text-gray-500">Adress: </span>{{address.address.full_address}}</p>
-                    <p class="text-accent-content"><span class="text-gray-500">City: </span>{{address.address.city}}</p>
-                    <div class="flex space-x-2">
-                        <p class="text-accent-content"><span class="text-gray-500">Location: </span>{{address.address.state}}, {{address.address.country}}</p>
-                        <p class="text-accent-content"><span class="text-gray-500">Postal Code: </span>{{address.address.postal_code}}</p>
+    <div class="max-w-screen-lg mx-auto p-6">
+        <div class="bg-inherit rounded-lg shadow-lg p-4">
+            <h1 class="text-2xl font-semibold mb-4">Checkout</h1>
+            <!-- Product Information -->
+            {% for item in cart %}
+            <div class="border-b border-gray-300 py-2">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <img src="{{item.product.product_image.url}}" alt="Product Image"
+                            class="w-16 h-16 object-cover rounded-lg">
+                        <div>
+                            <h2 class="text-lg font-semibold">{{item.product.product.title}}</h2>
+                            <p class="text-gray-500">{{item.product.description}}</p>
+                        </div>
                     </div>
+                    <p class="text-xl font-semibold">$ {{item.get_total_item_price | floatformat:2 }}</p>
                 </div>
             </div>
-              {% else %}
-              <div class="py-4">
-                  <h2 class="text-xl font-semibold mb-4">Shipping Information</h2>
-                  <div class="space-y-2">
-                      <input type="text" class="input input-bordered" placeholder="Full Name">
-                      <input type="text" class="input input-bordered" placeholder="Shipping Address">
-                      <input type="text" class="input input-bordered" placeholder="City">
-                      <div class="flex space-x-2">
-                          <input type="text" class="input input-bordered" placeholder="State">
-                          <input type="text" class="input input-bordered" placeholder="Zip Code">
-                      </div>
-                  </div>
-              </div>
-                {% endif %}
-  
-              <!-- Payment Information -->
-              <div class="py-4">
-                  <h2 class="text-xl font-semibold mb-4">Payment Information</h2>
-                  <div class="space-y-2">
-                      <input type="text" class="input input-bordered" placeholder="Card Number">
-                      <div class="flex space-x-2">
-                          <input type="text" class="input input-bordered" placeholder="Expiration Date">
-                          <input type="text" class="input input-bordered" placeholder="CVV">
-                      </div>
-                  </div>
-              </div>
-  
-              <!-- Place Order Button -->
-              <button class="btn btn-primary w-full mt-4">Place Order</button>
-          </div>
-      </div>
-  </main>
+            {% endfor %}
+
+            <!-- Shipping Information -->
+            <div class="py-4">
+                <h2 class="text-xl font-semibold mb-4">Shipping Information</h2>
+           
+                <form method="post" class="p-6 bg-base-100 rounded-lg shadow-md">
+                    {% csrf_token %}
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.first_name.id_for_label }}"
+                                class="block text-lg font-medium text-accent-content">First Name</label>
+                            <input type="{{ form.first_name.field.widget.input_type }}"
+                                name="{{ form.first_name.html_name }}" id="{{ form.first_name.auto_id }}"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-base-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                value="{{ form.first_name.value|default:'' }}">
+                        </div>
+
+                        <div>
+                            <label for="{{ form.last_name.id_for_label }}"
+                                class="block text-lg font-medium text-accent-content">Last Name</label>
+                            <input type="{{ form.last_name.field.widget.input_type }}" name="{{ form.last_name.html_name }}"
+                                id="{{ form.last_name.auto_id }}"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-base-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                value="{{ form.last_name.value|default:'' }}">
+                        </div>
+
+                        <div>
+                            <label for="{{ form.email.id_for_label }}"
+                                class="block text-lg font-medium text-accent-content">Email</label>
+                            <input type="{{ form.email.field.widget.input_type }}" name="{{ form.email.html_name }}"
+                                id="{{ form.email.auto_id }}"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-base-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                value="{{ form.email.value|default:'' }}">
+                        </div>
+
+                        <div>
+                            <label for="{{ form.phone_number.id_for_label }}"
+                                class="block text-lg font-medium text-accent-content">Phone Number</label>
+                            <input type="{{ form.phone_number.field.widget.input_type }}"
+                                name="{{ form.phone_number.html_name }}" id="{{ form.phone_number.auto_id }}"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-base-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                value="{{ form.phone_number.value|default:'' }}">
+                        </div>
+
+                        <div>
+                            <label for="{{ form.shipping_address.id_for_label }}"
+                                class="block text-lg font-medium text-accent-content">Shipping Address</label>
+                            <textarea name="{{ form.shipping_address.html_name }}" id="{{ form.shipping_address.auto_id }}"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-base-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">{{ form.shipping_address.value|default:'' }}</textarea>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.billing_address.id_for_label }}"
+                                class="block text-lg font-medium text-accent-content">Billing Address</label>
+                            <textarea name="{{ form.billing_address.html_name }}" id="{{ form.billing_address.auto_id }}"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-base-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">{{ form.billing_address.value|default:'' }}</textarea>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.city.id_for_label }}"
+                                class="block text-lg font-medium text-accent-content">City</label>
+                            <input type="{{ form.city.field.widget.input_type }}" name="{{ form.city.html_name }}"
+                                id="{{ form.city.auto_id }}"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-base-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                value="{{ form.city.value|default:'' }}">
+                        </div>
+
+                        <div>
+                            <label for="{{ form.state.id_for_label }}"
+                                class="block text-lg font-medium text-accent-content">State</label>
+                            <input type="{{ form.state.field.widget.input_type }}" name="{{ form.state.html_name }}"
+                                id="{{ form.state.auto_id }}"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-base-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                value="{{ form.state.value|default:'' }}">
+                        </div>
+
+                        <div>
+                            <label for="{{ form.postal_code.id_for_label }}"
+                                class="block text-lg font-medium text-accent-content">Postal Code</label>
+                            <input type="{{ form.postal_code.field.widget.input_type }}"
+                                name="{{ form.postal_code.html_name }}" id="{{ form.postal_code.auto_id }}"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-base-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                value="{{ form.postal_code.value|default:'' }}">
+                        </div>
+
+                        <div>
+                            <label for="{{ form.country.id_for_label }}"
+                                class="block text-lg font-medium text-accent-content">Country</label>
+                            <input type="{{ form.country.field.widget.input_type }}" name="{{ form.country.html_name }}"
+                                id="{{ form.country.auto_id }}"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-base-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                value="{{ form.country.value|default:'' }}">
+                        </div>
+
+                        <div class="col-span-2">
+                            <input id="{{ form.save_info.auto_id }}" name="{{ form.save_info.html_name }}"
+                                type="checkbox"
+                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <label for="{{ form.save_info.auto_id }}" class="ml-2 block text-sm text-gray-900">
+                                Save this information for next time
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- <div class="flex items-center justify-end mt-4">
+                        <button type="submit" class="btn btn-primary">Checkout</button>
+                    </div> -->
+                    <button type="submit" class="btn btn-primary w-full mt-4">Checkout</button>
+
+                </form>
+            </div>
+            <!-- Payment Information -->
+            <!-- <div class="py-4">
+                <h2 class="text-xl font-semibold mb-4">Payment Information</h2>
+                <div class="space-y-2">
+                    <input type="text" class="input input-bordered" placeholder="Card Number">
+                    <div class="flex space-x-2">
+                        <input type="text" class="input input-bordered" placeholder="Expiration Date">
+                        <input type="text" class="input input-bordered" placeholder="CVV">
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Place Order Button -->
+        </div>
+    </div>
+</main>
 
 {% endblock content %}

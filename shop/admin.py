@@ -4,7 +4,7 @@ from .models import (
     CartItem,
     Color,
     Country,
-    Order_status,
+    OrderStatus,
     OrderHistory,
     Payment,
     PaymentMethod,
@@ -89,7 +89,7 @@ class CartAdmin(admin.ModelAdmin):
 class AddressAdmin(admin.ModelAdmin):
     model: Address
     list_display = [
-        "address_line1",
+        "shipping_address",
         "city",
         "state",
     ]
@@ -117,7 +117,7 @@ admin.site.register(Category)
 admin.site.register(Color)
 admin.site.register(Size)
 admin.site.register(Payment)
-admin.site.register(Order_status)
+admin.site.register(OrderStatus)
 admin.site.register(VendorProfile)
 admin.site.register(VendorStore)
 admin.site.register(Cart)

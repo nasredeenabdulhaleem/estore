@@ -1,22 +1,24 @@
 import requests
 from shop.models import Country  # Replace with your actual Country model import
 
+
 def dump_countries():
-    response = requests.get('https://restcountries.com/v2/all')
+    response = requests.get("https://restcountries.com/v2/all")
     data = response.json()
 
     for country_data in data:
         country, created = Country.objects.get_or_create(
-            country_name=country_data['name'],
+            country_name=country_data["name"],
             defaults={
                 # Add any other fields you want to populate here
-            }
+            },
         )
 
         if created:
-            print(f'Added {country.country_name} to the database.')
+            print(f"Added {country.country_name} to the database.")
         else:
-            print(f'{country.country_name} already exists in the database.')
+            print(f"{country.country_name} already exists in the database.")
+
 
 # Call the function to start the data dump
 # dump_countries()

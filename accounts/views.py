@@ -1,4 +1,5 @@
 import datetime
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from accounts.models import User, VerificationCount
@@ -71,6 +72,33 @@ class UserSignup(View):
         else:
             messages.error(request, f"Error Creating Account, Rectify error and retry")
             return render(request, self.template_name, {"form": form})
+
+
+class VerifyEmailView(View):
+    """
+    View to handle email verification.
+    """
+
+    def get(self, request, token):
+        """
+        Handles GET requests. The token is passed as a URL parameter.
+        """
+        email_verifier = EmailVerification()
+
+        try:
+            # Decode the token and get the email
+            payload = email_verifier.decode_token(token)
+            email = payload["email"]
+
+            # Activate the user
+            if email_verifier.activate_user(email):
+                return HttpResponse("Email verification successful and user activated.")
+            else:
+                return HttpResponse(
+                    "Email verification failed. Invalid token or user does not exist."
+                )
+        except Exception as e:
+            return HttpResponse(f"Error verifying email: {e}")
 
 
 # class Login(LoginView):

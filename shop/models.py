@@ -78,8 +78,6 @@ class Country(models.Model):
 
     def __str__(self):
         return self.country_name
-    
-    
 
 
 ################# -----------Address---------#################
@@ -89,7 +87,7 @@ class Address(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField()
-    phone_number = models.CharField(max_length=30,verbose_name='Phone Number')
+    phone_number = models.CharField(max_length=30, verbose_name="Phone Number")
     shipping_address = models.TextField(verbose_name="Shipping Address ")
     billing_address = models.TextField(verbose_name="Billing Address")
     city = models.CharField(max_length=30, verbose_name="City")
@@ -103,7 +101,7 @@ class Address(models.Model):
     @property
     def full_address(self):
         return f"{self.shipping_address}, {self.city}, {self.state}, {self.postal_code}, {self.country}"
-    
+
     @property
     def fullname(self):
         return f"{self.first_name} {self.last_name}"
@@ -549,7 +547,6 @@ class Order(models.Model):
     def total_quantity(self):
         return self.productitem_set.aggregate(total=Sum("quantity_in_stock"))["total"] or 0  # type: ignore
 
-
     def save(self, *args, **kwargs):
         while not self.ref:
             ref = generate_order_id()
@@ -577,7 +574,6 @@ class OrderItem(models.Model):
     def get_final_price(self):
         return self.get_total_item_price()
 
-    
     @classmethod
     def get_total_order_price(cls, order):
         total = 0
@@ -585,7 +581,7 @@ class OrderItem(models.Model):
         for item in order_items:
             total += item.get_total_item_price
         return total
-    
+
     @classmethod
     def get_total_instances(cls, user):
         return cls.objects.filter(user=user).count()

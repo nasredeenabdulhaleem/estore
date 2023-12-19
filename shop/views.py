@@ -519,26 +519,57 @@ def removeItem(request, id):
 
 
 class CheckoutView(View):
+    """
+    View class for handling the checkout process.
+
+    GET request:
+    - Retrieves the user's cart items and displays the checkout form.
+    - If the user has a saved address, the form is pre-filled with the address details.
+
+    POST request:
+    - Validates the submitted form data.
+    - Creates an order and saves the address details if the form is valid.
+    - Removes the purchased items from the user's cart.
+    - Redirects to the order completion page.
+
+    Attributes:
+    - template_name (str): The name of the template used for rendering the checkout page.
+    """
+
     template_name = "shop/checkout.html"
 
     def get(self, request):
+        """
+        Handles the GET request for the checkout page.
+
+        Retrieves the user's cart items and displays the checkout form.
+        If the user has a saved address, the form is pre-filled with the address details.
+
+        Args:
+        - request (HttpRequest): The HTTP request object.
+
+        Returns:
+        - HttpResponse: The HTTP response object containing the rendered checkout page.
+        """
         cartitems = CartItem.objects.filter(cart__user=request.user)
         # check if an address instance exist for the user if it does exist initialize the form with the values
         try:
             user_address = get_object_or_404(UserAddress, user=request.user)
-            form = CheckoutForm(initial={
-                'first_name': user_address.address.first_name,
-                'last_name': user_address.address.last_name,
-                'email': user_address.address.email,
-                'phone_number': user_address.address.phone_number,
-                'shipping_address': user_address.address.shipping_address,
-                'billing_address': user_address.address.billing_address,
-                'city' : user_address.address.city,
-                'state' : user_address.address.state,
-                'postal_code' : user_address.address.postal_code,
-                'country' : user_address.address.country,
-                'save_info' : user_address.is_default
-            })
+            form = CheckoutForm(
+                initial={
+                    "first_name": user_address.address.first_name,
+                    "last_name": user_address.address.last_name,
+                    "email": user_address.address.email,
+                    "phone_number": user_address.address.phone_number,
+                    "shipping_address": user_address.address.shipping_address,
+                    "billing_address": user_address.address.billing_address,
+                    "city": user_address.address.city,
+                    "state": user_address.address.state,
+                    "postal_code": user_address.address.postal_code,
+                    "country": user_address.address.country,
+                    "save_info": user_address.is_default,
+                }
+            )
         except Http404:
             form = CheckoutForm()
         context = {
@@ -549,36 +580,52 @@ class CheckoutView(View):
         return render(request, self.template_name, context)
 
     def post(self, request):
+        """
+        Handles the POST request for the checkout page.
+
+        Validates the submitted form data.
+        Creates an order and saves the address details if the form is valid.
+        Removes the purchased items from the user's cart.
+        Redirects to the order completion page.
+
+        Args:
+        - request (HttpRequest): The HTTP request object.
+
+        Returns:
+        - HttpResponse: The HTTP response object for redirecting to the order completion page
+                        or rendering the checkout page with form errors.
+        """
         form = CheckoutForm(request.POST)
         if form.is_valid():
             try:
                 user_address = get_object_or_404(UserAddress, user=request.user)
             except Http404:
                 user_address = None
-            if user_address: 
-                address = user_address.address   
+            if user_address:
+                address = user_address.address
             else:
+                country_data = form.cleaned_data["country_name"]
+                country = Country.objects.get(country_name=country_data)
                 address = Address.objects.create(
-                        first_name=form.cleaned_data["first_name"],
-                        last_name=form.cleaned_data["last_name"],
-                        email=form.cleaned_data["email"],
-                        phone_number=form.cleaned_data["phone_number"],
-                        shipping_address=form.cleaned_data["shipping_address"],
-                        billing_address=form.cleaned_data["billing_address"],
-                        city=form.cleaned_data["city"],
-                        state=form.cleaned_data["state"],
-                        postal_code=form.cleaned_data["postal_code"],
-                        country=country
-                    )
-            
-            
+                    first_name=form.cleaned_data["first_name"],
+                    last_name=form.cleaned_data["last_name"],
+                    email=form.cleaned_data["email"],
+                    phone_number=form.cleaned_data["phone_number"],
+                    shipping_address=form.cleaned_data["shipping_address"],
+                    billing_address=form.cleaned_data["billing_address"],
+                    city=form.cleaned_data["city"],
+                    state=form.cleaned_data["state"],
+                    postal_code=form.cleaned_data["postal_code"],
+                    country=country,
+                )
+
             status = OrderStatus.objects.get(status="Awaiting Payment")
             order = Order.objects.create(
                 user=request.user,
-                ref = generate_order_id(),
+                ref=generate_order_id(),
                 # Add other order fields here
                 status=status,
-                shipping_address=address
+                shipping_address=address,
             )
 
             cart = Cart.objects.get(user=request.user)
@@ -602,48 +649,49 @@ class CheckoutView(View):
                 else:
                     UserAddress.objects.create(user=request.user, address=address)
             # messages.success("Checkou")
-            return redirect("store:complete_order", order_ref=order.ref)  # Redirect to the payment page
+            return redirect(
+                "store:complete_order", order_ref=order.ref
+            )  # Redirect to the payment page
 
         context = {"form": form}
         return render(request, self.template_name, context)
 
+
 class CompleteOrderView(View):
-    template_name = 'shop/complete-order.html'
+    template_name = "shop/complete-order.html"
 
     def get(self, request, *args, **kwargs):
-        order_id = kwargs.get('order_ref')
+        order_id = kwargs.get("order_ref")
         order = Order.objects.get(ref=order_id)
         order_items = OrderItem.objects.filter(order=order)
         user_address = UserAddress.objects.get(user=order.user)
         total = OrderItem.get_total_order_price(order=order)
 
         context = {
-            'order': order,
-            'order_items': order_items,
-            'user_address': user_address,
+            "order": order,
+            "order_items": order_items,
+            "user_address": user_address,
             "data": user_context_processor(request),
-            'total': total,
+            "total": total,
         }
         return render(request, self.template_name, context)
-
-    
 
 
 class OrderSummaryPDFView(View):
     def get(self, request, *args, **kwargs):
         # Get the order
-        order_ref = kwargs.get('order_ref')
+        order_ref = kwargs.get("order_ref")
         order = Order.objects.get(ref=order_ref)
         user_address = UserAddress.objects.get(user=order.user)
         total = OrderItem.get_total_order_price(order=order)
 
         # Render the template with context
-        template = get_template('shop/order_summary.html')
+        template = get_template("shop/order_summary.html")
         context = {
-            'order': order,
-            'order_items': OrderItem.objects.filter(order=order),
-            'user_address': user_address,
-            'total': total,
+            "order": order,
+            "order_items": OrderItem.objects.filter(order=order),
+            "user_address": user_address,
+            "total": total,
         }
         html = template.render(context)
 
@@ -651,7 +699,9 @@ class OrderSummaryPDFView(View):
         result = BytesIO()
         pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
         if not pdf.err:
-            return FileResponse(BytesIO(result.getvalue()), content_type='application/pdf')
+            return FileResponse(
+                BytesIO(result.getvalue()), content_type="application/pdf"
+            )
 
         return None
 

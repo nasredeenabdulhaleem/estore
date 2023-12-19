@@ -255,9 +255,6 @@ class PaymentForm(forms.ModelForm):
         fields = ("amount", "email")
 
 
-
-
-
 class CheckoutForm(forms.Form):
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
@@ -270,4 +267,3 @@ class CheckoutForm(forms.Form):
     postal_code = forms.CharField(max_length=10)  # Add this line
     country = forms.CharField(max_length=30)  # Add this line
     save_info = forms.BooleanField(required=False)
-    

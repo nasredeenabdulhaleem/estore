@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <main>
+        <div class="container mx-auto max-w-2xl p-8">
+        <div class=" mx-auto bg-white rounded-md overflow-hidden shadow-md">
+            <div class="p-6">
+                <h2 class="text-2xl font-semibold mb-4">Order Summary</h2>
+
+                <!-- Display order details -->
+                <div class="mb-4">
+                    <p class="text-gray-600">Order ID: # {{ order.ref }}</p>
+                    <p class="text-gray-600">Date: {{ order.ordered_date }}</p>
+                    <!-- Include other order details as needed -->
+                    <div class="mb-4">
+                        <h3 class="text-xl font-semibold mb-2">Order Status</h3>
+                        <p class="text-black">{{ order.status }}</p>
+                    </div>
+                </div>
+
+                <!-- Display ordered items -->
+                <div class="mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Ordered Items</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product Image</th>
+                                <th>Product Title</th>
+                                <th>Color / Size</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total Item Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order_items %}
+                                <tr style="margin: .5em 0;">
+                                    <td style="padding:.5em;"><img src="{{ item.product.product_image.url }}" alt="Product Image"></td>
+                                    <td style="padding:.5em;">{{ item.product.product.title }}</td>
+                                    <td style="padding:.5em;">{{ item.product.color.name }}/{{ item.product.size.title }}</td>
+                                    <td style="padding:.5em;">{{ item.quantity }}</td>
+                                    <td style="padding:.5em;">${{ item.product.price }}</td>
+                                    <td style="padding:.5em;">${{ item.get_total_item_price | floatformat:2 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                </div>
+
+                <!-- Order total -->
+                <div class="mb-4">
+                    <h3 class="text-xl font-semibold mb-2">Order Total</h3>
+                    <p class="text-lg font-semibold">${{ total }}</p>
+                </div>
+<div class="bg-white shadow-md rounded-lg p-6 mb-4">
+    <h2 class="text-2xl font-semibold mb-4">Shipping Details</h2>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div style="display: flex;">
+        <div>
+            <h3 class="text-lg font-semibold mb-1">Full Name</h3>
+            <p class="text-gray-700">{{ user_address.address.fullname }}</p>
+        </div>
+
+        <div>
+            <h3 class="text-lg font-semibold mb-1">Email</h3>
+            <p class="text-gray-700">{{ user_address.address.email }}</p>
+        </div>
+    </div>
+        <div>
+            <h3 class="text-lg font-semibold mb-1">Phone Number</h3>
+            <p class="text-gray-700">{{ user_address.address.phone_number }}</p>
+        </div>
+
+        <div>
+            <h3 class="text-lg font-semibold mb-1">Shipping Address</h3>
+            <p class="text-gray-700">{{ user_address.address.full_address }}</p>
+        </div>
+
+    </div>
+</div>
+                <!-- Payment and action buttons -->
+                <div class="flex justify-between items-center">
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline-blue active:bg-blue-800">
+                        Pay Now
+                    </button>
+
+                    <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline-gray active:bg-accent-content">
+                        Cancel Order
+                    </button>
+
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/theme-change@2.0.2/index.js"></script>
+<script src="{% static 'js/index.js' %}"></script>
+<script>
+    window.onload = function() {
+    setTimeout(function() {
+        var toastContainer = document.getElementById('toastContainer');
+        if (toastContainer) {
+            toastContainer.style.display = 'none';
+        }
+    }, 5000);  // 5000 milliseconds = 5 seconds
+}
+</script>
+</html>
+    

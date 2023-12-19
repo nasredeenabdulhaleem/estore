@@ -21,7 +21,12 @@ from django.contrib import messages
 from django.views.generic import ListView, View, DetailView, UpdateView
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 
-# from shop.forms.addproduct import AddProductForm
+from django.http import FileResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from io import BytesIO
+
+
 from .models import (
     Address,
     Cart,
@@ -621,46 +626,35 @@ class CompleteOrderView(View):
         }
         return render(request, self.template_name, context)
 
-    def post(self, request, *args, **kwargs):
-        order_id = kwargs.get('order_id')
-        order = Order.objects.get(id=order_id)
-        action = request.POST.get('action')
-        if action == 'pay':
-            # Handle payment here
-            pass
-        elif action == 'cancel':
-            # Handle cancellation here
-            pass
-        return redirect('order_summary')
+    
 
 
-# from django.http import FileResponse
-# from django.template.loader import get_template
-# from xhtml2pdf import pisa
-# from io import BytesIO
-# from .models import Order, OrderItem
+class OrderSummaryPDFView(View):
+    def get(self, request, *args, **kwargs):
+        # Get the order
+        order_ref = kwargs.get('order_ref')
+        order = Order.objects.get(ref=order_ref)
+        user_address = UserAddress.objects.get(user=order.user)
+        total = OrderItem.get_total_order_price(order=order)
 
-# class OrderSummaryPDFView(View):
-#     def get(self, request, *args, **kwargs):
-#         # Get the order
-#         order_id = kwargs.get('order_id')
-#         order = Order.objects.get(id=order_id)
+        # Render the template with context
+        template = get_template('shop/order_summary.html')
+        context = {
+            'order': order,
+            'order_items': OrderItem.objects.filter(order=order),
+            'user_address': user_address,
+            'total': total,
+        }
+        html = template.render(context)
 
-#         # Render the template with context
-#         template = get_template('order_summary.html')
-#         context = {
-#             'order': order,
-#             'order_items': OrderItem.objects.filter(order=order),
-#         }
-#         html = template.render(context)
+        # Convert the HTML to PDF
+        result = BytesIO()
+        pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+        if not pdf.err:
+            return FileResponse(BytesIO(result.getvalue()), content_type='application/pdf')
 
-#         # Convert the HTML to PDF
-#         result = BytesIO()
-#         pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-#         if not pdf.err:
-#             return FileResponse(BytesIO(result.getvalue()), content_type='application/pdf')
+        return None
 
-#         return None
 
 @login_required
 def makepayment(request):

@@ -11,6 +11,7 @@ from .views import (
     HomeView,
     CartView,
     CheckoutView,
+    OrderSummaryPDFView,
     ProductView,
     UpdateAddress,
     UpdateProductItemView,
@@ -56,6 +57,7 @@ urlpatterns = [
     path("checkout/", CheckoutView.as_view(), name="checkout"),
     path("cart/", CartView.as_view(), name="cart"),
     path('complete_order/<slug:order_ref>/', CompleteOrderView.as_view(), name='complete_order'), # Complete Order
+    path("Order-Summary/<slug:order_ref>/", OrderSummaryPDFView.as_view(), name="order_summary_pdf"), # Order Summary PDF
     # User Urls
     path("settings/", user_settings, name="user_settings"),
     path("profile/", Profile, name="profile"),

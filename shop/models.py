@@ -102,7 +102,7 @@ class Address(models.Model):
 
     @property
     def full_address(self):
-        return f" {self.shipping_address} {self.city} "
+        return f"{self.shipping_address}, {self.city}, {self.state}, {self.postal_code}, {self.country}"
     
     @property
     def fullname(self):

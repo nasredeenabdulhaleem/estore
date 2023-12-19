@@ -85,7 +85,7 @@
                         Cancel Order
                     </button>
 
-                    <a href="{#% url 'download_receipt' order.id %}" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline-green active:bg-green-800">
+                    <a href="{% url 'store:order_summary_pdf' order.ref %}" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline-green active:bg-green-800">
                         Download Receipt
                     </a>
                 </div>

@@ -46,6 +46,7 @@ def user_context_processor(request):
         "total_price": total,
     }
 
+
 def vendor_context_processor(request):
     user = request.user
     if user.is_anonymous:
@@ -54,4 +55,3 @@ def vendor_context_processor(request):
         }
     vendor = VendorProfile.objects.get(user=user)
     return vendor.business_name
-    

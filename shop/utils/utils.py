@@ -7,9 +7,7 @@ import uuid
 
 
 def generate_vendor_id():
-    vendor_id = (
-        f"VND{random.randint(100000, 999999)}"
-    )
+    vendor_id = f"VND{random.randint(100000, 999999)}"
     return slugify(vendor_id)
 
 

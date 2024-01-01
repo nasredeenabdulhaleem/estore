@@ -931,16 +931,15 @@ class VendorHomeView(View):
 # Vendor Dashboard
 
 
-class VendorDashboardView(LoginRequiredMixin,View):
+class VendorDashboardView(LoginRequiredMixin, View):
     template_name = "vendor/dashboard.html"
 
     def get_login_url(self):
-        return reverse('vendor_login', args=[self.kwargs['business_name']])
+        return reverse("vendor_login", args=[self.kwargs["business_name"]])
 
     def get(self, request, *args, **kwargs):
-        
         context = {
-            "business_name":vendor_context_processor(request),
+            "business_name": vendor_context_processor(request),
         }
         return render(request, self.template_name, context=context)
 
@@ -1285,13 +1284,13 @@ class VendorCustomersView(View):
         return render(request, self.template_name)
 
 
-
 def view_404(request, exception):
     return render(request, "404.html")
 
 
 def view_500(request):
     return render(request, "500.html", status=500)
+
 
 def view_403(request, exception):
     return render(request, "403.html", status=403)

@@ -49,9 +49,9 @@ from .views import (
 from django.contrib.auth import views as auth_views
 
 app_name = "store"
-handler404 = 'shop.views.view_404'
-handler500 = 'shop.views.view_500'
-handler403 = 'shop.views.view_403'
+handler404 = "shop.views.view_404"
+handler500 = "shop.views.view_500"
+handler403 = "shop.views.view_403"
 urlpatterns = [
     #  Index page
     path("", HomeView.as_view(), name="store"),
@@ -95,8 +95,12 @@ urlpatterns = [
     path(
         "store/<slug>/", VendorHomeView.as_view(), name="vendor-storefront"
     ),  # vendore storefront
-    path("<str:business_name>/settings/", VendorSettings, name="vendor-settings"),  # vendor settings
-    path("<str:business_name>/orders/", VendorOrderView, name="vendor-orders"),  # vendor orders
+    path(
+        "<str:business_name>/settings/", VendorSettings, name="vendor-settings"
+    ),  # vendor settings
+    path(
+        "<str:business_name>/orders/", VendorOrderView, name="vendor-orders"
+    ),  # vendor orders
     path(
         "<str:business_name>/products/", ProductView.as_view(), name="vendor-products"
     ),  # vendors Products
@@ -134,11 +138,13 @@ urlpatterns = [
         name="delete-product-item",
     ),
     path(
-        "<str:business_name>/customers/", VendorCustomersView.as_view(), name="vendor customers"
+        "<str:business_name>/customers/",
+        VendorCustomersView.as_view(),
+        name="vendor customers",
     ),  # vendor customers
 ]
 
 if settings.DEBUG:
     urlpatterns += [
-        re_path(r'^404/$', view_404),
+        re_path(r"^404/$", view_404),
     ]

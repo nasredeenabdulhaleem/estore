@@ -48,6 +48,7 @@ from .models import (
     UserAddress,
     UserProfile,
     VendorProfile,
+    VendorStore,
 )
 from .forms import (
     AddressForm,
@@ -910,13 +911,18 @@ def reciept(request, slug):
 class VendorHomeView(View):
     template_name = "vendor/store-front.html"
 
-    def get(self, request):
+    def get(self, request, slug):
+        vendor_info = VendorStore.objects.get(store_name=slug)
+        vendor_products = Product.objects.filter(vendor=vendor_info.vendor)
+
         # order = VendorOrder.objects.filter(user_user_id=request.user.id)
-        # context ={
+        context = {
+            "vendor_products": vendor_products,
+            "vendor_info": vendor_info,
+            "data": user_context_processor(request),
+        }
 
-        # }
-
-        return render(request, self.template_name)
+        return render(request, self.template_name, context)
 
 
 ####################################################################################################3

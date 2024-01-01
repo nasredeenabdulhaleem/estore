@@ -104,6 +104,12 @@
             
             </div>
             {% else %}
+            <div>
+              <a class="text-gray-800 hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium"
+              href="{% url 'login'%}">Login</a>
+          <a class="bg-gray-800 text-white hover:bg-gray-700 rounded-md px-3 py-2 ml-4 text-sm font-medium"
+              href="{% url 'signup'%}">Sign up</a>
+            </div>
           {% endif %}
           </div>
         </div>

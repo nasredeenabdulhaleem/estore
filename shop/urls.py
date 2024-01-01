@@ -88,7 +88,7 @@ urlpatterns = [
     # Vendor Urls
     path("vendor/", VendorDashboardView.as_view(), name="vendor-home"),
     path(
-        "vendor/storefront/", VendorHomeView.as_view(), name="vendor-storefront"
+        "store/<slug>/", VendorHomeView.as_view(), name="vendor-storefront"
     ),  # vendore storefront
     path("vendor/settings/", VendorSettings, name="vendor-settings"),  # vendor settings
     path("vendor/orders/", VendorOrderView, name="vendor-orders"),  # vendor orders

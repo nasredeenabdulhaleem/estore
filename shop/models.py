@@ -1,6 +1,7 @@
 import secrets
 import uuid
 from django.core.files.base import ContentFile
+from django.utils.text import slugify
 from django.urls import reverse
 import requests
 import validators
@@ -682,6 +683,10 @@ class VendorProfile(models.Model):
     def __str__(self):
         return self.vendor_id
 
+    @property
+    def vendor_fullname(self):
+        return f"{self.firstname} {self.lastname}"
+
 
 # Vendor Bank Information
 
@@ -700,13 +705,54 @@ class VendorBank(models.Model):
 
 
 class VendorStore(models.Model):
-    user = models.OneToOneField(VendorProfile, on_delete=models.CASCADE)
+    vendor = models.OneToOneField(VendorProfile, on_delete=models.CASCADE)
     store_name = models.CharField(max_length=255, null=False)
     store_address = models.ForeignKey(Address, on_delete=models.CASCADE)
-    store_theme = models.CharField(max_length=255, null=False)
+    store_logo = CloudinaryField("image")
 
     def __str__(self):
-        return self.user.vendor_id
+        return self.vendor.vendor_id
+
+    def save(self, *args, **kwargs):
+        """
+        Save the model instance.
+
+        If a new image file is uploaded, upload it to Cloudinary and update the image field with the secure URL.
+        If no new image file is uploaded, keep the existing image URL.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            None
+        """
+        if self.store_logo and hasattr(self.store_logo, "file"):
+            cloudinary = CloudinaryManager("vendor-logo")
+            response = cloudinary.upload_image(self.store_logo)
+            self.image = response["secure_url"]
+
+        if self.store_name:
+            self.store_name = slugify(self.store_name)
+
+        super().save(*args, **kwargs)
+
+    # delete images from cloudinary when delete is initiated
+    def delete(self, *args, **kwargs):
+        """
+        Deletes the current instance and its associated image from Cloudinary.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            None
+        """
+        cloudinary = CloudinaryManager("vendor-logo")
+        public_id = cloudinary.get_public_id(self.store_logo.url)
+        cloudinary.delete_image(public_id)
+        super().delete(*args, **kwargs)
 
 
 # Vendor Wallet Account
@@ -724,7 +770,7 @@ class VendorWallet(models.Model):
 
 
 class VendorWalletHistory(models.Model):
-    user = models.ForeignKey(VendorProfile, on_delete=models.CASCADE)
+    vendor = models.ForeignKey(VendorProfile, on_delete=models.CASCADE)
     reference = models.CharField(max_length=255, null=False, default=uuid.uuid4)
     wallet_balance = models.IntegerField(null=False)
     transaction_type = models.CharField(

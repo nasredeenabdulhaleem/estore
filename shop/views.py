@@ -11,7 +11,7 @@ from shop.vendorforms.productitem import (
     ProductItemFormVariation2,
     ProductItemFormVariation3,
 )
-from shop.globalcontext import user_context_processor
+from shop.globalcontext import user_context_processor, vendor_context_processor
 from .pay import initializepay
 from sqlite3 import DatabaseError
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -66,7 +66,7 @@ from . import forms
 from .scripts import productitem
 from django.conf import settings
 from django.views.generic import DeleteView, CreateView
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from .models import Product
 
 # log(
@@ -931,11 +931,18 @@ class VendorHomeView(View):
 # Vendor Dashboard
 
 
-class VendorDashboardView(View):
+class VendorDashboardView(LoginRequiredMixin,View):
     template_name = "vendor/dashboard.html"
 
+    def get_login_url(self):
+        return reverse('vendor_login', args=[self.kwargs['business_name']])
+
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name)
+        
+        context = {
+            "business_name":vendor_context_processor(request),
+        }
+        return render(request, self.template_name, context=context)
 
 
 # settings
@@ -1276,3 +1283,15 @@ class VendorCustomersView(View):
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
+
+
+
+def view_404(request, exception):
+    return render(request, "404.html")
+
+
+def view_500(request):
+    return render(request, "500.html", status=500)
+
+def view_403(request, exception):
+    return render(request, "403.html", status=403)

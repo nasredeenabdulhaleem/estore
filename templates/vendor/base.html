@@ -77,13 +77,13 @@
                 <button class="btn btn-circle btn-outline shadow-md" title="dashboard"><a class="text-inherit py-2 px-4"
                         href="#"><i class="fas fa-tachometer-alt"></i></a></button>
                 <button class="btn btn-circle btn-outline shadow-md" title="Products"><a class="text-inherit py-2 px-4"
-                        href="{% url 'store:vendor-products' %}"><i class="fas fa-boxes"></i></a></button>
+                        href="{% url 'store:vendor-products' business_name %}"><i class="fas fa-boxes"></i></a></button>
                 <button class="btn btn-circle btn-outline shadow-md" title="Orders"><a class="text-inherit py-2 px-4"
-                        href="{% url 'store:vendor-orders' %}"><i class="fas fa-clipboard-list"></i></a></button>
+                        href="{% url 'store:vendor-orders' business_name %}"><i class="fas fa-clipboard-list"></i></a></button>
                 <button class="btn btn-circle btn-outline shadow-md" title="Customers"><a class="text-inherit py-2 px-4"
                         href="#"><i class="fas fa-users"></i></a></button>
                 <button class="btn btn-circle btn-outline shadow-md" title="Settings"><a class="text-inherit py-2 px-4"
-                        href="{% url 'store:vendor-settings' %}"><i class="fas fa-cogs"></i></a></button>
+                        href="{% url 'store:vendor-settings' business_name %}"><i class="fas fa-cogs"></i></a></button>
             </div>
         </aside>
         <div
@@ -92,16 +92,16 @@
                 <a class="text-inherit font-bold py-2 px-4 w-full" href="./dashboard.html"><button
                         class="btn btn-square p-2 btn-lg btn-outline shadow-lg w-full" title="dashboard"><i
                             class="fas fa-tachometer-alt"></i> Dashboard</button></a>
-                <a class="text-inherit font-bold py-2 px-4 w-full" href="{% url 'store:vendor-products' %}"><button
+                <a class="text-inherit font-bold py-2 px-4 w-full" href="{% url 'store:vendor-products' business_name %}"><button
                         class="btn btn-square p-2 btn-lg btn-outline shadow-lg w-full" title="products"><i
                             class="fas fa-boxes"></i> Products</button></a>
-                <a class="text-inherit font-bold py-2 px-4 w-full" href="{% url 'store:vendor-orders' %}"><button
+                <a class="text-inherit font-bold py-2 px-4 w-full" href="{% url 'store:vendor-orders' business_name %}"><button
                         class="btn btn-square p-2 btn-lg btn-outline shadow-lg w-full" title="orders"><i
                             class="fas fa-clipboard-list"></i> Orders</button></a>
                 <a class="text-inherit font-bold py-2 px-4 w-full" href="./customers.html"><button
                         class="btn btn-square p-2 btn-lg btn-outline shadow-lg w-full" title="customers"><i
                             class="fas fa-users"></i> Customers</button></a>
-                <a class="text-inherit font-bold py-2 px-4 w-full" href="{% url 'store:vendor-settings' %}"><button
+                <a class="text-inherit font-bold py-2 px-4 w-full" href="{% url 'store:vendor-settings' business_name %}"><button
                         class="btn btn-square p-2 btn-lg btn-outline shadow-lg w-full" title="settings"><i
                             class="fas fa-cogs"></i>Settings</button></a>
             </div>

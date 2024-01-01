@@ -669,15 +669,20 @@ class RequestedRefund(models.Model):
 class VendorProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     vendor_id = models.CharField(max_length=255, null=False)
-    firstname = models.CharField(max_length=255, null=False)
-    lastname = models.CharField(max_length=255, null=False)
-    phone = models.CharField(max_length=11, null=False)
+    business_name = models.CharField(max_length=255, null=False)
+    firstname = models.CharField(max_length=255, null=True)
+    lastname = models.CharField(max_length=255, null=True)
+    phone = models.CharField(max_length=11, null=True)
     email = models.EmailField(null=False)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    address = models.TextField(null=True)
 
     def save(self, *args, **kwargs):
         if not self.vendor_id:
-            self.vendor_id = generate_vendor_id(self.firstname, self.lastname)
+            self.vendor_id = generate_vendor_id()
+
+        if self.business_name:
+            self.business_name = slugify(self.business_name)
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -707,7 +712,7 @@ class VendorBank(models.Model):
 class VendorStore(models.Model):
     vendor = models.OneToOneField(VendorProfile, on_delete=models.CASCADE)
     store_name = models.CharField(max_length=255, null=False)
-    store_address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    store_address = models.TextField(null=True)
     store_logo = CloudinaryField("image")
 
     def __str__(self):
@@ -731,9 +736,6 @@ class VendorStore(models.Model):
             cloudinary = CloudinaryManager("vendor-logo")
             response = cloudinary.upload_image(self.store_logo)
             self.image = response["secure_url"]
-
-        if self.store_name:
-            self.store_name = slugify(self.store_name)
 
         super().save(*args, **kwargs)
 

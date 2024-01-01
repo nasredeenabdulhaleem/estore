@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from shop.models import Cart, CartItem, OrderItem
+from shop.models import Cart, CartItem, OrderItem, VendorProfile
 
 
 def my_global_context_processor(request):
@@ -45,3 +45,13 @@ def user_context_processor(request):
         "total_items": total_items,
         "total_price": total,
     }
+
+def vendor_context_processor(request):
+    user = request.user
+    if user.is_anonymous:
+        return {
+            "business_name": "",
+        }
+    vendor = VendorProfile.objects.get(user=user)
+    return vendor.business_name
+    

@@ -1,5 +1,7 @@
 import datetime
+import email
 from django.http import HttpResponse
+from django.http import Http404
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from accounts.models import User, VerificationCount
@@ -11,8 +13,9 @@ from django.contrib.auth.views import LoginView
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.conf import settings
+from shop.models import VendorProfile, VendorStore
 from store import settings
-from accounts.forms import SignupForm, LoginForm
+from accounts.forms import SignupForm, LoginForm, VendorSignupForm
 from pinax.eventlog.models import log
 from accounts.emailverification import EmailVerification
 
@@ -39,7 +42,6 @@ class UserSignup(View):
 
     def post(self, request):
         form = SignupForm(request.POST)
-        print(request.POST)
         if form.is_valid():
             try:
                 user = form.save()
@@ -158,6 +160,44 @@ class Login(LoginView):
 # # VENDOR ACCOUNTS VIEW
 # VENDOR SIGNUP VIEW
 
+def vendor_signup(self, request):
+    if request.method == 'POST':
+        form = VendorSignupForm(request.POST)
+
+        if form.is_valid():
+            user = User.objects.create_user(username=form.cleaned_data['business_name'], email=form.cleaned_data['email'], password=form.cleaned_data['password1'])
+            vendor = VendorProfile.objects.create(user=user,email=user.email)
+            vendor_store = VendorStore.objects.create(vendor=vendor,store_name=form.cleaned_data['business_name'])
+            return redirect('login')
+
+def business_name_exists(business_name):
+    return VendorProfile.objects.filter(business_name=business_name).exists()
+
+def vendor_login(request, business_name):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        next_url = request.POST.get('next', '')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect('vendor_home', business_name=business_name)
+        else:
+            # Return an 'invalid login' error message.
+            context = {
+                'error': 'Invalid username or password',
+                'business_name': business_name
+                }
+            return render(request, 'login.html', context)
+    else:
+        if business_name_exists(business_name):
+            context={'business_name': business_name}
+            return render(request, 'accounts/vendor-login.html',context=context)
+        else:
+            raise Http404("Business name does not exist")
 
 class VendorSignupView:
     templatee_name = "account/vendor/signup.html"

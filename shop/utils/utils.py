@@ -6,9 +6,9 @@ import random
 import uuid
 
 
-def generate_vendor_id(firstname, lastname):
+def generate_vendor_id():
     vendor_id = (
-        f"{firstname[:3].upper()}{lastname[:3].upper()}{random.randint(100000, 999999)}"
+        f"VND{random.randint(100000, 999999)}"
     )
     return slugify(vendor_id)
 

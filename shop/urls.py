@@ -1,4 +1,5 @@
-from django.urls import path
+from store import settings
+from django.urls import path, re_path
 
 from .views import (
     # AddProductItemView,
@@ -43,10 +44,14 @@ from .views import (
     CreateProfile,
     UpdateProfile,
     vendor_product_detail,
+    view_404,
 )
 from django.contrib.auth import views as auth_views
 
 app_name = "store"
+handler404 = 'shop.views.view_404'
+handler500 = 'shop.views.view_500'
+handler403 = 'shop.views.view_403'
 urlpatterns = [
     #  Index page
     path("", HomeView.as_view(), name="store"),
@@ -86,49 +91,54 @@ urlpatterns = [
     path("remove_from_cart/<slug:slug>/", remove_from_cart, name="remove_from_cart"),  # type: ignore
     path("get-item/", quickview),
     # Vendor Urls
-    path("vendor/", VendorDashboardView.as_view(), name="vendor-home"),
+    path("<str:business_name>/", VendorDashboardView.as_view(), name="vendor-home"),
     path(
         "store/<slug>/", VendorHomeView.as_view(), name="vendor-storefront"
     ),  # vendore storefront
-    path("vendor/settings/", VendorSettings, name="vendor-settings"),  # vendor settings
-    path("vendor/orders/", VendorOrderView, name="vendor-orders"),  # vendor orders
+    path("<str:business_name>/settings/", VendorSettings, name="vendor-settings"),  # vendor settings
+    path("<str:business_name>/orders/", VendorOrderView, name="vendor-orders"),  # vendor orders
     path(
-        "vendor/products/", ProductView.as_view(), name="vendor-products"
+        "<str:business_name>/products/", ProductView.as_view(), name="vendor-products"
     ),  # vendors Products
     path(
-        "vendor/product/<slug:slug>/",
+        "<str:business_name>/product/<slug:slug>/",
         vendor_product_detail,
         name="vendor_product_detail",
     ),
     path(
-        "vendor/add-product/", AddProductView.as_view(), name="add-product"
+        "<str:business_name>/add-product/", AddProductView.as_view(), name="add-product"
     ),  # vendor add products
     path(
-        "vendor/update-product/<slug:slug>/",
+        "<str:business_name>/update-product/<slug:slug>/",
         UpdateProductView.as_view(),
         name="update-product",
     ),  # vendor update products
     path(
-        "vendor/delete-product/<slug:slug>/",
+        "<str:business_name>/delete-product/<slug:slug>/",
         DeleteProductView.as_view(),
         name="delete-product",
     ),  # vendor delete products
     path(
-        "vendor/productitem/<slug:slug>/create",
+        "<str:business_name>/productitem/<slug:slug>/create",
         AddProductItemView.as_view(),
         name="add-product-item",
     ),  # vendor add product item
     path(
-        "vendor/productitem/<int:pk>/update",
+        "<str:business_name>/productitem/<int:pk>/update",
         UpdateProductItemView.as_view(),
         name="update-product-item",
     ),  # vendor update product item
     path(
-        "vendor/productitem/<int:pk>/delete/",
+        "<str:business_name>/productitem/<int:pk>/delete/",
         DeleteProductItemView.as_view(),
         name="delete-product-item",
     ),
     path(
-        "vendor/customers/", VendorCustomersView.as_view(), name="vendor customers"
+        "<str:business_name>/customers/", VendorCustomersView.as_view(), name="vendor customers"
     ),  # vendor customers
 ]
+
+if settings.DEBUG:
+    urlpatterns += [
+        re_path(r'^404/$', view_404),
+    ]

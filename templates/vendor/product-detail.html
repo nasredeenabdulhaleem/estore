@@ -11,12 +11,12 @@
 <div class="text-sm breadcrumbs">
     <ul>
       <li>
-        <a href="{% url 'store:vendor-home' %}">
+        <a href="{% url 'store:vendor-home' business_name %}">
           <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
       </li>
       <li>
-        <a href="{% url 'store:vendor-products' %}">
+        <a href="{% url 'store:vendor-products' business_name %}">
           <i class="fas fa-box"></i> Products
         </a>
       </li>
@@ -54,8 +54,8 @@
 
             <!-- Action Buttons -->
             <div class="flex justify-between mt-4">
-                <a href="{% url 'store:update-product' product.slug %}"><button class="btn btn-primary">Update</button></a>
-                <a href="{% url 'store:delete-product' product.slug %}"><button class="btn btn-error">Delete Product</button></a>
+                <a href="{% url 'store:update-product' business_name product.slug %}"><button class="btn btn-primary">Update</button></a>
+                <a href="{% url 'store:delete-product' business_name product.slug %}"><button class="btn btn-error">Delete Product</button></a>
             </div>
         </div>
     </div>
@@ -67,7 +67,7 @@
         <!-- Action Buttons -->
         <div class="flex justify-between mt-4">
             
-            <a href="{% url 'store:add-product-item' product.slug %}"><button class="btn btn-primary">Add Product Item</button></a>
+            <a href="{% url 'store:add-product-item' business_name product.slug %}"><button class="btn btn-primary">Add Product Item</button></a>
         </div>
         <!-- Variant Table -->
         {% if product.variation == 'Default' %}
@@ -90,8 +90,8 @@
                         <td class="border px-4 py-2">${{variant.price}}</td>
                         <td class="border px-4 py-2">{{variant.quantity_in_stock}}</td>
                         <td class="border px-4 py-2 flex flex-nowrap gap-2">
-                            <a href="{% url 'store:update-product-item' variant.id %}"><button class="btn btn-primary">Update</button></a>
-                            <a href="{% url 'store:delete-product' variant.id %}"><button class="btn btn-error">Delete</button></a>
+                            <a href="{% url 'store:update-product-item' business_name variant.id %}"><button class="btn btn-primary">Update</button></a>
+                            <a href="{% url 'store:delete-product' business_name variant.id %}"><button class="btn btn-error">Delete</button></a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -121,8 +121,8 @@
                         <td class="border px-4 py-2">{{variant.quantity_in_stock}}</td>
                         <td class="border px-4 py-2">{{variant.size.title}}</td>
                         <td class="border px-4 py-2 flex flex-nowrap gap-2">
-                            <a href="{% url 'store:update-product-item' variant.id %}"><button class="btn btn-primary">Update</button></a>
-                            <a href="{% url 'store:delete-product' variant.id %}"><button class="btn btn-error">Delete</button></a>
+                            <a href="{% url 'store:update-product-item' business_name variant.id %}"><button class="btn btn-primary">Update</button></a>
+                            <a href="{% url 'store:delete-product' business_name variant.id %}"><button class="btn btn-error">Delete</button></a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -152,8 +152,8 @@
                         <td class="border px-4 py-2">{{variant.quantity_in_stock}}</td>
                         <td class="border px-4 py-2">{{variant.color.name}}/{{variant.size.title}}</td>
                         <td class="border px-4 py-2 flex flex-nowrap gap-2">
-                            <a href="{% url 'store:update-product-item' variant.id %}"><button class="btn btn-primary">Update</button></a>
-                            <a href="{% url 'store:delete-product-item' variant.id %}"><button class="btn btn-error">Delete</button></a>
+                            <a href="{% url 'store:update-product-item' business_name variant.id %}"><button class="btn btn-primary">Update</button></a>
+                            <a href="{% url 'store:delete-product-item' business_name variant.id %}"><button class="btn btn-error">Delete</button></a>
                         </td>
                     </tr>
                     {% endfor %}

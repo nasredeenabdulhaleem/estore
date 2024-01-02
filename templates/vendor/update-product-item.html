@@ -11,17 +11,17 @@
 <div class="text-sm breadcrumbs">
     <ul>
         <li>
-            <a href="{% url 'store:vendor-home' %}">
+            <a href="{% url 'store:vendor-home' business_name %}">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
         </li>
         <li>
-            <a href="{% url 'store:vendor-products' %}">
+            <a href="{% url 'store:vendor-products' business_name %}">
                 <i class="fas fa-box-open"></i> Products
             </a>
         </li>
         <li>
-            <a href="{% url 'store:vendor_product_detail' object.product.slug %}">
+            <a href="{% url 'store:vendor_product_detail' business_name object.product.slug %}">
               <i class="fas fa-info-circle"></i> Product Detail
             </a>
           </li>

@@ -1,9 +1,14 @@
+from curses.ascii import US
 import datetime
 import json
+from math import log
+from re import U
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
-from shop.utils.utils import generate_order_id
+from shop.utils.utils import generate_order_id, user_passes_test_with_args
 from shop.vendorforms.addproduct import AddProductForm
 from shop.vendorforms.productitem import (
     ProductItemForm,
@@ -76,7 +81,28 @@ from .models import Product
 #         extra={"title": foo.title},
 #     )
 
+
 # Create your views here.
+def business_name_exists(business_name):
+    return VendorProfile.objects.filter(business_name=business_name).exists()
+
+
+def is_store_admin(business_name, user) -> bool:
+    vendor = VendorProfile.objects.get(user=user).business_name
+    return vendor == business_name
+
+
+def is_user(user):
+    return user.is_authenticated and user.role == "User"
+
+
+def is_vendor(user, business_name):
+    return (
+        user.is_authenticated
+        and user.role == "Vendor"
+        and is_store_admin(business_name, user)
+    )
+    # return user.is_authenticated and user.role == "Vendor"
 
 
 # //////--------/////////////////////////////////------------------///////////////////
@@ -214,6 +240,8 @@ User Settings
 """
 
 
+@login_required
+@user_passes_test(is_user, login_url=reverse_lazy("login"))
 def user_settings(request, *args, **kwargs):
     context = {
         "user": request.user,
@@ -228,6 +256,8 @@ Create Profile
 
 
 ##PROFILEVIEW
+@login_required
+@user_passes_test(is_user, login_url=reverse_lazy("login"))
 def Profile(request, *args, **kwargs):
     template_name = "shop/user/profile.html"
     try:
@@ -250,9 +280,12 @@ def Profile(request, *args, **kwargs):
 ##PROFILECREATE
 
 
-class CreateProfile(LoginRequiredMixin, View):
+class CreateProfile(LoginRequiredMixin, UserPassesTestMixin, View):
     model = UserProfile
     template_name = "shop/user/create-profile.html"
+
+    def test_func(self):
+        return is_user(self.request.user)
 
     def get(self, request):
         form = UserProfileForm()
@@ -283,8 +316,11 @@ class CreateProfile(LoginRequiredMixin, View):
 ###PROFILEUPDATE
 
 
-class UpdateProfile(LoginRequiredMixin, View):
+class UpdateProfile(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "shop/user/update-profile.html"
+
+    def test_func(self):
+        return is_user(self.request.user)
 
     def get(self, request):
         try:
@@ -331,8 +367,11 @@ class UpdateProfile(LoginRequiredMixin, View):
 ##AddressCREATE
 
 
-class CreateAddress(LoginRequiredMixin, View):
+class CreateAddress(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "shop/user/create-address.html"
+
+    def test_func(self):
+        return is_user(self.request.user)
 
     def get(self, request):
         form = AddressForm()
@@ -364,8 +403,11 @@ class CreateAddress(LoginRequiredMixin, View):
 ###AddressUPDATE
 
 
-class UpdateAddress(LoginRequiredMixin, View):
+class UpdateAddress(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "shop/user/update-address.html"
+
+    def test_func(self):
+        return is_user(self.request.user)
 
     def get(self, request):
         try:
@@ -410,9 +452,12 @@ class UpdateAddress(LoginRequiredMixin, View):
 
 
 # Cart View
-class CartView(LoginRequiredMixin, ListView):
+class CartView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = OrderItem
     template_name = "shop/cart.html"
+
+    def test_func(self):
+        return is_user(self.request.user)
 
     def get(self, request):
         cartitems = CartItem.objects.filter(cart__user=request.user)
@@ -427,6 +472,8 @@ class CartView(LoginRequiredMixin, ListView):
 # Increase item Quantity by one
 
 
+@login_required
+@user_passes_test(is_user, login_url=reverse_lazy("login"))
 def increaseItem(request, id):
     user = request.user
     # product = CartItem.objects.get(id=id)
@@ -449,6 +496,8 @@ def increaseItem(request, id):
 
 
 # Decrease item Quantity by one
+@login_required
+@user_passes_test(is_user, login_url=reverse_lazy("login"))
 def decreaseItem(request, id):
     user = request.user
     # product = CartItem.objects.get(id=id)
@@ -470,6 +519,8 @@ def decreaseItem(request, id):
 
 
 # Remove item from cart
+@login_required
+@user_passes_test(is_user, login_url=reverse_lazy("login"))
 def removeItem(request, id):
     user = request.user
     cart_qs = Cart.objects.filter(user=user)
@@ -519,7 +570,7 @@ def removeItem(request, id):
 #             return redirect("store:profile-create")
 
 
-class CheckoutView(View):
+class CheckoutView(LoginRequiredMixin, UserPassesTestMixin, View):
     """
     View class for handling the checkout process.
 
@@ -538,6 +589,9 @@ class CheckoutView(View):
     """
 
     template_name = "shop/checkout.html"
+
+    def test_func(self):
+        return is_user(self.request.user)
 
     def get(self, request):
         """
@@ -658,8 +712,11 @@ class CheckoutView(View):
         return render(request, self.template_name, context)
 
 
-class CompleteOrderView(View):
+class CompleteOrderView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "shop/complete-order.html"
+
+    def test_func(self):
+        return is_user(self.request.user)
 
     def get(self, request, *args, **kwargs):
         order_id = kwargs.get("order_ref")
@@ -678,7 +735,10 @@ class CompleteOrderView(View):
         return render(request, self.template_name, context)
 
 
-class OrderSummaryPDFView(View):
+class OrderSummaryPDFView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return is_user(self.request.user)
+
     def get(self, request, *args, **kwargs):
         # Get the order
         order_ref = kwargs.get("order_ref")
@@ -708,6 +768,7 @@ class OrderSummaryPDFView(View):
 
 
 @login_required
+@user_passes_test(is_user, login_url=reverse_lazy("login"))
 def makepayment(request):
     user = request.user
     order = Order.objects.get(user_id=user.id, ordered=False)
@@ -734,119 +795,124 @@ def makepayment(request):
         return JsonResponse(data, safe=False)
 
 
-@login_required
-def AddToCart(request):
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            color = request.POST.get("color")
-            size = request.POST.get("size")
-            prodid = request.POST.get("prodid")
-            qty = int(request.POST.get("quantity"))
+# @login_required
+# @user_passes_test(is_user,login_url= reverse_lazy("login"))
+# def AddToCart(request):
+#     if request.user.is_authenticated:
+#         if request.method == "POST":
+#             color = request.POST.get("color")
+#             size = request.POST.get("size")
+#             prodid = request.POST.get("prodid")
+#             qty = int(request.POST.get("quantity"))
 
-            print(f"{color} {size} {prodid} {qty}")
-            # data = json.loads(request.body)
-            # print(data["form"].color)
-            # for x in data["form"]:
-            #     print(x)
-            # slug = data["productId"]
-            # action = data["action"]
-            user = request.user
+#             print(f"{color} {size} {prodid} {qty}")
+#             # data = json.loads(request.body)
+#             # print(data["form"].color)
+#             # for x in data["form"]:
+#             #     print(x)
+#             # slug = data["productId"]
+#             # action = data["action"]
+#             user = request.user
 
-            product = ProductVaraiant.objects.get(
-                product__slug=prodid, color_id=color, size_id=size
-            )
-            orderitem, created = OrderItem.objects.get_or_create(
-                product=product, user=user, ordered=False
-            )
-            order_qs = Order.objects.filter(user=user, ordered=False)
-            if order_qs.exists():
-                order = order_qs.first()
+#             product = ProductVaraiant.objects.get(
+#                 product__slug=prodid, color_id=color, size_id=size
+#             )
+#             orderitem, created = OrderItem.objects.get_or_create(
+#                 product=product, user=user, ordered=False
+#             )
+#             order_qs = Order.objects.filter(user=user, ordered=False)
+#             if order_qs.exists():
+#                 order = order_qs.first()
 
-                if order.items.filter(product__slug=product.slug).exists():
-                    print("exists")
-                    orderitem.quantity += qty
-                    orderitem.save()
-                    messages.info(request, "Item was added succesfully")
-                    return redirect("store:cart")
-                else:
-                    order.items.add(orderitem)
-                    orderitem.quantity += qty
-                    orderitem.save()
-                    messages.info(request, "Item was added succesfully")
-                    return redirect("store:cart")
+#                 if order.items.filter(product__slug=product.slug).exists():
+#                     print("exists")
+#                     orderitem.quantity += qty
+#                     orderitem.save()
+#                     messages.info(request, "Item was added succesfully")
+#                     return redirect("store:cart")
+#                 else:
+#                     order.items.add(orderitem)
+#                     orderitem.quantity += qty
+#                     orderitem.save()
+#                     messages.info(request, "Item was added succesfully")
+#                     return redirect("store:cart")
 
-            else:
-                ordered_date = datetime.datetime.now()
-                order = Order.objects.create(
-                    user=request.user, ordered_date=ordered_date
-                )
-                orderitem.quantity += qty
-                order.items.add(orderitem)
-                order.save()
-                messages.info(request, "This item was added to your cart.")
-                return redirect("store:cart")
+#             else:
+#                 ordered_date = datetime.datetime.now()
+#                 order = Order.objects.create(
+#                     user=request.user, ordered_date=ordered_date
+#                 )
+#                 orderitem.quantity += qty
+#                 order.items.add(orderitem)
+#                 order.save()
+#                 messages.info(request, "This item was added to your cart.")
+#                 return redirect("store:cart")
 
-            # return JsonResponse("item was added", safe=False)
-        else:
-            messages.info(request, "Your request couldn't be processed.")
-            return redirect("store:store")
-    else:
-        return JsonResponse({"url": "accounts/login/"}, safe=False)
-
-
-@login_required
-def UpdateCart(request):
-    data = json.loads(request.body)
-    slug = data["productId"]
-    action = data["action"]
-    print(f"{action} {slug}")
-    user = request.user
-    product = ProductVaraiant.objects.get(slug=slug)
-    print(product)
-    orderitem, created = OrderItem.objects.get_or_create(
-        product=product, user=user, ordered=False
-    )
-    order_qs = Order.objects.filter(user=user, ordered=False)
-    if order_qs.exists():
-        order = order_qs.first()
-        if order.items.filter(product__slug=product.slug).exists():
-            if action == "add":
-                orderitem.quantity += 1
-                orderitem.save()
-            elif action == "reduce":
-                orderitem.quantity -= 1
-                orderitem.save()
-            if orderitem.quantity <= 0:
-                orderitem.delete()
-        else:
-            order.items.add(orderitem)
-            orderitem.save()
-    else:
-        ordered_date = datetime.datetime.now()
-        order = Order.objects.create(user=request.user, ordered_date=ordered_date)
-        order.items.add(orderitem)
-        messages.info(request, "This item was added to your cart.")
-        order.save()
-    return JsonResponse("item was added", safe=False)
+#             # return JsonResponse("item was added", safe=False)
+#         else:
+#             messages.info(request, "Your request couldn't be processed.")
+#             return redirect("store:store")
+#     else:
+#         return JsonResponse({"url": "accounts/login/"}, safe=False)
 
 
-@login_required  # type: ignore
-def remove_from_cart(request, pk):
-    item = get_object_or_404(Product, pk=pk)
-    OrderItem = OrderItem.objects.get_or_create(product=item)
-    if OrderItem.objects.filter(product=item).exists():
-        OrderItem.item.remove()
-        OrderItem.save()
-        order_query = Order.objects.filter(user=request.user, ordered=False)
-        order = order_query
-        order.add(OrderItem)
-        order.save()
-        messages.success(request, "item succsssfully removed")
-    else:
-        messages.error(request, "yay this item is not in your OrderItem")
+# @login_required
+# @user_passes_test(is_user, login_url=reverse_lazy("login"))
+# def UpdateCart(request):
+#     data = json.loads(request.body)
+#     slug = data["productId"]
+#     action = data["action"]
+#     print(f"{action} {slug}")
+#     user = request.user
+#     product = ProductVaraiant.objects.get(slug=slug)
+#     print(product)
+#     orderitem, created = OrderItem.objects.get_or_create(
+#         product=product, user=user, ordered=False
+#     )
+#     order_qs = Order.objects.filter(user=user, ordered=False)
+#     if order_qs.exists():
+#         order = order_qs.first()
+#         if order.items.filter(product__slug=product.slug).exists():
+#             if action == "add":
+#                 orderitem.quantity += 1
+#                 orderitem.save()
+#             elif action == "reduce":
+#                 orderitem.quantity -= 1
+#                 orderitem.save()
+#             if orderitem.quantity <= 0:
+#                 orderitem.delete()
+#         else:
+#             order.items.add(orderitem)
+#             orderitem.save()
+#     else:
+#         ordered_date = datetime.datetime.now()
+#         order = Order.objects.create(user=request.user, ordered_date=ordered_date)
+#         order.items.add(orderitem)
+#         messages.info(request, "This item was added to your cart.")
+#         order.save()
+#     return JsonResponse("item was added", safe=False)
+
+
+# @login_required  # type: ignore
+# @user_passes_test(is_user, login_url=reverse_lazy("login"))
+# def remove_from_cart(request, pk):
+#     item = get_object_or_404(Product, pk=pk)
+#     OrderItem = OrderItem.objects.get_or_create(product=item)
+#     if OrderItem.objects.filter(product=item).exists():
+#         OrderItem.item.remove()
+#         OrderItem.save()
+#         order_query = Order.objects.filter(user=request.user, ordered=False)
+#         order = order_query
+#         order.add(OrderItem)
+#         order.save()
+#         messages.success(request, "item succsssfully removed")
+#     else:
+#         messages.error(request, "yay this item is not in your OrderItem")
 
 
 ###Making And Validating Payments
+@login_required
+@user_passes_test(is_user, login_url=reverse_lazy("login"))
 def initiate_payment(request):
     if request.method == "POST":
         payment_form = forms.PaymentForm(request.POST)
@@ -908,8 +974,11 @@ def reciept(request, slug):
 # Vendor Dashboard View Section
 
 
-class VendorHomeView(View):
+class VendorHomeView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/store-front.html"
+
+    def test_func(self):
+        return is_vendor(self.request.user)
 
     def get(self, request, slug):
         vendor_info = VendorStore.objects.get(store_name=slug)
@@ -931,8 +1000,13 @@ class VendorHomeView(View):
 # Vendor Dashboard
 
 
-class VendorDashboardView(LoginRequiredMixin, View):
+class VendorDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/dashboard.html"
+
+    def test_func(self):
+        return is_vendor(
+            self.request.user, self.kwargs["business_name"]
+        ) and business_name_exists(self.kwargs["business_name"])
 
     def get_login_url(self):
         return reverse("vendor_login", args=[self.kwargs["business_name"]])
@@ -945,23 +1019,34 @@ class VendorDashboardView(LoginRequiredMixin, View):
 
 
 # settings
-def VendorSettings(request, *args, **kwargs):
-    return render(request, "vendor/settings.html")
+@login_required
+@user_passes_test_with_args(is_vendor, login_url=reverse_lazy("vendor_login"))
+def VendorSettings(request, business_name, *args, **kwargs):
+    context = {"business_name": business_name}
+    return render(request, "vendor/settings.html", context=context)
 
 
 # Vendor Order
 
 
-def VendorOrderView(request, *args, **kwargs):
+@login_required
+@user_passes_test_with_args(is_vendor, login_url=reverse_lazy("vendor_login"))
+def VendorOrderView(request, business_name, *args, **kwargs):
     # order = VendorOrder.objects.filter(user_user_id=request.user.id)
-    # context ={
-    #     'order': order
-    # }
-    return render(request, "vendor/orders.html")
+    context = {
+        # 'order': order,
+        "business_name": business_name
+    }
+    return render(request, "vendor/orders.html", context=context)
 
 
-class SearchOrdersView(View):
+class SearchOrdersView(LoginRequiredMixin, UserProfile, View):
     template_name = "orders/search.html"
+
+    def test_func(self):
+        return is_user(self.request.user) and business_name_exists(
+            self.kwargs["business_name"]
+        )
 
     def get(self, request):
         query = request.GET.get("q", "")
@@ -986,23 +1071,36 @@ class SearchOrdersView(View):
 # Product View
 
 
-class ProductView(View):
+class ProductView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/product.html"
 
-    def get(self, request, *args, **kwargs):
+    def test_func(self):
+        return is_vendor(
+            self.request.user, self.kwargs["business_name"]
+        ) and business_name_exists(self.kwargs["business_name"])
+
+    def get(self, request, business_name, *args, **kwargs):
         product = Product.objects.filter(vendor__user=request.user).all()
-        context = {"products": product, "title": "product"}
+        context = {
+            "products": product,
+            "title": "product",
+            "business_name": business_name,
+        }
+
         return render(request, self.template_name, context)
 
 
 # A view to show a detail of a vendor product
-def vendor_product_detail(request, slug, *args, **kwargs):
+@login_required
+@user_passes_test_with_args(is_vendor, login_url=reverse_lazy("vendor_login"))
+def vendor_product_detail(request, business_name, slug, *args, **kwargs):
     product = Product.objects.get(vendor__user=request.user, slug=slug)
     productitem = ProductItem.objects.filter(product=product)
     context = {
         "product": product,
         "productitem": productitem,
         "title": "Product Details",
+        "business_name": business_name,
     }
     return render(request, "vendor/product-detail.html", context)
 
@@ -1010,8 +1108,13 @@ def vendor_product_detail(request, slug, *args, **kwargs):
 # Add product View
 
 
-class AddProductView(View):
+class AddProductView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/add-product.html"
+
+    def test_func(self):
+        return is_vendor(
+            self.request.user, self.kwargs["business_name"]
+        ) and business_name_exists(self.kwargs["business_name"])
 
     def get(self, request):
         form = AddProductForm()
@@ -1058,10 +1161,15 @@ class AddProductView(View):
 # Update Product
 
 
-class UpdateProductView(UpdateView):
+class UpdateProductView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = "vendor/update-product.html"
     model = Product
     form_class = AddProductForm
+
+    def test_func(self):
+        return is_vendor(
+            self.request.user, self.kwargs["business_name"]
+        ) and business_name_exists(self.kwargs["business_name"])
 
     def get_queryset(self):
         return self.model.objects.filter(
@@ -1071,6 +1179,7 @@ class UpdateProductView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = "Update Product"
+        context["business_name"] = self.kwargs["business_name"]
         return context
 
     def form_valid(self, form):
@@ -1090,10 +1199,15 @@ class UpdateProductView(UpdateView):
 # Delete Product
 
 
-class DeleteProductView(DeleteView):
+class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     template_name = "vendor/delete-product.html"
     model = Product
     success_url = reverse_lazy("store:vendor-products")
+
+    def test_func(self):
+        return is_vendor(
+            self.request.user, self.kwargs["business_name"]
+        ) and business_name_exists(self.kwargs["business_name"])
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "Product deleted successfully")
@@ -1102,6 +1216,7 @@ class DeleteProductView(DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = "Delete Product"
+        context["business_name"] = self.kwargs["business_name"]
         return context
 
 
@@ -1110,10 +1225,15 @@ class DeleteProductView(DeleteView):
 # Add product item
 
 
-class AddProductItemView(CreateView):
+class AddProductItemView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = ProductItem
     # form_class = ProductItemForm
     template_name = "vendor/add-product-item.html"
+
+    def test_func(self):
+        return is_vendor(
+            self.request.user, self.kwargs["business_name"]
+        ) and business_name_exists(self.kwargs["business_name"])
 
     # success_url = reverse_lazy('store:vendor_product_detail')
     def get_success_url(self):
@@ -1190,14 +1310,20 @@ class AddProductItemView(CreateView):
         product_slug = self.kwargs.get("slug")
         product = Product.objects.get(slug=product_slug)
         context["product"] = product
+        context["business_name"] = self.kwargs["business_name"]
         return context
 
 
 # Update Product
-class UpdateProductItemView(UpdateView):
+class UpdateProductItemView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = ProductItem
     form_class = ProductItemForm
     template_name = "vendor/update-product-item.html"
+
+    def test_func(self):
+        return is_vendor(
+            self.request.user, self.kwargs["business_name"]
+        ) and business_name_exists(self.kwargs["business_name"])
 
     def get_form_class(self):
         product = self.object.product  # type: ignore
@@ -1241,6 +1367,7 @@ class UpdateProductItemView(UpdateView):
         context["title"] = "Update Product"
         is_update = self.object is not None  # type: ignore
         context["is_update"] = is_update
+        context["business_name"] = self.kwargs["business_name"]
 
         return context
 
@@ -1260,9 +1387,19 @@ class UpdateProductItemView(UpdateView):
         return super().form_valid(form)
 
 
-class DeleteProductItemView(DeleteView):
+class DeleteProductItemView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = ProductItem
     template_name = "vendor/delete_productitem.html"
+
+    def test_func(self):
+        return is_vendor(
+            self.request.user, self.kwargs["business_name"]
+        ) and business_name_exists(self.kwargs["business_name"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["business_name"] = self.kwargs["business_name"]
+        return context
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "Product item deleted successfully")
@@ -1277,8 +1414,13 @@ class DeleteProductItemView(DeleteView):
 # Vendor Customers
 
 
-class VendorCustomersView(View):
+class VendorCustomersView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/customers.html"
+
+    def test_func(self):
+        return is_vendor(
+            self.request.user, self.kwargs["business_name"]
+        ) and business_name_exists(self.kwargs["business_name"])
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
@@ -1294,3 +1436,7 @@ def view_500(request):
 
 def view_403(request, exception):
     return render(request, "403.html", status=403)
+
+
+def view_302(request, exception):
+    return render(request, "302.html", status=302)

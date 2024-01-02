@@ -11,7 +11,7 @@
 <div class="text-sm breadcrumbs">
     <ul>
       <li>
-        <a href="{% url 'store:vendor-home' %}">
+        <a href="{% url 'store:vendor-home' business_name %}">
             <i class="fas fa-tachometer-alt"></i>                       Dashboard
         </a>
       </li> 
@@ -28,7 +28,7 @@
 
     <!-- Add New Product Button -->
     <div class="flex justify-end">
-        <a href="{% url 'store:add-product' %}"><button class="btn btn-primary">Add New Product</button></a>
+        <a href="{% url 'store:add-product' business_name %}"><button class="btn btn-primary">Add New Product</button></a>
     </div>
 
     <!-- Product List -->
@@ -58,7 +58,7 @@
                     <td>${{product.price}}</td>
                     <td>{{product.total_quantity}}</td>
                     <td>
-                    <a href="{% url 'store:vendor_product_detail' product.slug %}"><button class="btn btn-success">View</button></a></td>
+                    <a href="{% url 'store:vendor_product_detail' business_name product.slug %}"><button class="btn btn-success">View</button></a></td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -30,16 +30,16 @@ from .views import (
     decreaseItem,
     increaseItem,
     makepayment,
-    AddToCart,
-    quickview,
-    reciept,
+    # AddToCart,
+    # quickview,
+    # reciept,
     removeItem,
     search,
     user_settings,
-    validate_payment,
+    # validate_payment,
     DetailView,
-    UpdateCart,
-    remove_from_cart,
+    # UpdateCart,
+    # remove_from_cart,
     Profile,
     CreateProfile,
     UpdateProfile,
@@ -52,6 +52,8 @@ app_name = "store"
 handler404 = "shop.views.view_404"
 handler500 = "shop.views.view_500"
 handler403 = "shop.views.view_403"
+handler302 = "shop.views.view_302"
+
 urlpatterns = [
     #  Index page
     path("", HomeView.as_view(), name="store"),
@@ -82,14 +84,14 @@ urlpatterns = [
     path("increaseitem/<id>/", increaseItem, name="additem"),
     path("decreaseitem/<id>/", decreaseItem, name="reduceitem"),
     path("removeitem/<id>/", removeItem, name="removeitem"),
-    path("pay/", makepayment, name="makepayment"),
-    path("verify/", validate_payment, name="verify-payment"),
-    path("reciept/<slug:slug>/", reciept, name="reciept"),
+    # path("pay/", makepayment, name="makepayment"),
+    # path("verify/", validate_payment, name="verify-payment"),
+    # path("reciept/<slug:slug>/", reciept, name="reciept"),
     path("item-detail/<slug:slug>/", DetailView.as_view(), name="detail"),
-    path("add-to-cart/", AddToCart, name="add-to-cart"),
-    path("update_item/", UpdateCart, name="update-item"),
-    path("remove_from_cart/<slug:slug>/", remove_from_cart, name="remove_from_cart"),  # type: ignore
-    path("get-item/", quickview),
+    # path("add-to-cart/", AddToCart, name="add-to-cart"),
+    # path("update_item/", UpdateCart, name="update-item"),
+    # path("remove_from_cart/<slug:slug>/", remove_from_cart, name="remove_from_cart"),  # type: ignore
+    # path("get-item/", quickview),
     # Vendor Urls
     path("<str:business_name>/", VendorDashboardView.as_view(), name="vendor-home"),
     path(

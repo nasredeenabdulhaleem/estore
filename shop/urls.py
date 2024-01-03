@@ -53,6 +53,7 @@ handler404 = "shop.views.view_404"
 handler500 = "shop.views.view_500"
 handler403 = "shop.views.view_403"
 handler302 = "shop.views.view_302"
+handler302 = "shop.views.view_400"
 
 urlpatterns = [
     #  Index page

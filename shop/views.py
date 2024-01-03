@@ -1433,3 +1433,6 @@ def view_403(request, exception):
 
 def view_302(request, exception):
     return render(request, "302.html", status=302)
+
+def view_400(request, exception):
+    return render(request, "400.html", status=400)

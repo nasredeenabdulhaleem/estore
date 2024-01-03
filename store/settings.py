@@ -32,7 +32,7 @@ SECRET_KEY = config(
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 
-ALLOWED_HOSTS = ["192.168.0.100", "127.0.0.1", "localhost", "https:localhost:8000"]
+ALLOWED_HOSTS = ["192.168.0.100", "127.0.0.1", "localhost", "https:localhost:8000","https://e-commerce-app-kevs.onrender.com/"]
 CSRF_COOKIE_DOMAIN = ".uks1.devtunnels.ms"  # ".github.dev"
 
 # Application definition

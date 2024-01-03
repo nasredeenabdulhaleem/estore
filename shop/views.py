@@ -1,8 +1,4 @@
-from curses.ascii import US
-import datetime
 import json
-from math import log
-from re import U
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
@@ -18,13 +14,12 @@ from shop.vendorforms.productitem import (
 )
 from shop.globalcontext import user_context_processor, vendor_context_processor
 from .pay import initializepay
-from sqlite3 import DatabaseError
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.views.generic import ListView, View, DetailView, UpdateView
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import Http404, JsonResponse
 
 from django.http import FileResponse
 from django.template.loader import get_template
@@ -48,7 +43,6 @@ from .models import (
     OrderItem,
     Order,
     ProductItem,
-    ProductVaraiant,
     Size,
     UserAddress,
     UserProfile,
@@ -57,7 +51,6 @@ from .models import (
 )
 from .forms import (
     AddressForm,
-    AddressUpdateForm,
     CheckoutForm,
     ProductAddToCartForm,
     ProductAddToCartFormV1,

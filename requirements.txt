@@ -20,6 +20,7 @@ django-crispy-forms==1.14.0
 djangorestframework==3.14.0
 ecdsa==0.18.0
 frozenlist==1.4.1
+gunicorn
 idna==3.3
 multidict==6.0.4
 mypy-extensions==1.0.0

@@ -35,8 +35,10 @@ class UserSignup(View):
 
     def get(self, request):
         form = SignupForm()
+        vendor_form = VendorSignupForm()
         context = {
             "form": form,
+            "vendor_form": vendor_form,
         }
         return render(request, self.template_name, context)
 
@@ -102,6 +104,8 @@ class VerifyEmailView(View):
         except Exception as e:
             return HttpResponse(f"Error verifying email: {e}")
 
+def account_verification(request):
+    return render(request, 'accounts/account_verification.html')
 
 # class Login(LoginView):
 #     template_name= "accounts/user-login.html"
@@ -161,21 +165,44 @@ class Login(LoginView):
 # VENDOR SIGNUP VIEW
 
 
-def vendor_signup(self, request):
+def vendor_signup(request):
     if request.method == "POST":
         form = VendorSignupForm(request.POST)
+        user_form = SignupForm
 
         if form.is_valid():
             user = User.objects.create_user(
                 username=form.cleaned_data["business_name"],
-                email=form.cleaned_data["email"],
+                email=form.cleaned_data["business_email"],
                 password=form.cleaned_data["password1"],
+                role="Vendor"
             )
-            vendor = VendorProfile.objects.create(user=user, email=user.email)
-            vendor_store = VendorStore.objects.create(
-                vendor=vendor, store_name=form.cleaned_data["business_name"]
-            )
-            return redirect("login")
+
+            verification = VerificationCount.objects.create(
+                    user=user, email=user.email, count=1
+                )
+            vendor = VendorProfile.objects.create(user=user, email=user.email,business_name = form.cleaned_data["business_name"])
+            email_verification = EmailVerification()
+
+            # Generate token and send verification email
+            token = email_verification.generate_token(user.email)
+            email_sent = email_verification.send_verification_email(user)
+                # log(
+                #     user=user,
+                #     action="Created a User Account, Verification Email Sent",
+                #     obj=user,
+                #     # extra={"title": foo.title},
+                #     dateof=datetime.datetime.now(),
+                # )
+
+            messages.info(
+                    request,
+                    f"Created Bussiness {user.username}, a verification email has been sent to activate account",
+                )
+            return redirect("vendor_login" , business_name = vendor.business_name)
+        else:
+            messages.error(request, f"Error Creating Account, Rectify error and retry")
+            return render(request, "accounts/user-signup.html", {"vendor_form": form,"form":user_form})
 
 
 def business_name_exists(business_name):
@@ -193,14 +220,14 @@ def vendor_login(request, business_name):
             if next_url:
                 return redirect(next_url)
             else:
-                return redirect("vendor_home", business_name=business_name)
+                return redirect("store:vendor-home", business_name=business_name)
         else:
             # Return an 'invalid login' error message.
             context = {
                 "error": "Invalid username or password",
                 "business_name": business_name,
             }
-            return render(request, "login.html", context)
+            return render(request, "accounts/vendor-login.html", context)
     else:
         if business_name_exists(business_name):
             context = {"business_name": business_name}

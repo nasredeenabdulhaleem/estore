@@ -48,12 +48,12 @@ class SignupForm(UserCreationForm):
         fields = ["username", "email", "password1", "password2"]
 
 
-class VendorSignupForm(UserCreationForm):
-    business_name = forms.EmailField(
-        widget=forms.EmailInput(attrs={"placeholder": "Business Name"})
+class VendorSignupForm(forms.Form):
+    business_name = forms.CharField(
+        widget=forms.TextInput(attrs={"placeholder": "Business Name"})
     )
-    business_email = forms.CharField(
-        widget=forms.TextInput(attrs={"placeholder": "Business Email"})
+    business_email = forms.EmailField(
+        widget=forms.EmailInput(attrs={"placeholder": "Business Email"})
     )
     password1 = forms.CharField(
         label="Password", widget=forms.PasswordInput(attrs={"placeholder": "Password"})
@@ -72,19 +72,20 @@ class LoginForm(AuthenticationForm):
     next = forms.CharField(label="", widget=forms.HiddenInput(attrs={"value": "/"}))
 
 
-class VendorSignupForm(UserCreationForm):
-    email = forms.EmailField(widget=forms.EmailInput(attrs={"placeholder": "Email"}))
-    username = forms.CharField(
-        widget=forms.TextInput(attrs={"placeholder": "Username"})
-    )
-    password1 = forms.CharField(
-        label="Password", widget=forms.PasswordInput(attrs={"placeholder": "Password"})
-    )
-    password2 = forms.CharField(
-        label="Confirm Password",
-        widget=forms.PasswordInput(attrs={"placeholder": "Confirm Password"}),
-    )
+# class VendorSignupForm(UserCreationForm):
+#     email = forms.EmailField(widget=forms.EmailInput(attrs={"placeholder": "Email"}))
+#     username = forms.CharField(
+#         widget=forms.TextInput(attrs={"placeholder": "Username"})
+#     )
+#     password1 = forms.CharField(
+#         label="Password", widget=forms.PasswordInput(attrs={"placeholder": "Password"})
+#     )
+#     password2 = forms.CharField(
+#         label="Confirm Password",
+#         widget=forms.PasswordInput(attrs={"placeholder": "Confirm Password"}),
+#     )
 
-    class Meta:
-        model = User
-        fields = ["username", "email", "password1", "password2"]
+#     class Meta:
+#         model = User
+#         fields = ["username", "email", "password1", "password2"]
+

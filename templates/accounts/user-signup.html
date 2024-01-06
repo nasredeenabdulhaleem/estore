@@ -128,7 +128,7 @@
                             </a>
                         </div>
                     </form> -->
-                    <form method="post"  action="{% url 'login' %}" enctype="application/x-www-form-urlencoded">
+                    <form method="post"  action="{% url 'signup' %}" enctype="application/x-www-form-urlencoded">
                         {% csrf_token %}
                         <!-- Display non-field errors -->
                         {% if form.non_field_errors %}
@@ -150,7 +150,7 @@
                                 {{ field.label }}
                             </label>
                             {% if field.field.widget.input_type == 'select' %}
-                            <select class="select select-bordered w-full max-w-sm appearance-none text-sm block">
+                            <select class="select select-bordered w-full  appearance-none text-sm block">
                                 <option disabled selected>Make a wise decision</option>
                                 {% for choice_value, choice_label in field.field.choices %}
                                 <option value="{{ choice_value }}" {% if field.value == choice_value %}selected{% endif %}>{{
@@ -168,7 +168,7 @@
                                 </div>
                                 {% endfor %}
                             {% else %}
-                            <input class="input input-bordered w-full appearance-none block max-w-sm text-sm"
+                            <input class="input input-bordered w-full appearance-none block  text-sm"
                                 type="{{ field.field.widget.input_type }}" id="{{ field.id_for_label }}"
                                 name="{{ field.name }}" value="{{ field.value | default:'' }}"
                                 placeholder="{{ field.field.widget.attrs.placeholder}}" />
@@ -179,13 +179,13 @@
                         </div>
                         {% endfor %}
                          <div class="flex items-center place-content-center gap-2 justify-between">
-                            <button class="btn btn-outline btn-accent w-2/3 flex place-content-center max-w-sm"
+                            <button class="btn btn-outline btn-accent w-3/4 flex place-content-center "
                                 type="submit">
-                                Login
+                                User SIGNUP
                             </button>
-                            <a class=" link link-info inline-block align-baseline w-fit font-bold text-sm hover:text-blue-800"
-                                href="{% url 'signup' %}">
-                                Register
+                            <a class="inline-block align-baseline w-fit font-bold text-sm text-blue-500 hover:text-blue-800"
+                                href="{% url 'login' %}">
+                                Already have an account?
                             </a>
                         </div>
                     </form>
@@ -194,8 +194,9 @@
               </div>
               <div class="tab-content mt-4 hidden">
                 <div class="space-y-4 px-4 py-4 md:px-12">
-                    <form action="{% url 'signup' %}" method="post" enctype="application/x-www-form-urlencoded">
-                        <div class="mb-4">
+                    <form action="{% url 'vendor_signup' %}" method="post" enctype="application/x-www-form-urlencoded">
+                        {% csrf_token %}
+                        <!-- <div class="mb-4">
                             <label class="block text-accent-content font-bold mb-2" for="business-name">
                                 Business Name
                             </label>
@@ -243,18 +244,64 @@
                                 type="password"
                                 placeholder="Confirm Password"
                             />
+                        </div> -->
+                        {% if vendor_form.non_field_errors %}
+                        {% for error in vendor_form.non_field_errors %}
+                        <div role="alert" class="alert alert-error">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{{error}}</span>
                         </div>
-                        <input type="hidden" name="account_type" value="vendor">
+                        {% endfor %}
+                        {% endif %}
+                        <br>
+                        {% for field in vendor_form %}
+                        <div class="mb-4">
+                            <label class="block text-gray-700 font-bold mb-2" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+                            {% if field.field.widget.input_type == 'select' %}
+                            <select class="select select-bordered w-full  appearance-none text-sm block">
+                                <option disabled selected>Make a wise decision</option>
+                                {% for choice_value, choice_label in field.field.choices %}
+                                <option value="{{ choice_value }}" {% if field.value == choice_value %}selected{% endif %}>{{
+                                    choice_label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% elif field.field.widget.input_type == 'radio' %}
+                                {% for choice in field.field.choices %}
+                                <div class="form-control">
+                                    <label class="label cursor-pointer">
+                                        <span class="label-text">{{ choice.1 }}</span>
+                                        <input type="radio" name="{{ field.html_name }}" value="{{ choice.0 }}"
+                                            class="radio checked:bg-accent-focus" {% if field.value == choice.0 %} checked {% endif %} />
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                            <input class="input input-bordered w-full appearance-none block  text-sm"
+                                type="{{ field.field.widget.input_type }}" id="{{ field.id_for_label }}"
+                                name="{{ field.name }}" value="{{ field.value | default:'' }}"
+                                placeholder="{{ field.field.widget.attrs.placeholder}}" />
+                            {% endif %}
+                            {% for error in field.errors %}
+                            <span class="text-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
                         <div class="flex items-center place-content-center gap-2 justify-between">
                             <button
                                 class="btn btn-outline btn-accent  flex place-content-center w-3/4 "
-                                type="button"
+                                type="submit"
                             >
-                                Sign Up
+                               Vendor Sign Up
                             </button>
                             <a
                                 class="inline-block align-baseline w-fit font-bold text-sm text-blue-500 hover:text-blue-800"
-                                href="#"
+                                href="{% url 'login' %}"
                             >
                                 Already have an account?
                             </a>
@@ -288,6 +335,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/theme-change@2.0.2/index.js"></script>
     <script src="{% static 'js/index.js' %}"></script>
+    <script>
+        window.onload = function() {
+        setTimeout(function() {
+            var toastContainer = document.getElementById('toastContainer');
+            if (toastContainer) {
+                toastContainer.style.display = 'none';
+            }
+        }, 5000);  // 5000 milliseconds = 5 seconds
+    }
+    </script>
 </body>
 
 </html>

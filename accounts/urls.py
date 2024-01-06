@@ -1,13 +1,15 @@
 from django.urls import path
-from .views import UserSignup, Login, VerifyEmailView, logout_view, vendor_login
+from .views import UserSignup, Login, VerifyEmailView, account_verification, logout_view, vendor_login,vendor_signup
 from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
     path("login/", Login.as_view(), name="login"),
     path("signup/", UserSignup.as_view(), name="signup"),
+    path("vendor-signup/", vendor_signup, name="vendor_signup"),
     path("<str:business_name>/login/", vendor_login, name="vendor_login"),
     path("logout", logout_view, name="logout"),
+    path('account-verification/', account_verification, name='account-verification'),
     path(
         "accounts/verify-email/<str:token>/",
         VerifyEmailView.as_view(),

@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.template.loader import render_to_string
 from django.db.models import Q
 import markdown
 from shop.utils.utils import generate_order_id, user_passes_test_with_args
@@ -1468,13 +1469,14 @@ def send_email_to_vendors(request):
             html_content = markdown.markdown(
                 markdown_content
             )  # Convert markdown to HTML
+            email_content = render_to_string(html_content)
             for vendor in vendors:
                 send_mail(
-                    subject,
-                    "This is a message for vendors.",
-                    [vendor.email],
-                    fail_silently=False,
-                    html_message=html_content,
+                    subject=subject,
+                    message="This is a message for vendors.",
+                    recipient_list=[vendor.email],
+                    # fail_silently=False,
+                    html_message=email_content,
                 )
             messages.info(request, "Emails sent to vendors.")
             return redirect("store:vendor-mail")

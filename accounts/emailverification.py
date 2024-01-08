@@ -110,6 +110,7 @@ class EmailVerification:
                 html_message=email_content,
             )
             return True
+        
         except Exception as e:
             return False
 

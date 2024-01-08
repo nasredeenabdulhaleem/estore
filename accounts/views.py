@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.http import Http404
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from accounts.models import User, VerificationCount
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import redirect, render
@@ -17,6 +18,10 @@ from shop.models import VendorProfile, VendorStore
 from store import settings
 from accounts.forms import SignupForm, LoginForm, VendorSignupForm
 from pinax.eventlog.models import log
+from accounts.emailverification import EmailVerification
+from django.shortcuts import render, redirect
+from django.views import View
+from django.contrib import messages
 from accounts.emailverification import EmailVerification
 
 # log(
@@ -93,19 +98,49 @@ class VerifyEmailView(View):
             # Decode the token and get the email
             payload = email_verifier.decode_token(token)
             email = payload["email"]
-
-            # Activate the user
-            if email_verifier.activate_user(email):
-                return HttpResponse("Email verification successful and user activated.")
-            else:
-                return HttpResponse(
-                    "Email verification failed. Invalid token or user does not exist."
-                )
+            if payload:
+                # Activate the user
+                if email_verifier.activate_user(email):
+                    messages.info(request,"Email verification successful and user activated.")
+                    if request.user.role == "Vendor":
+                        return redirect("store:vendor-login", business_name=request.user.vendor.business_name)
+                    else:
+                        return redirect("store:home")
+                else:
+                    messages.info(
+                        "Email verification failed. Invalid token or user does not exist."
+                    )
+                    return redirect("account-verification")
+            else :
+                messages.info("Email verification failed. Invalid token or user does not exist.")
+                return redirect("account-verification")
         except Exception as e:
             return HttpResponse(f"Error verifying email: {e}")
 
+
+# accounts/views.py
+
+
+class ResendVerificationEmailView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        verified = VerificationCount.objects.get(user=request.user).is_verified
+        if request.user.is_authenticated and not verified:
+            EmailVerification().resend_verification(
+                user=request.user, email=request.user.email
+            )
+            messages.success(
+                request, "Verification email has been resent. Please check your inbox."
+            )
+        else:
+            messages.error(
+                request, "User is either not authenticated or already verified."
+            )
+        return redirect("account-verification")
+
+
 def account_verification(request):
-    return render(request, 'accounts/account_verification.html')
+    return render(request, "accounts/account_verification.html")
+
 
 # class Login(LoginView):
 #     template_name= "accounts/user-login.html"
@@ -175,34 +210,42 @@ def vendor_signup(request):
                 username=form.cleaned_data["business_name"],
                 email=form.cleaned_data["business_email"],
                 password=form.cleaned_data["password1"],
-                role="Vendor"
+                role="Vendor",
             )
 
             verification = VerificationCount.objects.create(
-                    user=user, email=user.email, count=1
-                )
-            vendor = VendorProfile.objects.create(user=user, email=user.email,business_name = form.cleaned_data["business_name"])
+                user=user, email=user.email, count=1
+            )
+            vendor = VendorProfile.objects.create(
+                user=user,
+                email=user.email,
+                business_name=form.cleaned_data["business_name"],
+            )
             email_verification = EmailVerification()
 
             # Generate token and send verification email
             token = email_verification.generate_token(user.email)
             email_sent = email_verification.send_verification_email(user)
-                # log(
-                #     user=user,
-                #     action="Created a User Account, Verification Email Sent",
-                #     obj=user,
-                #     # extra={"title": foo.title},
-                #     dateof=datetime.datetime.now(),
-                # )
+            # log(
+            #     user=user,
+            #     action="Created a User Account, Verification Email Sent",
+            #     obj=user,
+            #     # extra={"title": foo.title},
+            #     dateof=datetime.datetime.now(),
+            # )
 
             messages.info(
-                    request,
-                    f"Created Bussiness {user.username}, a verification email has been sent to activate account",
-                )
-            return redirect("vendor_login" , business_name = vendor.business_name)
+                request,
+                f"Created Bussiness {user.username}, a verification email has been sent to activate account",
+            )
+            return redirect("vendor_login", business_name=vendor.business_name)
         else:
             messages.error(request, f"Error Creating Account, Rectify error and retry")
-            return render(request, "accounts/user-signup.html", {"vendor_form": form,"form":user_form})
+            return render(
+                request,
+                "accounts/user-signup.html",
+                {"vendor_form": form, "form": user_form},
+            )
 
 
 def business_name_exists(business_name):
@@ -236,49 +279,49 @@ def vendor_login(request, business_name):
             raise Http404("Business name does not exist")
 
 
-class VendorSignupView:
-    templatee_name = "account/vendor/signup.html"
+# class VendorSignupView:
+#     templatee_name = "account/vendor/signup.html"
 
-    def get(self, request):
-        return render(request, self.template_name)
+#     def get(self, request):
+#         return render(request, self.template_name)
 
-    def post(self, request):
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        password2 = request.POST.get("password2")
+#     def post(self, request):
+#         username = request.POST.get("username")
+#         email = request.POST.get("email")
+#         password = request.POST.get("password")
+#         password2 = request.POST.get("password2")
 
-        if password == password2:
-            if User.objects.filter(email=email).exists():
-                messages.info(request, "Email Already Used")
-                return redirect("signup")
-            elif User.objects.filter(username=username).exists():
-                messages.info(request, "Username Already Used")
-                return redirect("signup")
-            else:
-                user = User.objects.create_user(
-                    username=username, email=email, password=password
-                )
-                user.save()
-                mydict = {"username": username}
+#         if password == password2:
+#             if User.objects.filter(email=email).exists():
+#                 messages.info(request, "Email Already Used")
+#                 return redirect("signup")
+#             elif User.objects.filter(username=username).exists():
+#                 messages.info(request, "Username Already Used")
+#                 return redirect("signup")
+#             else:
+#                 user = User.objects.create_user(
+#                     username=username, email=email, password=password
+#                 )
+#                 user.save()
+#                 mydict = {"username": username}
 
-                html_template = "register_email.html"
-                html_message = render_to_string(html_template, context=mydict)
-                subject = "Welcome to Service-Verse"
-                email_from = settings.EMAIL_HOST_USER
-                recipient_list = [email]
-                message = EmailMessage(
-                    subject, html_message, email_from, recipient_list
-                )
-                message.content_subtype = "html"
-                message.send()
-                messages.success(
-                    request, f"Account for {username} created successfully"
-                )
-                return redirect("login")
-        else:
-            messages.info(request, "Password not the Same")
-            return redirect("signup")
+#                 html_template = "register_email.html"
+#                 html_message = render_to_string(html_template, context=mydict)
+#                 subject = "Welcome to Service-Verse"
+#                 email_from = settings.EMAIL_HOST_USER
+#                 recipient_list = [email]
+#                 message = EmailMessage(
+#                     subject, html_message, email_from, recipient_list
+#                 )
+#                 message.content_subtype = "html"
+#                 message.send()
+#                 messages.success(
+#                     request, f"Account for {username} created successfully"
+#                 )
+#                 return redirect("login")
+#         else:
+#             messages.info(request, "Password not the Same")
+#             return redirect("signup")
 
 
 def logout_view(request):

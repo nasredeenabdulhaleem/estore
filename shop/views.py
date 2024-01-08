@@ -1421,10 +1421,11 @@ class VendorCustomersView(LoginRequiredMixin, UserPassesTestMixin, View):
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
 
+
 ###################################################################################################3
 ########################################ERRORS VIEW SECTION################################################
 ####################################################################################################################################
-# 
+#
 
 
 def view_404(request, exception):
@@ -1442,8 +1443,10 @@ def view_403(request, exception):
 def view_302(request, exception):
     return render(request, "302.html", status=302)
 
+
 def view_400(request, exception):
     return render(request, "400.html", status=400)
+
 
 ###################################################################################################3
 ########################################Send mails SECTION################################################
@@ -1453,44 +1456,51 @@ def view_400(request, exception):
 
 # 4173 9600 5411 9308
 def send_email_to_vendors(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
-            vendors = User.objects.filter(role='vendor')  # Assuming 'role' field in User model
-            subject = request.POST.get('subject')  # Get subject from request
-            markdown_content = request.POST.get('markdown_content')  # Get markdown content from request
-            html_content = markdown.markdown(markdown_content)  # Convert markdown to HTML
+            vendors = User.objects.filter(
+                role="vendor"
+            )  # Assuming 'role' field in User model
+            subject = request.POST.get("subject")  # Get subject from request
+            markdown_content = request.POST.get(
+                "markdown_content"
+            )  # Get markdown content from request
+            html_content = markdown.markdown(
+                markdown_content
+            )  # Convert markdown to HTML
             for vendor in vendors:
                 send_mail(
                     subject,
-                    'This is a message for vendors.',
+                    "This is a message for vendors.",
                     [vendor.email],
                     fail_silently=False,
-                    html_message=html_content,  
+                    html_message=html_content,
                 )
-            messages.info(request,"Emails sent to vendors.")
+            messages.info(request, "Emails sent to vendors.")
             return redirect("store:vendor-mail")
         except User.DoesNotExist:
-            messages.info(request,"No vendors found.")
+            messages.info(request, "No vendors found.")
             return redirect("store:vendor-mail")
         except BadHeaderError:
-            messages.info(request,"Invalid header found.")
+            messages.info(request, "Invalid header found.")
             return redirect("store:vendor-mail")
         # except MarkdownError:
         #     messages.info(request,"Error processing markdown.")
         #     return redirect("store:vendor-mail")
         except Exception as e:
-            messages.info(request,f"An error occurred: {str(e)}")
+            messages.info(request, f"An error occurred: {str(e)}")
             return redirect("store:vendor-mail")
     else:
-        return render(request, 'admin/send_email_to_vendors.html')
+        return render(request, "admin/send_email_to_vendors.html")
+
 
 def send_email_to_users(request):
-    users = User.objects.filter(role='user')  # Assuming 'role' field in User model
+    users = User.objects.filter(role="user")  # Assuming 'role' field in User model
     for user in users:
         send_mail(
-            'Hello User',
-            'This is a message for users.',
-            'from@example.com',
+            "Hello User",
+            "This is a message for users.",
+            "from@example.com",
             [user.email],
             fail_silently=False,
         )

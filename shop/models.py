@@ -667,7 +667,7 @@ class RequestedRefund(models.Model):
 
 
 class VendorProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name='vendor')
     vendor_id = models.CharField(max_length=255, null=False)
     business_name = models.CharField(max_length=255, null=False)
     firstname = models.CharField(max_length=255, null=True)

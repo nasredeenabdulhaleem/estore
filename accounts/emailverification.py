@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from accounts.models import User
+from accounts.models import User, VerificationCount
 import jwt
+from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 
 
@@ -42,12 +43,15 @@ class EmailVerification:
             token (str): The JWT token to be decoded.
 
         Returns:
-            dict: The decoded token as a dictionary.
+            dict or bool: The decoded token as a dictionary if valid, False otherwise.
         """
-        decoded_token = jwt.decode(
-            token, self.secret_key, algorithms="HS256", verify=True
-        )
-        return decoded_token
+        try:
+            decoded_token = jwt.decode(
+                token, self.secret_key, algorithms="HS256", verify=True
+            )
+            return decoded_token
+        except InvalidTokenError:
+            return False
 
     def activate_user(self, email):
         """
@@ -61,8 +65,9 @@ class EmailVerification:
         """
         try:
             user = User.objects.get(email=email)
-            user.is_active = True
-            user.save()
+            verification = VerificationCount.objects.get(user=user)
+            verification.is_verified = True
+            verification.save()
             return True
         except User.DoesNotExist:
             return False
@@ -116,5 +121,5 @@ class EmailVerification:
         Returns:
             None
         """
-        token = self.generate_token(email)
-        self.send_email(user, token)
+        # token = self.generate_token(email)
+        self.send_verification_email(user)

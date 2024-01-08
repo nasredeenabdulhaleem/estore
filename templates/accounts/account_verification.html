@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>USER Sign UP</title>
+    <title>Verify Email</title>
     <!-- Include daisyui and tailwind css -->
     <!-- fontawesome cdn  -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
@@ -38,7 +38,7 @@
         </div>
         
         <div class="mt-2 text-center text-sm text-gray-600">
-            Didn't receive the email? <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">Resend Verification Link</a>
+            Didn't receive the email? <a href="{% url 'resend-verification-email' %}" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">Resend Verification Link</a>
         </div>
     </div>
 </div>

@@ -55,10 +55,10 @@ handler500 = "shop.views.view_500"
 handler403 = "shop.views.view_403"
 handler302 = "shop.views.view_302"
 handler302 = "shop.views.view_400"
-
+# 48567322
 urlpatterns = [
     #  Index page
-    path("", HomeView.as_view(), name="store"),
+    path("", HomeView.as_view(), name="home"),
     path("search/", search, name="search"),
     # vendor home page
     # path("vendor/<slug>", VendorHomeView.as_view(), name="vendor-home"),
@@ -90,7 +90,7 @@ urlpatterns = [
     # path("verify/", validate_payment, name="verify-payment"),
     # path("reciept/<slug:slug>/", reciept, name="reciept"),
     path("item-detail/<slug:slug>/", DetailView.as_view(), name="detail"),
-    path("dash/vendor-mail/",send_email_to_vendors,name="vendor-mail"),
+    path("dash/vendor-mail/", send_email_to_vendors, name="vendor-mail"),
     # path("add-to-cart/", AddToCart, name="add-to-cart"),
     # path("update_item/", UpdateCart, name="update-item"),
     # path("remove_from_cart/<slug:slug>/", remove_from_cart, name="remove_from_cart"),  # type: ignore
@@ -147,7 +147,60 @@ urlpatterns = [
         VendorCustomersView.as_view(),
         name="vendor customers",
     ),  # vendor customers
-    
+]
+
+VENDORSURL = [
+    path("<str:business_name>/", VendorDashboardView.as_view(), name="vendor-home"),
+    path(
+        "store/<slug>/", VendorHomeView.as_view(), name="vendor-storefront"
+    ),  # vendore storefront
+    path(
+        "<str:business_name>/settings/", VendorSettings, name="vendor-settings"
+    ),  # vendor settings
+    path(
+        "<str:business_name>/orders/", VendorOrderView, name="vendor-orders"
+    ),  # vendor orders
+    path(
+        "<str:business_name>/products/", ProductView.as_view(), name="vendor-products"
+    ),  # vendors Products
+    path(
+        "<str:business_name>/product/<slug:slug>/",
+        vendor_product_detail,
+        name="vendor_product_detail",
+    ),
+    path(
+        "<str:business_name>/add-product/", AddProductView.as_view(), name="add-product"
+    ),  # vendor add products
+    path(
+        "<str:business_name>/update-product/<slug:slug>/",
+        UpdateProductView.as_view(),
+        name="update-product",
+    ),  # vendor update products
+    path(
+        "<str:business_name>/delete-product/<slug:slug>/",
+        DeleteProductView.as_view(),
+        name="delete-product",
+    ),  # vendor delete products
+    path(
+        "<str:business_name>/productitem/<slug:slug>/create",
+        AddProductItemView.as_view(),
+        name="add-product-item",
+    ),  # vendor add product item
+    path(
+        "<str:business_name>/productitem/<int:pk>/update",
+        UpdateProductItemView.as_view(),
+        name="update-product-item",
+    ),  # vendor update product item
+    path(
+        "<str:business_name>/productitem/<int:pk>/delete/",
+        DeleteProductItemView.as_view(),
+        name="delete-product-item",
+    ),
+    path(
+        "<str:business_name>/customers/",
+        VendorCustomersView.as_view(),
+        name="vendor customers",
+    ),  # vendor customers
 ]
 
 if settings.DEBUG:

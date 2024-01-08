@@ -1,7 +1,9 @@
 import json
+from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
+from django.utils.html import mark_safe
 from django.core.paginator import Paginator
 from django.template.loader import render_to_string
 from django.db.models import Q
@@ -18,7 +20,7 @@ from shop.globalcontext import user_context_processor, vendor_context_processor
 from .pay import initializepay
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, get_list_or_404
 from django.contrib import messages
 from django.views.generic import ListView, View, DetailView, UpdateView
 from django.http import BadHeaderError, Http404, HttpResponse, JsonResponse
@@ -1456,45 +1458,90 @@ def view_400(request, exception):
 
 
 # 4173 9600 5411 9308
+
+
+
+# def send_email_to_vendors(request):
+#     if request.method == "POST":
+#         vendors = get_list_or_404(User, role="vendor")
+#         subject = request.POST.get("subject")
+#         markdown_content = request.POST.get("markdown_content")
+#         html_content = mark_safe(markdown(markdown_content))
+#         text_content = "This is a message for vendors."
+
+#         for vendor in vendors:
+#             msg = EmailMultiAlternatives(subject, text_content, to=[vendor.email])
+#             msg.attach_alternative(html_content, "text/html")
+#             msg.send()
+
+#         messages.info(request, "Emails sent to vendors.")
+#         return redirect("store:vendor-mail")
+#     else:
+#         return render(request, "admin/send_email_to_vendors.html")
+#     # if request.method == "POST":
+#     #     try:
+#     #         vendors = User.objects.filter(
+#     #             role="vendor"
+#     #         )  # Assuming 'role' field in User model
+#     #         subject = request.POST.get("subject")  # Get subject from request
+#     #         markdown_content = request.POST.get(
+#     #             "markdown_content"
+#     #         )  # Get markdown content from request
+#     #         html_content = markdown.markdown(
+#     #             markdown_content
+#     #         )  # Convert markdown to HTML
+#     #         email_content = render_to_string(html_content)
+#     #         for vendor in vendors:
+#     #             send_mail(
+#     #                 subject=subject,
+#     #                 message="This is a message for vendors.",
+#     #                 recipient_list=[vendor.email],
+#     #                 # fail_silently=False,
+#     #                 html_message=email_content,
+#     #             )
+#     #         messages.info(request, "Emails sent to vendors.")
+#     #         return redirect("store:vendor-mail")
+#     #     except User.DoesNotExist:
+#     #         messages.info(request, "No vendors found.")
+#     #         return redirect("store:vendor-mail")
+#     #     except BadHeaderError:
+#     #         messages.info(request, "Invalid header found.")
+#     #         return redirect("store:vendor-mail")
+#     #     # except MarkdownError:
+#     #     #     messages.info(request,"Error processing markdown.")
+#     #     #     return redirect("store:vendor-mail")
+#     #     except Exception as e:
+#     #         messages.info(request, f"An error occurred: {str(e)}")
+#     #         return redirect("store:vendor-mail")
+#     # else:
+#     #     return render(request, "admin/send_email_to_vendors.html")
+
+# from django.template.loader import render_to_string
+
 def send_email_to_vendors(request):
     if request.method == "POST":
-        try:
-            vendors = User.objects.filter(
-                role="vendor"
-            )  # Assuming 'role' field in User model
-            subject = request.POST.get("subject")  # Get subject from request
-            markdown_content = request.POST.get(
-                "markdown_content"
-            )  # Get markdown content from request
-            html_content = markdown.markdown(
-                markdown_content
-            )  # Convert markdown to HTML
-            email_content = render_to_string(html_content)
-            for vendor in vendors:
-                send_mail(
-                    subject=subject,
-                    message="This is a message for vendors.",
-                    recipient_list=[vendor.email],
-                    # fail_silently=False,
-                    html_message=email_content,
-                )
-            messages.info(request, "Emails sent to vendors.")
-            return redirect("store:vendor-mail")
-        except User.DoesNotExist:
-            messages.info(request, "No vendors found.")
-            return redirect("store:vendor-mail")
-        except BadHeaderError:
-            messages.info(request, "Invalid header found.")
-            return redirect("store:vendor-mail")
-        # except MarkdownError:
-        #     messages.info(request,"Error processing markdown.")
-        #     return redirect("store:vendor-mail")
-        except Exception as e:
-            messages.info(request, f"An error occurred: {str(e)}")
-            return redirect("store:vendor-mail")
+        vendors = get_list_or_404(User, role="vendor")
+        subject = request.POST.get("subject")
+        markdown_content = request.POST.get("markdown_content")
+        html_content = mark_safe(markdown(markdown_content))
+
+        for vendor in vendors:
+            context = {
+                'subject': subject,
+                'message': html_content,
+                'vendor': vendor,
+            }
+            email_html_message = render_to_string('emails/send-vendor-email.html', context)
+            email_text_message = "This is a message for vendors."
+
+            msg = EmailMultiAlternatives(subject, email_text_message, to=[vendor.email])
+            msg.attach_alternative(email_html_message, "text/html")
+            msg.send()
+
+        messages.info(request, "Emails sent to vendors.")
+        return redirect("store:vendor-mail")
     else:
         return render(request, "admin/send_email_to_vendors.html")
-
 
 def send_email_to_users(request):
     users = User.objects.filter(role="user")  # Assuming 'role' field in User model

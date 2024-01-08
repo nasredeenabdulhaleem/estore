@@ -1520,7 +1520,7 @@ def view_400(request, exception):
 
 def send_email_to_vendors(request):
     if request.method == "POST":
-        vendors = get_list_or_404(User, role="vendor")
+        vendors = User.objects.filter(role="vendor")
         subject = request.POST.get("subject")
         markdown_content = request.POST.get("markdown_content")
         html_content = mark_safe(markdown(markdown_content))

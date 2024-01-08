@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -14,7 +15,7 @@ class EmailVerification:
 
     def __init__(self):
         self.domain = settings.DOMAIN_NAME
-        self.secret_key = settings.SECRET_KEY
+        self.secret_key = os.environ.JWT_SECRET
 
     def generate_token(self, email):
         """
@@ -49,8 +50,10 @@ class EmailVerification:
             decoded_token = jwt.decode(
                 token, self.secret_key, algorithms="HS256", verify=True
             )
+            print(decoded_token)
             return decoded_token
-        except InvalidTokenError:
+        except InvalidTokenError as e:
+            print(e)
             return False
 
     def activate_user(self, email):

@@ -25,7 +25,7 @@ urlpatterns = [
         name="resend-verification-email",
     ),
     path(
-        "accounts/verify-email/<str:token>/",
+        "verify-email/<str:token>/",
         VerifyEmailView.as_view(),
         name="verify-email",
     ),

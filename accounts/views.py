@@ -94,28 +94,30 @@ class VerifyEmailView(View):
         """
         email_verifier = EmailVerification()
 
-        try:
-            # Decode the token and get the email
-            payload = email_verifier.decode_token(token)
+        # try:
+        # Decode the token and get the email
+        payload = email_verifier.decode_token(token)
+        print(payload)
+        
+        if payload:
             email = payload["email"]
-            if payload:
-                # Activate the user
-                if email_verifier.activate_user(email):
-                    messages.info(request,"Email verification successful and user activated.")
-                    if request.user.role == "Vendor":
-                        return redirect("store:vendor-login", business_name=request.user.vendor.business_name)
-                    else:
-                        return redirect("store:home")
+            # Activate the user
+            if email_verifier.activate_user(email):
+                messages.info(request,"Email verification successful and user activated.")
+                if request.user.role == "Vendor":
+                    return redirect("store:vendor-login", business_name=request.user.vendor.business_name)
                 else:
-                    messages.info(
-                        "Email verification failed. Invalid token or user does not exist."
-                    )
-                    return redirect("account-verification")
-            else :
-                messages.info("Email verification failed. Invalid token or user does not exist.")
+                    return redirect("login")
+            else:
+                messages.info(
+                    "Email verification failed. Invalid token or user does not exist."
+                )
                 return redirect("account-verification")
-        except Exception as e:
-            return HttpResponse(f"Error verifying email: {e}")
+        else :
+            messages.info(request,"Email verification failed. Invalid token or user does not exist.")
+            return redirect("account-verification")
+        # except Exception as e:
+        #     return HttpResponse(f"Error verifying email: {e}")
 
 
 # accounts/views.py

@@ -1460,7 +1460,6 @@ def view_400(request, exception):
 # 4173 9600 5411 9308
 
 
-
 # def send_email_to_vendors(request):
 #     if request.method == "POST":
 #         vendors = get_list_or_404(User, role="vendor")
@@ -1518,6 +1517,7 @@ def view_400(request, exception):
 
 # from django.template.loader import render_to_string
 
+
 def send_email_to_vendors(request):
     if request.method == "POST":
         vendors = User.objects.filter(role="vendor")
@@ -1528,21 +1528,31 @@ def send_email_to_vendors(request):
 
         for vendor in vendors:
             context = {
-                'subject': subject,
-                'message': html_content,
-                'vendor': vendor,
+                "subject": subject,
+                "message": html_content,
+                "vendor": vendor,
             }
-            email_html_message = render_to_string('emails/send-vendor-email.html', context)
+            email_html_message = render_to_string(
+                "emails/send-vendor-email.html", context
+            )
             email_text_message = "This is a message for vendors."
 
             msg = EmailMultiAlternatives(subject, email_text_message, to=[vendor.email])
             msg.attach_alternative(email_html_message, "text/html")
             msg.send()
 
+            send_mail(
+                subject=subject,
+                message=email_text_message,
+                recipient_list=[vendor.email],
+                html_message=email_html_message,
+            )
+
         messages.info(request, "Emails sent to vendors.")
         return redirect("store:vendor-mail")
     else:
         return render(request, "admin/send_email_to_vendors.html")
+
 
 def send_email_to_users(request):
     users = User.objects.filter(role="user")  # Assuming 'role' field in User model

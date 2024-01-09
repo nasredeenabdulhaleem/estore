@@ -98,14 +98,19 @@ class VerifyEmailView(View):
         # Decode the token and get the email
         payload = email_verifier.decode_token(token)
         print(payload)
-        
+
         if payload:
             email = payload["email"]
             # Activate the user
             if email_verifier.activate_user(email):
-                messages.info(request,"Email verification successful and user activated.")
+                messages.info(
+                    request, "Email verification successful and user activated."
+                )
                 if request.user.role == "Vendor":
-                    return redirect("store:vendor-login", business_name=request.user.vendor.business_name)
+                    return redirect(
+                        "store:vendor-login",
+                        business_name=request.user.vendor.business_name,
+                    )
                 else:
                     return redirect("login")
             else:
@@ -113,8 +118,11 @@ class VerifyEmailView(View):
                     "Email verification failed. Invalid token or user does not exist."
                 )
                 return redirect("account-verification")
-        else :
-            messages.info(request,"Email verification failed. Invalid token or user does not exist.")
+        else:
+            messages.info(
+                request,
+                "Email verification failed. Invalid token or user does not exist.",
+            )
             return redirect("account-verification")
         # except Exception as e:
         #     return HttpResponse(f"Error verifying email: {e}")

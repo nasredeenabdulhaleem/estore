@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from accounts.models import User, VerificationCount
 import jwt
+from decouple import config
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 
@@ -15,7 +16,7 @@ class EmailVerification:
 
     def __init__(self):
         self.domain = settings.DOMAIN_NAME
-        self.secret_key = os.environ.JWT_SECRET
+        self.secret_key = config("JWT_SECRET")
 
     def generate_token(self, email):
         """

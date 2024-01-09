@@ -7,7 +7,7 @@ from django.utils.html import mark_safe
 from django.core.paginator import Paginator
 from django.template.loader import render_to_string
 from django.db.models import Q
-import markdown
+from markdown import markdown
 from shop.utils.utils import generate_order_id, user_passes_test_with_args
 from shop.vendorforms.addproduct import AddProductForm
 from shop.vendorforms.productitem import (
@@ -1523,6 +1523,7 @@ def send_email_to_vendors(request):
         vendors = User.objects.filter(role="vendor")
         subject = request.POST.get("subject")
         markdown_content = request.POST.get("markdown_content")
+        print(markdown_content)
         html_content = mark_safe(markdown(markdown_content))
 
         for vendor in vendors:

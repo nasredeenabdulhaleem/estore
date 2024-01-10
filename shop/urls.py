@@ -35,6 +35,7 @@ from .views import (
     # reciept,
     removeItem,
     search,
+    send_email_to_users,
     send_email_to_vendors,
     user_settings,
     # validate_payment,
@@ -90,7 +91,8 @@ urlpatterns = [
     # path("verify/", validate_payment, name="verify-payment"),
     # path("reciept/<slug:slug>/", reciept, name="reciept"),
     path("item-detail/<slug:slug>/", DetailView.as_view(), name="detail"),
-    path("dash/vendor-mail/", send_email_to_vendors, name="vendor-mail"),
+    path("vendor-mail/", send_email_to_vendors, name="vendor-mail"),
+    path("user-mail/", send_email_to_users, name="user-mail"),
     # path("add-to-cart/", AddToCart, name="add-to-cart"),
     # path("update_item/", UpdateCart, name="update-item"),
     # path("remove_from_cart/<slug:slug>/", remove_from_cart, name="remove_from_cart"),  # type: ignore

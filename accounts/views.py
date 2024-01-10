@@ -108,7 +108,7 @@ class VerifyEmailView(View):
                 )
                 if request.user.role == "Vendor":
                     return redirect(
-                        "store:vendor-login",
+                        "vendor_login",
                         business_name=request.user.vendor.business_name,
                     )
                 else:

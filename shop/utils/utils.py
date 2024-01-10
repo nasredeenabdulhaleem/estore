@@ -34,23 +34,6 @@ def slugify_product_title(product_title):
 
 
 # Generates a unique sku for a product item from it product title
-
-
-def generate_sku(title, category, color, size):
-    # Get product attributes
-    product_type = category
-    color = color
-    size = size
-
-    # Create SKU
-    sku = f"{title}-{product_type}-{color}-{size}-{uuid.uuid4()}"
-
-    # Ensure SKU is not too long
-    sku = sku[:15]
-
-    return sku
-
-
 def user_passes_test_with_args(
     test_func, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME
 ):
@@ -75,3 +58,20 @@ def user_passes_test_with_args(
         return _wrapped_view
 
     return decorator
+
+
+def generate_sku(title, category, color, size):
+    # Get product attributes
+    product_type = category
+    color = color
+    size = size
+
+    # Create SKU
+    sku = f"{title}-{product_type}-{color}-{size}-{uuid.uuid4()}"
+
+    # Ensure SKU is not too long
+    sku = sku[:15]
+
+    return sku
+
+

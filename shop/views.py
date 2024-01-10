@@ -86,10 +86,8 @@ def business_name_exists(business_name):
     return VendorProfile.objects.filter(business_name=business_name).exists()
 
 
-def is_store_admin(business_name, user) -> bool:
-    vendor = VendorProfile.objects.get(user=user).business_name
-    return vendor == business_name
-
+def is_store_admin(user, business_name)->bool:
+    return user.vendor.business_name == business_name
 
 def is_user(user):
     return user.is_authenticated and user.role == "User"
@@ -99,7 +97,8 @@ def is_vendor(user, business_name):
     return (
         user.is_authenticated
         and user.role == "Vendor"
-        and is_store_admin(business_name, user)
+        and is_store_admin(user,business_name)
+        and business_name_exists(business_name)
     )
     # return user.is_authenticated and user.role == "Vendor"
 
@@ -534,39 +533,6 @@ def removeItem(request, id):
 
 
 ###CHECKOUTVIEW
-
-
-# class CheckoutView(LoginRequiredMixin, View):
-#     template_name = "shop/checkout.html"
-
-#     def get(self, request):
-#         cartitems = CartItem.objects.filter(cart__user=request.user)
-#         context = {
-#             "cart": cartitems,
-#             "data": user_context_processor(request),
-#         }
-#         try:
-#             user_address = get_object_or_404(UserAddress, user=request.user)
-#             context["address"] = user_address
-#         except Http404:
-#             context["address"] = False
-#         return render(request, self.template_name, context)
-
-#     def post(self, request):
-#         try:
-#             address = Address.objects.filter(pk=request.user.id).first()
-#             form = AddressUpdateForm(request.POST, instance=address)
-#             if not form.is_valid():
-#                 context = {"form": form}
-#                 return render(request, self.template_name, context)
-#             else:
-#                 form.save()
-#             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
-#         except DatabaseError:
-#             messages.info(
-#                 self.request, "Please complete your shipping address Information"
-#             )
-#             return redirect("store:profile-create")
 
 
 class CheckoutView(LoginRequiredMixin, UserPassesTestMixin, View):
@@ -1005,7 +971,7 @@ class VendorDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return is_vendor(
             self.request.user, self.kwargs["business_name"]
-        ) and business_name_exists(self.kwargs["business_name"])
+        ) 
 
     def get_login_url(self):
         return reverse("vendor_login", args=[self.kwargs["business_name"]])
@@ -1043,9 +1009,7 @@ class SearchOrdersView(LoginRequiredMixin, UserProfile, View):
     template_name = "orders/search.html"
 
     def test_func(self):
-        return is_user(self.request.user) and business_name_exists(
-            self.kwargs["business_name"]
-        )
+        return is_user(self.request.user) 
 
     def get(self, request):
         query = request.GET.get("q", "")
@@ -1076,7 +1040,7 @@ class ProductView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return is_vendor(
             self.request.user, self.kwargs["business_name"]
-        ) and business_name_exists(self.kwargs["business_name"])
+        ) 
 
     def get(self, request, business_name, *args, **kwargs):
         product = Product.objects.filter(vendor__user=request.user).all()
@@ -1113,7 +1077,7 @@ class AddProductView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return is_vendor(
             self.request.user, self.kwargs["business_name"]
-        ) and business_name_exists(self.kwargs["business_name"])
+        ) 
 
     def get(self, request):
         form = AddProductForm()
@@ -1168,7 +1132,7 @@ class UpdateProductView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         return is_vendor(
             self.request.user, self.kwargs["business_name"]
-        ) and business_name_exists(self.kwargs["business_name"])
+        ) 
 
     def get_queryset(self):
         return self.model.objects.filter(
@@ -1184,17 +1148,6 @@ class UpdateProductView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "Product updated successfully")
         return super().form_valid(form)
-
-    # def get(self, request,slug, *args, **kwargs):
-    #     product = Product.objects.get(vendor__user=request.user, slug=slug)
-    #     form = AddProductForm(instance=product)
-    #     context = {
-    #         "form": form,
-    #         "title": "Update Product",
-    #     }
-    #     return render(request, self.template_name, context)
-
-
 # Delete Product
 
 
@@ -1206,7 +1159,7 @@ class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         return is_vendor(
             self.request.user, self.kwargs["business_name"]
-        ) and business_name_exists(self.kwargs["business_name"])
+        ) 
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "Product deleted successfully")
@@ -1232,7 +1185,7 @@ class AddProductItemView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def test_func(self):
         return is_vendor(
             self.request.user, self.kwargs["business_name"]
-        ) and business_name_exists(self.kwargs["business_name"])
+        ) 
 
     # success_url = reverse_lazy('store:vendor_product_detail')
     def get_success_url(self):
@@ -1322,7 +1275,7 @@ class UpdateProductItemView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
     def test_func(self):
         return is_vendor(
             self.request.user, self.kwargs["business_name"]
-        ) and business_name_exists(self.kwargs["business_name"])
+        ) 
 
     def get_form_class(self):
         product = self.object.product  # type: ignore
@@ -1393,7 +1346,7 @@ class DeleteProductItemView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
     def test_func(self):
         return is_vendor(
             self.request.user, self.kwargs["business_name"]
-        ) and business_name_exists(self.kwargs["business_name"])
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1419,7 +1372,7 @@ class VendorCustomersView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return is_vendor(
             self.request.user, self.kwargs["business_name"]
-        ) and business_name_exists(self.kwargs["business_name"])
+        ) 
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
@@ -1457,70 +1410,9 @@ def view_400(request, exception):
 # Send Mail
 
 
-# 4173 9600 5411 9308
-
-
-# def send_email_to_vendors(request):
-#     if request.method == "POST":
-#         vendors = get_list_or_404(User, role="vendor")
-#         subject = request.POST.get("subject")
-#         markdown_content = request.POST.get("markdown_content")
-#         html_content = mark_safe(markdown(markdown_content))
-#         text_content = "This is a message for vendors."
-
-#         for vendor in vendors:
-#             msg = EmailMultiAlternatives(subject, text_content, to=[vendor.email])
-#             msg.attach_alternative(html_content, "text/html")
-#             msg.send()
-
-#         messages.info(request, "Emails sent to vendors.")
-#         return redirect("store:vendor-mail")
-#     else:
-#         return render(request, "admin/send_email_to_vendors.html")
-#     # if request.method == "POST":
-#     #     try:
-#     #         vendors = User.objects.filter(
-#     #             role="vendor"
-#     #         )  # Assuming 'role' field in User model
-#     #         subject = request.POST.get("subject")  # Get subject from request
-#     #         markdown_content = request.POST.get(
-#     #             "markdown_content"
-#     #         )  # Get markdown content from request
-#     #         html_content = markdown.markdown(
-#     #             markdown_content
-#     #         )  # Convert markdown to HTML
-#     #         email_content = render_to_string(html_content)
-#     #         for vendor in vendors:
-#     #             send_mail(
-#     #                 subject=subject,
-#     #                 message="This is a message for vendors.",
-#     #                 recipient_list=[vendor.email],
-#     #                 # fail_silently=False,
-#     #                 html_message=email_content,
-#     #             )
-#     #         messages.info(request, "Emails sent to vendors.")
-#     #         return redirect("store:vendor-mail")
-#     #     except User.DoesNotExist:
-#     #         messages.info(request, "No vendors found.")
-#     #         return redirect("store:vendor-mail")
-#     #     except BadHeaderError:
-#     #         messages.info(request, "Invalid header found.")
-#     #         return redirect("store:vendor-mail")
-#     #     # except MarkdownError:
-#     #     #     messages.info(request,"Error processing markdown.")
-#     #     #     return redirect("store:vendor-mail")
-#     #     except Exception as e:
-#     #         messages.info(request, f"An error occurred: {str(e)}")
-#     #         return redirect("store:vendor-mail")
-#     # else:
-#     #     return render(request, "admin/send_email_to_vendors.html")
-
-# from django.template.loader import render_to_string
-
-
 def send_email_to_vendors(request):
     if request.method == "POST":
-        vendors = User.objects.filter(role="vendor")
+        vendors = User.objects.filter(role="Vendor")
         subject = request.POST.get("subject")
         markdown_content = request.POST.get("markdown_content")
         print(markdown_content)
@@ -1537,16 +1429,17 @@ def send_email_to_vendors(request):
             )
             email_text_message = "This is a message for vendors."
 
-            msg = EmailMultiAlternatives(subject, email_text_message, to=[vendor.email])
+            msg = EmailMultiAlternatives(subject,"naszattech@gmail.com", email_text_message, to=[vendor.email])
             msg.attach_alternative(email_html_message, "text/html")
             msg.send()
 
-            send_mail(
-                subject=subject,
-                message=email_text_message,
-                recipient_list=[vendor.email],
-                html_message=email_html_message,
-            )
+            # send_mail(
+            #     subject=subject,
+            #     message=email_text_message,
+            #     from_email="naszattech@gmail.com",
+            #     recipient_list=[vendor.email],
+            #     html_message=email_html_message,
+            # )
 
         messages.info(request, "Emails sent to vendors.")
         return redirect("store:vendor-mail")
@@ -1555,13 +1448,30 @@ def send_email_to_vendors(request):
 
 
 def send_email_to_users(request):
-    users = User.objects.filter(role="user")  # Assuming 'role' field in User model
-    for user in users:
-        send_mail(
-            "Hello User",
-            "This is a message for users.",
-            "from@example.com",
-            [user.email],
-            fail_silently=False,
-        )
-    return HttpResponse("Emails sent to users.")
+    if request.method == "POST":
+        users = User.objects.filter(role="User")
+        subject = request.POST.get("subject")
+        markdown_content = request.POST.get("markdown_content")
+        print(markdown_content)
+        html_content = mark_safe(markdown(markdown_content))
+
+        for user in users:
+            context = {
+                "subject": subject,
+                "message": html_content,
+                "user": user,
+            }
+            email_html_message = render_to_string(
+                "emails/send-user-email.html", context
+            )
+            email_text_message = "This is a message for vendors."
+
+            msg = EmailMultiAlternatives(subject,"naszattech@gmail.com", email_text_message, to=[vendor.email])
+            msg.attach_alternative(email_html_message, "text/html")
+            msg.send()
+
+        messages.info(request, "Emails sent to Users.")
+        return redirect("store:user-mail")
+    else:
+        return render(request, "admin/send_email_to_users.html")
+

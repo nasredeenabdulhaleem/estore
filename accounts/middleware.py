@@ -11,15 +11,13 @@ class VendorAccountVerificationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        exclude_urls = [
-            reverse("account-verification"),
-            reverse("admin:index")
-        ]
+        exclude_urls = [reverse("account-verification"), reverse("admin:index")]
         if request.user.is_authenticated and request.user.role == "Vendor":
-            if not request.path.startswith("/admin/") and request.path not in exclude_urls:
-                verified = VerificationCount.objects.get(
-                    user=request.user
-                ).is_verified
+            if (
+                not request.path.startswith("/admin/")
+                and request.path not in exclude_urls
+            ):
+                verified = VerificationCount.objects.get(user=request.user).is_verified
                 store_exists = VendorStore.objects.filter(
                     vendor__user=request.user
                 ).exists()
@@ -31,7 +29,9 @@ class VendorAccountVerificationMiddleware:
                 elif not store_exists:
                     return redirect("create-store")
                 elif verified and request.path == reverse("account-verification"):
-                    return redirect("store:vendor-home", kwargs={"business_name": request.user.vendor.business_name})
+                    return redirect(
+                        "store:vendor-home",
+                        kwargs={"business_name": request.user.vendor.business_name},
+                    )
 
-        return self.get_response(request)   
-    
+        return self.get_response(request)

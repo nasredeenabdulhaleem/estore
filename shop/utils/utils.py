@@ -73,5 +73,3 @@ def generate_sku(title, category, color, size):
     sku = sku[:15]
 
     return sku
-
-

@@ -86,8 +86,9 @@ def business_name_exists(business_name):
     return VendorProfile.objects.filter(business_name=business_name).exists()
 
 
-def is_store_admin(user, business_name)->bool:
+def is_store_admin(user, business_name) -> bool:
     return user.vendor.business_name == business_name
+
 
 def is_user(user):
     return user.is_authenticated and user.role == "User"
@@ -97,7 +98,7 @@ def is_vendor(user, business_name):
     return (
         user.is_authenticated
         and user.role == "Vendor"
-        and is_store_admin(user,business_name)
+        and is_store_admin(user, business_name)
         and business_name_exists(business_name)
     )
     # return user.is_authenticated and user.role == "Vendor"
@@ -969,9 +970,7 @@ class VendorDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/dashboard.html"
 
     def test_func(self):
-        return is_vendor(
-            self.request.user, self.kwargs["business_name"]
-        ) 
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def get_login_url(self):
         return reverse("vendor_login", args=[self.kwargs["business_name"]])
@@ -1009,7 +1008,7 @@ class SearchOrdersView(LoginRequiredMixin, UserProfile, View):
     template_name = "orders/search.html"
 
     def test_func(self):
-        return is_user(self.request.user) 
+        return is_user(self.request.user)
 
     def get(self, request):
         query = request.GET.get("q", "")
@@ -1038,9 +1037,7 @@ class ProductView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/product.html"
 
     def test_func(self):
-        return is_vendor(
-            self.request.user, self.kwargs["business_name"]
-        ) 
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def get(self, request, business_name, *args, **kwargs):
         product = Product.objects.filter(vendor__user=request.user).all()
@@ -1075,9 +1072,7 @@ class AddProductView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/add-product.html"
 
     def test_func(self):
-        return is_vendor(
-            self.request.user, self.kwargs["business_name"]
-        ) 
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def get(self, request):
         form = AddProductForm()
@@ -1130,9 +1125,7 @@ class UpdateProductView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     form_class = AddProductForm
 
     def test_func(self):
-        return is_vendor(
-            self.request.user, self.kwargs["business_name"]
-        ) 
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def get_queryset(self):
         return self.model.objects.filter(
@@ -1148,6 +1141,8 @@ class UpdateProductView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "Product updated successfully")
         return super().form_valid(form)
+
+
 # Delete Product
 
 
@@ -1157,9 +1152,7 @@ class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     success_url = reverse_lazy("store:vendor-products")
 
     def test_func(self):
-        return is_vendor(
-            self.request.user, self.kwargs["business_name"]
-        ) 
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "Product deleted successfully")
@@ -1183,9 +1176,7 @@ class AddProductItemView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     template_name = "vendor/add-product-item.html"
 
     def test_func(self):
-        return is_vendor(
-            self.request.user, self.kwargs["business_name"]
-        ) 
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     # success_url = reverse_lazy('store:vendor_product_detail')
     def get_success_url(self):
@@ -1273,9 +1264,7 @@ class UpdateProductItemView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
     template_name = "vendor/update-product-item.html"
 
     def test_func(self):
-        return is_vendor(
-            self.request.user, self.kwargs["business_name"]
-        ) 
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def get_form_class(self):
         product = self.object.product  # type: ignore
@@ -1344,9 +1333,7 @@ class DeleteProductItemView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
     template_name = "vendor/delete_productitem.html"
 
     def test_func(self):
-        return is_vendor(
-            self.request.user, self.kwargs["business_name"]
-        )
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1370,9 +1357,7 @@ class VendorCustomersView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/customers.html"
 
     def test_func(self):
-        return is_vendor(
-            self.request.user, self.kwargs["business_name"]
-        ) 
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
@@ -1429,7 +1414,9 @@ def send_email_to_vendors(request):
             )
             email_text_message = "This is a message for vendors."
 
-            msg = EmailMultiAlternatives(subject,"naszattech@gmail.com", email_text_message, to=[vendor.email])
+            msg = EmailMultiAlternatives(
+                subject, "naszattech@gmail.com", email_text_message, to=[vendor.email]
+            )
             msg.attach_alternative(email_html_message, "text/html")
             msg.send()
 
@@ -1466,7 +1453,9 @@ def send_email_to_users(request):
             )
             email_text_message = "This is a message for vendors."
 
-            msg = EmailMultiAlternatives(subject,"naszattech@gmail.com", email_text_message, to=[vendor.email])
+            msg = EmailMultiAlternatives(
+                subject, "naszattech@gmail.com", email_text_message, to=[vendor.email]
+            )
             msg.attach_alternative(email_html_message, "text/html")
             msg.send()
 
@@ -1474,4 +1463,3 @@ def send_email_to_users(request):
         return redirect("store:user-mail")
     else:
         return render(request, "admin/send_email_to_users.html")
-

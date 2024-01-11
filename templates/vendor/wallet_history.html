@@ -1,0 +1,57 @@
+{% extends 'vendor/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Wallet Menu {% endblock title %}
+
+{% block content %}
+<div class="text-sm breadcrumbs">
+        <ul>
+            <li>
+                <a href="{% url 'store:vendor-wallet' business_name %}">
+                        <i class="fas fa-wallet"></i> Wallet
+                </a>
+            </li> 
+            <li>
+                <span class="inline-flex gap-2 items-center">
+                        <i class="fas fa-history"></i> Wallet History
+                </span>
+            </li>
+        </ul>
+</div>
+<div class="container mx-auto p-4">
+    <h1 class="text-3xl font-semibold">Wallet History</h1>
+    <table class="table-auto w-full mt-4">
+        <thead>
+            <tr>
+                <th class="px-4 py-2">Reference</th>
+                <th class="px-4 py-2">Wallet Balance</th>
+                <th class="px-4 py-2">Amount</th>
+                <th class="px-4 py-2">Transaction Type</th>
+                <th class="px-4 py-2">Order</th>
+                <th class="px-4 py-2">Description</th>
+                <th class="px-4 py-2">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for history in wallet_histories %}
+            <tr>
+                <td class="border px-4 py-2">{{ history.reference }}</td>
+                <td class="border px-4 py-2">{{ history.wallet_balance }}</td>
+                <td class="border px-4 py-2">{{ history.amount }}</td>
+                <td class="border px-4 py-2">{{ history.get_transaction_type_display }}</td>
+                <td class="border px-4 py-2">{{ history.order_object.order_item }}</td>
+                <td class="border px-4 py-2">{{ history.description }}</td>
+                <td class="border px-4 py-2">{{ history.date }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="border px-4 py-2 text-center">No history found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

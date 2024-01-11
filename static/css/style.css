@@ -112,3 +112,11 @@ aside {
 .text-black{
   color: black;
 }
+
+.bg-yellow-500 {
+  background-color: #f7d948;
+}
+
+.bg-purple-500 {
+  background-color: #805ad5;
+}

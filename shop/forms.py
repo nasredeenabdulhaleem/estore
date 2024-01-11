@@ -1,10 +1,22 @@
 from dataclasses import fields
-from .models import Color, ProductItem, Size, UserProfile, Address, VendorStore
+from .models import (
+    BankAccount,
+    Color,
+    ProductItem,
+    Size,
+    UserProfile,
+    Address,
+    VendorStore,
+    VendorWithdrawal,
+    WithdrawalPin,
+)
 from django import forms
 from django import forms
 from .models import UserProfile, Gender_choices
 from django.forms import ModelForm
 from .models import Payment
+import bcrypt
+from django.core.exceptions import ValidationError
 
 
 # class SignUpForm(forms.Form):
@@ -283,3 +295,75 @@ class VendorStoreForm(forms.ModelForm):
             "store_state",
             "store_city",
         ]
+
+
+class BankAccountForm(forms.ModelForm):
+    class Meta:
+        model = BankAccount
+        fields = ["bank_name", "account_name", "account_number"]
+
+
+class WithdrawalPinForm(forms.ModelForm):
+    confirm_pin = forms.CharField(max_length=255)
+
+    class Meta:
+        model = WithdrawalPin
+        fields = ["pin", "confirm_pin"]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        pin = cleaned_data.get("pin")
+        confirm_pin = cleaned_data.get("confirm_pin")
+
+        if pin != confirm_pin:
+            raise ValidationError("Pin not the same")
+
+        return cleaned_data
+
+
+class VendorWithdrawalForm(forms.ModelForm):
+    pin = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = VendorWithdrawal
+        fields = ["bank_account", "amount", "pin"]
+
+    def __init__(self, *args, **kwargs):
+        self.vendor = kwargs.pop("vendor", None)
+        super(VendorWithdrawalForm, self).__init__(*args, **kwargs)
+        if self.vendor:
+            self.fields["bank_account"].queryset = BankAccount.objects.filter(
+                vendor=self.vendor.user.vendor
+            )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        pin = cleaned_data.get("pin")
+        if self.vendor and pin:
+            hashed_pin = self.vendor.withdrawalpin.pin
+            if not bcrypt.checkpw(pin.encode(), hashed_pin.encode()):
+                raise ValidationError("Pin invalid")
+        return cleaned_data
+
+
+class ChangeWithdrawalPinForm(forms.Form):
+    previous_pin = forms.CharField(widget=forms.PasswordInput)
+    new_pin = forms.CharField(widget=forms.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        self.vendor = kwargs.pop("vendor", None)
+        super(ChangeWithdrawalPinForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        previous_pin = cleaned_data.get("previous_pin")
+        new_pin = cleaned_data.get("new_pin")
+        if self.vendor and previous_pin and new_pin:
+            hashed_pin = self.vendor.withdrawalpin.pin
+            if not bcrypt.checkpw(previous_pin.encode(), hashed_pin.encode()):
+                raise ValidationError("Previous pin incorrect")
+            else:
+                hashed_new_pin = bcrypt.hashpw(new_pin.encode(), bcrypt.gensalt())
+                self.vendor.withdrawalpin.pin = hashed_new_pin.decode()
+                self.vendor.withdrawalpin.save()
+        return cleaned_data

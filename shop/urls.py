@@ -3,8 +3,10 @@ from django.urls import path, re_path
 
 from .views import (
     # AddProductItemView,
+    AddBankAccountView,
     AddProductItemView,
     AddProductView,
+    ChangeWithdrawalPinView,
     CompleteOrderView,
     CreateAddress,
     DeleteProductItemView,
@@ -14,6 +16,7 @@ from .views import (
     CheckoutView,
     OrderSummaryPDFView,
     ProductView,
+    SetWithdrawalPinView,
     UpdateAddress,
     UpdateProductItemView,
     UpdateProductView,
@@ -22,6 +25,9 @@ from .views import (
     VendorHomeView,
     VendorOrderView,
     VendorSettings,
+    VendorWalletView,
+    WalletHistoryView,
+    WithdrawFundsView,
     create_store,
     # add_product_item,
     # add_product_item_color,
@@ -114,8 +120,10 @@ urlpatterns = [
         "<str:business_name>/orders/", VendorOrderView, name="vendor-orders"
     ),  # vendor orders
     path(
-        "<str:business_name>/order/<int:order_id>/", order_detail_view, name='vendor-order-detail'
-    ),#Vendor order detail view
+        "<str:business_name>/order/<int:order_id>/",
+        order_detail_view,
+        name="vendor-order-detail",
+    ),  # Vendor order detail view
     path(
         "<str:business_name>/products/", ProductView.as_view(), name="vendor-products"
     ),  # vendors Products
@@ -155,8 +163,38 @@ urlpatterns = [
     path(
         "<str:business_name>/customers/",
         VendorCustomersView.as_view(),
-        name="vendor customers",
+        name="vendor-customers",
     ),  # vendor customers
+    path(
+        "<str:business_name>/wallet/",
+        VendorWalletView.as_view(),
+        name="vendor-wallet",
+    ),  # vendor wallet
+    path(
+        "<str:business_name>/withdraw-funds/",
+        WithdrawFundsView.as_view(),
+        name="withdraw-funds",
+    ),  # vendor withdraw funds
+    path(
+        "<str:business_name>/wallet-history/",
+        WalletHistoryView.as_view(),
+        name="wallet-history",
+    ),  # vendor wallet history
+    path(
+        "<str:business_name>/add-bank-account/",
+        AddBankAccountView.as_view(),
+        name="add-bank-account",
+    ),  # vendor add bank account
+    path(
+        "<str:business_name>/set-withdrawal-pin/",
+        SetWithdrawalPinView.as_view(),
+        name="set-withdrawal-pin",
+    ),  # vendor set withdrawal pin
+    path(
+        "<str:business_name>/change-withdrawal-pin/",
+        ChangeWithdrawalPinView.as_view(),
+        name="change-withdrawal-pin",
+    ),  # vendor change withdrawal pin
 ]
 
 VENDORSURL = [

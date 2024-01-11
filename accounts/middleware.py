@@ -11,7 +11,12 @@ class VendorAccountVerificationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        exclude_urls = [reverse("account-verification"), reverse("admin:index"),reverse("resend-verification-email"), reverse("store:create-store")]
+        exclude_urls = [
+            reverse("account-verification"),
+            reverse("admin:index"),
+            reverse("resend-verification-email"),
+            reverse("store:create-store"),
+        ]
         if request.user.is_authenticated and request.user.role == "Vendor":
             if (
                 not request.path.startswith("/admin/")

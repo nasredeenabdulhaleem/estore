@@ -785,14 +785,58 @@ class VendorWalletHistory(models.Model):
     vendor = models.ForeignKey(VendorProfile, on_delete=models.CASCADE)
     reference = models.CharField(max_length=255, null=False, default=uuid.uuid4)
     wallet_balance = models.IntegerField(null=False)
+    amount = models.IntegerField(null=False)
     transaction_type = models.CharField(
         max_length=255, null=False, choices=transaction_type_status
     )
+    order_object = models.ForeignKey("VendorOrder", on_delete=models.CASCADE)
     description = models.TextField(max_length=610, null=False)
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.vendor_id
+
+
+# Vendor Bank Accounts
+class BankAccount(models.Model):
+    vendor = models.ForeignKey(VendorProfile, on_delete=models.CASCADE)
+    bank_name = models.CharField(max_length=255)
+    account_name = models.CharField(max_length=255)
+    account_number = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.vendor.vendor_id
+
+
+# Vendor Withdrawal Pin
+class WithdrawalPin(models.Model):
+    vendor = models.OneToOneField(
+        VendorProfile, on_delete=models.CASCADE, related_name="withdrawalpin"
+    )
+    pin = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.vendor.vendor_id
+
+
+# Vendor Withdrawal
+class VendorWithdrawal(models.Model):
+    WITHDRAWAL_STATUS_CHOICES = [
+        ("P", "Pending"),
+        ("C", "Completed"),
+        ("F", "Failed"),
+    ]
+
+    vendor = models.ForeignKey(VendorProfile, on_delete=models.CASCADE)
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(
+        max_length=1, choices=WITHDRAWAL_STATUS_CHOICES, default="P"
+    )
+
+    def __str__(self):
+        return f"{self.vendor.vendor_id} - {self.date} - {self.get_status_display()}"
 
 
 # Vendor Order

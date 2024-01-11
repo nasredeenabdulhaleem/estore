@@ -17,8 +17,8 @@ def generate_vendor_id():
 
 # Generates a unique order identifier
 def generate_order_id():
-    order_id = f"ORD-{uuid.uuid4}{secrets.token_urlsafe(10)}"
-    return slugify(order_id)
+    order_id = f"ORD-{str(uuid.uuid4())}{secrets.token_urlsafe(10)}"
+    return slugify(order_id[:17])
 
 
 # Sluggify Product Title

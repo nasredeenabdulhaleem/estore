@@ -138,6 +138,21 @@
             </thead>
             <tbody>
                 <!-- Repeat this row structure for each order -->
+                {% for order in orders%}
+                <tr>
+                    <td>#{{order.order_item.order.ref}}</td>
+                    <td>{{order.user.user.fullname}}</td>
+                    <td>{{order.date}}</td>
+                    <td>
+                        
+                        <span class="py-1 px-3 rounded-full text-xs {% if order.status == 'Delivered' %}bg-green-200 text-green-600{% elif order.status == 'Pending' %}bg-red-200 text-red-600{% elif order.status == 'Shipped' %}bg-yellow-200 text-yellow-600{% endif %}">{{order.status}}</span>
+                    </td>
+                    <td>{{order.order_item.get_total_item_price}}</td>
+                    <td>
+                        <a href="{% url 'store:vendor-order-detail' business_name order.id %}"><button class="btn btn-primary">View Details</button></a>
+                    </td>
+                </tr>
+                {% endfor %}
                 <tr>
                     <td>#12345</td>
                     <td>John Doe</td>
@@ -150,6 +165,7 @@
                         <button class="btn btn-primary">View Details</button>
                     </td>
                 </tr>
+
             </tbody>
         </table>
     </div>

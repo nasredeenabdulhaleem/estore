@@ -51,6 +51,8 @@ from .models import (
     Size,
     UserAddress,
     UserProfile,
+    VendorOrder,
+    # VendorOrder,
     VendorProfile,
     VendorStore,
 )
@@ -625,7 +627,7 @@ class CheckoutView(LoginRequiredMixin, UserPassesTestMixin, View):
             if user_address:
                 address = user_address.address
             else:
-                country_data = form.cleaned_data["country_name"]
+                country_data = form.cleaned_data["country"]
                 country = Country.objects.get(country_name=country_data)
                 address = Address.objects.create(
                     first_name=form.cleaned_data["first_name"],
@@ -652,11 +654,16 @@ class CheckoutView(LoginRequiredMixin, UserPassesTestMixin, View):
             cart = Cart.objects.get(user=request.user)
             cart_items = CartItem.objects.filter(cart=cart)
             for cart_item in cart_items:
-                OrderItem.objects.create(
+                order_item = OrderItem.objects.create(
                     user=request.user,
                     order=order,
                     product=cart_item.product,
                     quantity=cart_item.quantity,
+                )
+                VendorOrder.objects.create(
+                    user=request.user,
+                    order_item=order_item,
+                    vendor=cart_item.product.product.vendor,
                 )
                 cart.products.remove(cart_item.product)
 
@@ -965,7 +972,28 @@ class VendorHomeView(LoginRequiredMixin, UserPassesTestMixin, View):
 ####################################################################################################################################
 # Vendor Dashboard
 
+def create_store(request):
+    if request.method == "POST":
+        form = forms.VendorStoreForm(request.POST,request.FILES or None)
+        if form.is_valid():
+            store = form.save(commit=False)
+            store.vendor = request.user.vendor
+            store.save()
+            return redirect("store:vendor-home", business_name=request.user.vendor.business_name)
+    else:
+        form = forms.VendorStoreForm()
+    return render(request, "vendor/create-store.html", {"form": form})
 
+def update_vendor_store(request, vendor_store_id):
+    vendor_store = VendorStore.objects.get(id=vendor_store_id)
+    if request.method == 'POST':
+        form = forms.VendorStoreForm(request.POST, instance=vendor_store)
+        if form.is_valid():
+            form.save()
+            # Redirect or show a success message
+    else:
+        form = forms.VendorStoreForm(instance=vendor_store)
+    return render(request, 'vendor/create-store.html', {'form': form})
 class VendorDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/dashboard.html"
 
@@ -996,12 +1024,28 @@ def VendorSettings(request, business_name, *args, **kwargs):
 @login_required
 @user_passes_test_with_args(is_vendor, login_url=reverse_lazy("vendor_login"))
 def VendorOrderView(request, business_name, *args, **kwargs):
-    # order = VendorOrder.objects.filter(user_user_id=request.user.id)
+    order = VendorOrder.objects.filter(vendor=request.user.vendor).all()
+
     context = {
-        # 'order': order,
+        'orders': order,
         "business_name": business_name
     }
     return render(request, "vendor/orders.html", context=context)
+
+@login_required
+@user_passes_test_with_args(is_vendor, login_url=reverse_lazy("vendor_login"))
+def order_detail_view(request,business_name, order_id):
+    order = VendorOrder.objects.get(pk=order_id)
+    status_choices = VendorOrder.STATUS_CHOICES
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(status_choices):
+            order.status = new_status
+            order.save()
+            messages.success(request, 'Order status updated successfully')
+            return redirect('store:vendor-orders', business_name=business_name)
+    context = {'order': order,"business_name": business_name, 'status_choices': status_choices}
+    return render(request, 'vendor/order-detail.html', context)
 
 
 class SearchOrdersView(LoginRequiredMixin, UserProfile, View):

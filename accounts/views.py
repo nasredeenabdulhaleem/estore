@@ -108,8 +108,7 @@ class VerifyEmailView(View):
                 )
                 if request.user.role == "Vendor":
                     return redirect(
-                        "vendor_login",
-                        business_name=request.user.vendor.business_name,
+                        "store:create-store"
                     )
                 else:
                     return redirect("login")
@@ -134,13 +133,18 @@ class VerifyEmailView(View):
 class ResendVerificationEmailView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         verified = VerificationCount.objects.get(user=request.user).is_verified
+        print("verified",verified)
         if request.user.is_authenticated and not verified:
+            add_count = VerificationCount.objects.get(user=request.user) 
+            add_count.count += 1
+            add_count.save()
             EmailVerification().resend_verification(
-                user=request.user, email=request.user.email
+                user=request.user
             )
             messages.success(
                 request, "Verification email has been resent. Please check your inbox."
             )
+            return redirect("account-verification")
         else:
             messages.error(
                 request, "User is either not authenticated or already verified."
@@ -188,6 +192,7 @@ def account_verification(request):
 class Login(LoginView):
     template_name = "accounts/user-login.html"
     redirect_authenticated_user = True  # Redirect if user is already logged in
+    redirect_url = settings.REDIRECT_URL 
 
 
 #     def get_success_url(self):

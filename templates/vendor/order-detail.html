@@ -1,0 +1,70 @@
+{% extends 'vendor/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Orders {% endblock title %}
+
+{% block content %}
+
+<div class="text-sm breadcrumbs">
+    <ul>
+      <li>
+        <a href="{% url 'store:vendor-home' business_name %}">
+            <i class="fas fa-tachometer-alt"></i>                       Dashboard
+        </a>
+      </li> 
+      <li>
+        <a href="{% url 'store:vendor-orders' business_name %}">
+            <i class="fas fa-clipboard-list"></i>                       Orders
+        </a>
+      </li> 
+      <li>
+        <span class="inline-flex gap-2 items-center">
+            <i class="fas fa-clipboard"></i>                      Order Detail
+        </span>
+      </li>
+    </ul>
+  </div>
+    <div class="container mx-auto p-6">
+        <!-- Order Details -->
+        <div class="bg-base-200 p-8 rounded-md shadow-md mb-8 text-primary-content">
+            <h1 class="text-2xl font-semibold mb-4">Order #{{ order.id }} Details</h1>
+            <!-- Single Product Details -->
+            <div class="mb-4">
+                <p class="text-accent-content"><span class="font-semibold">Product:</span> {{ order.order_item.product.product.title }}</p>
+                <p class="text-accent-content"><span class="font-semibold">Quantity:</span> {{ order.order_item.quantity }}</p>
+                <p class="text-accent-content"><span class="font-semibold">Price:</span> {{ order.order_item.product.price }}</p>
+                <p class="text-accent-content"><span class="font-semibold">Total:</span> {{ order.order_item.get_total_item_price }}</p>
+            </div>
+            <!-- Order Total -->
+            <div class="flex justify-end">
+                <div class="text-xl font-semibold">
+                    Order Total: ${{ order.order_item.get_total_item_price }}
+                </div>
+            </div>
+        </div>
+        <!-- Order Status -->
+        <div class="bg-base-200 p-8 rounded-md shadow-md text-primary-content">
+            <h2 class="text-xl font-semibold mb-4">Order Status</h2>
+            <!-- Status Selector -->
+            <form  method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="block text-accent-content">Change Status:</label>
+                <div class="mt-1">
+                    <select name="status" class="select select-primary w-full max-w-xs">
+                        {% for value, display in status_choices %}
+                            <option value="{{ value }}" {% if value == order.status %}selected{% endif %}>{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <!-- Update Button -->
+            <br>
+            <button type="submit" class="btn btn-primary">Update Status</button></form>
+        </div>
+    </div>
+
+{% endblock content %}

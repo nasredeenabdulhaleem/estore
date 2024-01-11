@@ -22,6 +22,7 @@ from .views import (
     VendorHomeView,
     VendorOrderView,
     VendorSettings,
+    create_store,
     # add_product_item,
     # add_product_item_color,
     # add_product_item_default,
@@ -30,6 +31,7 @@ from .views import (
     decreaseItem,
     increaseItem,
     makepayment,
+    order_detail_view,
     # AddToCart,
     # quickview,
     # reciept,
@@ -37,6 +39,7 @@ from .views import (
     search,
     send_email_to_users,
     send_email_to_vendors,
+    update_vendor_store,
     user_settings,
     # validate_payment,
     DetailView,
@@ -98,6 +101,8 @@ urlpatterns = [
     # path("remove_from_cart/<slug:slug>/", remove_from_cart, name="remove_from_cart"),  # type: ignore
     # path("get-item/", quickview),
     # Vendor Urls
+    path("create-store", create_store, name="create-store"),
+    path("update-store", update_vendor_store, name="update-store"),
     path("<str:business_name>/", VendorDashboardView.as_view(), name="vendor-home"),
     path(
         "store/<slug>/", VendorHomeView.as_view(), name="vendor-storefront"
@@ -108,6 +113,9 @@ urlpatterns = [
     path(
         "<str:business_name>/orders/", VendorOrderView, name="vendor-orders"
     ),  # vendor orders
+    path(
+        "<str:business_name>/order/<int:order_id>/", order_detail_view, name='vendor-order-detail'
+    ),#Vendor order detail view
     path(
         "<str:business_name>/products/", ProductView.as_view(), name="vendor-products"
     ),  # vendors Products

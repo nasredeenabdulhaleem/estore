@@ -56,7 +56,9 @@ VARIATIONCHOICES = [
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user"
+    )
     firstname = models.CharField(max_length=255, null=False)
     lastname = models.CharField(max_length=255, null=False)
     gender = models.CharField(max_length=11, choices=Gender_choices, null=False)
@@ -716,6 +718,12 @@ class VendorStore(models.Model):
     store_name = models.CharField(max_length=255, null=False)
     store_address = models.TextField(null=True)
     store_logo = CloudinaryField("image")
+    store_description = models.TextField(null=True)
+    store_category = models.CharField(max_length=255, null=True)
+    store_sub_category = models.CharField(max_length=255, null=True)
+    store_country = models.CharField(max_length=255, null=True)
+    store_state = models.CharField(max_length=255, null=True)
+    store_city = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         return self.vendor.vendor_id
@@ -791,10 +799,19 @@ class VendorWalletHistory(models.Model):
 
 
 class VendorOrder(models.Model):
-    user = models.ForeignKey(VendorProfile, on_delete=models.CASCADE)
-    customer = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("Shipped", "Shipped"),
+        ("Delivered", "Delivered"),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="customer"
+    )
+    order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
+    vendor = models.ForeignKey(VendorProfile, on_delete=models.CASCADE)
+    status = models.CharField(max_length=11, choices=STATUS_CHOICES, default="Pending")
 
     def __str__(self):
-        return self.user.vendor_id
+        return self.vendor.vendor_id

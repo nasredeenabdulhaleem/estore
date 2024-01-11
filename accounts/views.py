@@ -5,6 +5,8 @@ from django.http import Http404
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts.models import User, VerificationCount
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import redirect, render
@@ -24,6 +26,7 @@ from django.views import View
 from django.contrib import messages
 from accounts.emailverification import EmailVerification
 
+
 # log(
 #         user=request.user,
 #         action="CREATED_FOO_WIDGET",
@@ -31,6 +34,9 @@ from accounts.emailverification import EmailVerification
 #         extra={"title": foo.title},
 #     )
 # Create your views here.
+def is_vendor(user):
+    return user.is_authenticated and user.role == "Vendor"
+    # return user.is_authenticated and user.role == "Vendor"
 
 
 # USer SIGN UP View
@@ -148,6 +154,8 @@ class ResendVerificationEmailView(LoginRequiredMixin, View):
         return redirect("account-verification")
 
 
+@login_required
+@user_passes_test(is_vendor, login_url=reverse_lazy("vendor_login"))
 def account_verification(request):
     return render(request, "accounts/account_verification.html")
 
@@ -191,10 +199,12 @@ class Login(LoginView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        if self.request.user.role == 'Vendor':
+        if self.request.user.role == "Vendor":
             logout(self.request)
-            messages.error(self.request, 'Vendors log in Not Allowed. Use store Login instead')
-            return redirect('login')
+            messages.error(
+                self.request, "Vendors log in Not Allowed. Use store Login instead"
+            )
+            return redirect("login")
         return response
 
 

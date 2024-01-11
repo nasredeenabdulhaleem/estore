@@ -979,28 +979,34 @@ class VendorHomeView(LoginRequiredMixin, UserPassesTestMixin, View):
 ####################################################################################################################################
 # Vendor Dashboard
 
+
 def create_store(request):
     if request.method == "POST":
-        form = forms.VendorStoreForm(request.POST,request.FILES or None)
+        form = forms.VendorStoreForm(request.POST, request.FILES or None)
         if form.is_valid():
             store = form.save(commit=False)
             store.vendor = request.user.vendor
             store.save()
-            return redirect("store:vendor-home", business_name=request.user.vendor.business_name)
+            return redirect(
+                "store:vendor-home", business_name=request.user.vendor.business_name
+            )
     else:
         form = forms.VendorStoreForm()
     return render(request, "vendor/create-store.html", {"form": form})
 
+
 def update_vendor_store(request, vendor_store_id):
     vendor_store = VendorStore.objects.get(id=vendor_store_id)
-    if request.method == 'POST':
+    if request.method == "POST":
         form = forms.VendorStoreForm(request.POST, instance=vendor_store)
         if form.is_valid():
             form.save()
             # Redirect or show a success message
     else:
         form = forms.VendorStoreForm(instance=vendor_store)
-    return render(request, 'vendor/create-store.html', {'form': form})
+    return render(request, "vendor/create-store.html", {"form": form})
+
+
 class VendorDashboardView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/dashboard.html"
 
@@ -1034,8 +1040,8 @@ def VendorOrderView(request, business_name, *args, **kwargs):
     orders = VendorOrder.objects.filter(vendor=request.user.vendor).all()
 
     # Get the form data
-    search_query = request.GET.get('search', '')
-    status_filter = request.GET.get('status', '')
+    search_query = request.GET.get("search", "")
+    status_filter = request.GET.get("status", "")
 
     # Filter the orders based on the form data
     if search_query:
@@ -1043,26 +1049,28 @@ def VendorOrderView(request, business_name, *args, **kwargs):
     if status_filter:
         orders = orders.filter(status__iexact=status_filter)
 
-    context = {
-        'orders': orders,
-        "business_name": business_name
-    }
+    context = {"orders": orders, "business_name": business_name}
     return render(request, "vendor/orders.html", context=context)
+
 
 @login_required
 @user_passes_test_with_args(is_vendor, login_url=reverse_lazy("vendor_login"))
-def order_detail_view(request,business_name, order_id):
+def order_detail_view(request, business_name, order_id):
     order = VendorOrder.objects.get(pk=order_id)
     status_choices = VendorOrder.STATUS_CHOICES
-    if request.method == 'POST':
-        new_status = request.POST.get('status')
+    if request.method == "POST":
+        new_status = request.POST.get("status")
         if new_status in dict(status_choices):
             order.status = new_status
             order.save()
-            messages.success(request, 'Order status updated successfully')
-            return redirect('store:vendor-orders', business_name=business_name)
-    context = {'order': order,"business_name": business_name, 'status_choices': status_choices}
-    return render(request, 'vendor/order-detail.html', context)
+            messages.success(request, "Order status updated successfully")
+            return redirect("store:vendor-orders", business_name=business_name)
+    context = {
+        "order": order,
+        "business_name": business_name,
+        "status_choices": status_choices,
+    }
+    return render(request, "vendor/order-detail.html", context)
 
 
 class SearchOrdersView(LoginRequiredMixin, UserProfile, View):
@@ -1419,17 +1427,16 @@ class VendorCustomersView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def test_func(self):
         return is_vendor(self.request.user, self.kwargs["business_name"])
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["business_name"] = self.kwargs["business_name"]
         return context
 
     def get(self, request, *args, **kwargs):
-        context={
-            "business_name": self.kwargs["business_name"]
-        }
+        context = {"business_name": self.kwargs["business_name"]}
         return render(request, self.template_name, context)
+
 
 ###################################################################################################3
 ########################################WalletsVIEW SECTION################################################
@@ -1440,7 +1447,7 @@ class VendorWalletView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def test_func(self):
         return is_vendor(self.request.user, self.kwargs["business_name"])
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["business_name"] = self.kwargs["business_name"]
@@ -1452,66 +1459,91 @@ class VendorWalletView(LoginRequiredMixin, UserPassesTestMixin, View):
             withdrawal_pin_exists = vendor.withdrawalpin is not None
         except WithdrawalPin.DoesNotExist:
             withdrawal_pin_exists = False
-        context={
+        context = {
             "business_name": self.kwargs["business_name"],
-            "withdrawal_pin_exists": withdrawal_pin_exists
+            "withdrawal_pin_exists": withdrawal_pin_exists,
         }
         return render(request, self.template_name, context)
 
 
-
-
 class WithdrawFundsView(LoginRequiredMixin, UserPassesTestMixin, View):
-    template_name = 'vendor/withdraw_funds.html'
+    template_name = "vendor/withdraw_funds.html"
+
     def test_func(self):
-        return is_vendor(self.request.user, self.kwargs['business_name'])
+        return is_vendor(self.request.user, self.kwargs["business_name"])
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["business_name"] = self.kwargs["business_name"]
         return context
+
     def get(self, request, *args, **kwargs):
         form = VendorWithdrawalForm(vendor=request.user.vendor)
-        return render(request, self.template_name, {'form': form,"business_name": self.kwargs["business_name"],})
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "business_name": self.kwargs["business_name"],
+            },
+        )
+
     def post(self, request, *args, **kwargs):
         form = VendorWithdrawalForm(request.POST, vendor=request.user.vendor)
         if form.is_valid():
             withdrawal = form.save(commit=False)
             withdrawal.vendor = request.user.vendor
             withdrawal.save()
-            return redirect('store:vendor-wallet', business_name=request.user.username)
-        return render(request, self.template_name, {'form': form})
+            return redirect("store:vendor-wallet", business_name=request.user.username)
+        return render(request, self.template_name, {"form": form})
 
 
-class WalletHistoryView(LoginRequiredMixin,UserPassesTestMixin,View):
-    template_name = 'vendor/wallet_history.html'
+class WalletHistoryView(LoginRequiredMixin, UserPassesTestMixin, View):
+    template_name = "vendor/wallet_history.html"
 
     def test_func(self):
-        return is_vendor(self.request.user, self.kwargs['business_name'])
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def get_context_data(self, **kwargs):
-            context = super().get_context_data(**kwargs)
-            context["business_name"] = self.kwargs["business_name"]
-            return context
+        context = super().get_context_data(**kwargs)
+        context["business_name"] = self.kwargs["business_name"]
+        return context
 
     def get(self, request, *args, **kwargs):
-        wallet_histories = VendorWalletHistory.objects.filter(vendor=request.user.vendor)
-        return render(request, self.template_name,{'wallet_histories':wallet_histories,"business_name": self.kwargs["business_name"],})
+        wallet_histories = VendorWalletHistory.objects.filter(
+            vendor=request.user.vendor
+        )
+        return render(
+            request,
+            self.template_name,
+            {
+                "wallet_histories": wallet_histories,
+                "business_name": self.kwargs["business_name"],
+            },
+        )
 
 
-class AddBankAccountView(LoginRequiredMixin,UserPassesTestMixin,View):
-    template_name = 'vendor/add_bank_account.html'
+class AddBankAccountView(LoginRequiredMixin, UserPassesTestMixin, View):
+    template_name = "vendor/add_bank_account.html"
 
     def test_func(self):
-        return is_vendor(self.request.user, self.kwargs['business_name'])
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def get_context_data(self, **kwargs):
-            context = super().get_context_data(**kwargs)
-            context["business_name"] = self.kwargs["business_name"]
-            return context
+        context = super().get_context_data(**kwargs)
+        context["business_name"] = self.kwargs["business_name"]
+        return context
 
     def get(self, request, *args, **kwargs):
         form = BankAccountForm()
-        return render(request, self.template_name, {'form': form,"business_name": self.kwargs["business_name"],})
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "business_name": self.kwargs["business_name"],
+            },
+        )
 
     def post(self, request, *args, **kwargs):
         form = BankAccountForm(request.POST)
@@ -1519,24 +1551,33 @@ class AddBankAccountView(LoginRequiredMixin,UserPassesTestMixin,View):
             bank_account = form.save(commit=False)
             bank_account.user = request.user.vendor
             bank_account.save()
-            return redirect('store:vendor-wallet', business_name=request.user.vendor.business_name)
-        return render(request, self.template_name, {'form': form})
+            return redirect(
+                "store:vendor-wallet", business_name=request.user.vendor.business_name
+            )
+        return render(request, self.template_name, {"form": form})
 
 
-class SetWithdrawalPinView(LoginRequiredMixin,UserPassesTestMixin,View):
-    template_name = 'vendor/set_withdrawal_pin.html'
+class SetWithdrawalPinView(LoginRequiredMixin, UserPassesTestMixin, View):
+    template_name = "vendor/set_withdrawal_pin.html"
 
     def test_func(self):
-        return is_vendor(self.request.user, self.kwargs['business_name'])
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def get(self, request, *args, **kwargs):
         form = WithdrawalPinForm()
-        return render(request, self.template_name, {'form': form,"business_name": self.kwargs["business_name"],})
-    
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "business_name": self.kwargs["business_name"],
+            },
+        )
+
     def get_context_data(self, **kwargs):
-            context = super().get_context_data(**kwargs)
-            context["business_name"] = self.kwargs["business_name"]
-            return context
+        context = super().get_context_data(**kwargs)
+        context["business_name"] = self.kwargs["business_name"]
+        return context
 
     def post(self, request, *args, **kwargs):
         form = WithdrawalPinForm(request.POST)
@@ -1546,30 +1587,40 @@ class SetWithdrawalPinView(LoginRequiredMixin,UserPassesTestMixin,View):
             hashed_pin = bcrypt.hashpw(withdrawal_pin.pin.encode(), bcrypt.gensalt())
             withdrawal_pin.pin = hashed_pin.decode()
             withdrawal_pin.save()
-            return redirect('store:vendor-wallet', business_name=request.user.vendor.business_name)
-        return render(request, self.template_name, {'form': form})
+            return redirect(
+                "store:vendor-wallet", business_name=request.user.vendor.business_name
+            )
+        return render(request, self.template_name, {"form": form})
 
 
 class ChangeWithdrawalPinView(LoginRequiredMixin, UserPassesTestMixin, View):
-    template_name = 'vendor/change_withdrawal_pin.html'
+    template_name = "vendor/change_withdrawal_pin.html"
 
     def test_func(self):
-        return is_vendor(self.request.user, self.kwargs['business_name'])
-    
+        return is_vendor(self.request.user, self.kwargs["business_name"])
+
     def get_context_data(self, **kwargs):
-            context = super().get_context_data(**kwargs)
-            context["business_name"] = self.kwargs["business_name"]
-            return context
+        context = super().get_context_data(**kwargs)
+        context["business_name"] = self.kwargs["business_name"]
+        return context
 
     def get(self, request, *args, **kwargs):
         form = ChangeWithdrawalPinForm(vendor=request.user.vendor)
-        return render(request, self.template_name, {'form': form,"business_name": self.kwargs["business_name"],})
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "business_name": self.kwargs["business_name"],
+            },
+        )
 
     def post(self, request, *args, **kwargs):
         form = ChangeWithdrawalPinForm(request.POST, vendor=request.user.vendor)
         if form.is_valid():
-            return redirect('store:vendor-wallet', business_name=request.user.username)
-        return render(request, self.template_name, {'form': form})
+            return redirect("store:vendor-wallet", business_name=request.user.username)
+        return render(request, self.template_name, {"form": form})
+
 
 ###################################################################################################3
 ########################################ERRORS VIEW SECTION################################################

@@ -106,12 +106,15 @@
     <h1 class="text-3xl font-semibold">Orders</h1>
 
     <!-- Filters and Search -->
-    <div class="flex items-center space-x-4">
+    
+        <form method="get">
+
+        <div class="flex items-center space-x-4">
         <div class="w-1/2">
-            <input type="text" class="input input-bordered w-full" placeholder="Search orders..." />
+            <input type="text" name="search" class="input input-bordered w-full" placeholder="Search orders..." />
         </div>
         <div class="w-1/4">
-            <select class="select select-bordered w-full">
+            <select name="status" class="select select-bordered w-full">
                 <option selected disabled>Filter by status</option>
                 <option value="pending">Pending</option>
                 <option value="shipped">Shipped</option>
@@ -119,9 +122,10 @@
             </select>
         </div>
         <div class="w-1/4">
-            <button class="btn btn-primary w-full">Apply Filter</button>
+            <button type="submit" class="btn btn-primary w-full">Apply Filter</button>
         </div>
     </div>
+        </form>
 
     <!-- Order List -->
     <div class="overflow-x-auto">

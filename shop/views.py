@@ -1026,6 +1026,16 @@ def VendorSettings(request, business_name, *args, **kwargs):
 def VendorOrderView(request, business_name, *args, **kwargs):
     order = VendorOrder.objects.filter(vendor=request.user.vendor).all()
 
+    # Get the form data
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
+
+    # Filter the orders based on the form data
+    if search_query:
+        orders = orders.filter(id__icontains=search_query)
+    if status_filter:
+        orders = orders.filter(status__iexact=status_filter)
+
     context = {
         'orders': order,
         "business_name": business_name

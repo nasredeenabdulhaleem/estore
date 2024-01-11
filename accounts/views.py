@@ -188,7 +188,14 @@ def account_verification(request):
 class Login(LoginView):
     template_name = "accounts/user-login.html"
     redirect_authenticated_user = True  # Redirect if user is already logged in
-    redirect_url = settings.REDIRECT_URL
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.request.user.role == 'Vendor':
+            logout(self.request)
+            messages.error(self.request, 'Vendors log in Not Allowed. Use store Login instead')
+            return redirect('login')
+        return response
 
 
 #     def get_success_url(self):

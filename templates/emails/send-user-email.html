@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendor Email Notification </title>
+    <title>User Email Notification</title>
     <!-- Include Tailwind CSS and DaisyUI -->
     
     <link href="{% static 'css/output.css' %}" rel="stylesheet">
@@ -25,7 +25,7 @@
 
         <!-- Content -->
         <div class="bg-inherit p-4 mt-4 shadow-md ">
-            Dear {{vendor.username}}
+            Dear {{user.username}}
             <div class="text-xl font-medium text-black">{{message}}</div>
             <!-- Additional Information or Instructions -->
             <div class="mt-4 text-sm text-gray-600">

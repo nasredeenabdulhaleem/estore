@@ -115,7 +115,7 @@ class EmailVerification:
         except Exception as e:
             return False
 
-    def resend_verification(self, user, email):
+    def resend_verification(self, user):
         """
         Resends the verification email to the specified user.
 

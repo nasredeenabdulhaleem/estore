@@ -1,5 +1,5 @@
 from dataclasses import fields
-from .models import Color, ProductItem, Size, UserProfile, Address
+from .models import Color, ProductItem, Size, UserProfile, Address, VendorStore
 from django import forms
 from django import forms
 from .models import UserProfile, Gender_choices
@@ -267,3 +267,19 @@ class CheckoutForm(forms.Form):
     postal_code = forms.CharField(max_length=10)  # Add this line
     country = forms.CharField(max_length=30)  # Add this line
     save_info = forms.BooleanField(required=False)
+
+
+class VendorStoreForm(forms.ModelForm):
+    class Meta:
+        model = VendorStore
+        fields = [
+            "store_name",
+            "store_address",
+            "store_logo",
+            "store_description",
+            "store_category",
+            "store_sub_category",
+            "store_country",
+            "store_state",
+            "store_city",
+        ]

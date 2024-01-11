@@ -11,28 +11,27 @@ class VendorAccountVerificationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        response = self.get_response(request)
-        # List of views to exclude from the middleware
-        exclude_urls = [
-            reverse("account-verification"),
-            reverse("store:vendor-mail"),
-            reverse("admin:index")
-            # Add more views to exclude here
-        ]
+        exclude_urls = [reverse("account-verification"), reverse("admin:index"),reverse("resend-verification-email"), reverse("store:create-store")]
         if request.user.is_authenticated and request.user.role == "Vendor":
             if (
                 not request.path.startswith("/admin/")
+                and not request.path.startswith("/accounts/verify-email/")
                 and request.path not in exclude_urls
             ):
-                verified = VerificationCount.objects.filter(
-                    user=request.user, is_verified=True
-                ).exists()
-                if not verified:
-                    return redirect("account-verification")
+                verified = VerificationCount.objects.get(user=request.user).is_verified
                 store_exists = VendorStore.objects.filter(
                     vendor__user=request.user
                 ).exists()
-                if not store_exists:
-                    return redirect("create-store")
+                print(verified, store_exists)
 
-        return response
+                if not verified:
+                    return redirect("account-verification")
+                elif not store_exists:
+                    return redirect("store:create-store")
+                elif verified and request.path == reverse("account-verification"):
+                    return redirect(
+                        "store:vendor-home",
+                        kwargs={"business_name": request.user.vendor.business_name},
+                    )
+
+        return self.get_response(request)

@@ -15,6 +15,7 @@ from .models import (
     # Variation,
     VendorProfile,
     VendorStore,
+    VendorOrder,
     # Size,
     UserProfile,
     Product,
@@ -120,6 +121,7 @@ admin.site.register(Payment)
 admin.site.register(OrderStatus)
 admin.site.register(VendorProfile)
 admin.site.register(VendorStore)
+admin.site.register(VendorOrder)
 admin.site.register(Cart)
 admin.site.register(CartItem)
 # admin.site.register(Variation)

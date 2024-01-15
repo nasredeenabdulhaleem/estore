@@ -15,6 +15,8 @@ from decouple import config
 from pathlib import Path
 from django.contrib.messages import constants as messages
 
+IN_DOCKER_CONTAINER = config('IN_DOCKER_CONTAINER', default=False, cast=bool)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -115,6 +117,29 @@ WSGI_APPLICATION = "store.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+
+# if IN_DOCKER_CONTAINER:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': '/data/db.sqlite3',
+#         }
+#     }
+# else:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.sqlite3",
+#             "NAME": BASE_DIR / "db.sqlite3",
+#         }
+#         # "default": {
+#         #     "ENGINE": "django.db.backends.postgresql",
+#         #     "NAME": "store",
+#         #     "USER": "nasredeen",
+#         #     "PASSWORD": "Hal@16eem",
+#         #     "HOST": "localhost",
+#         #     "PORT": 5432,
+#         # }
+#     }
 
 DATABASES = {
     "default": {

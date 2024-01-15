@@ -11,7 +11,7 @@ __pycache__
 *.log
 
 # Ignore all .env files
-*.env
+# *.env
 
 # Ignore other non-essential files
 .DS_Store

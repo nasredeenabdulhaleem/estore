@@ -82,6 +82,24 @@ from django.urls import reverse, reverse_lazy
 from .models import Product
 from accounts.models import User
 
+# QR Code Imports###
+import base64
+import qrcode
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.views import View
+from PIL import Image
+from io import BytesIO
+
+# first
+import qrcode
+from django.http import HttpResponse
+from django.views import View
+from PIL import Image
+import requests
+from PIL import Image
+from io import BytesIO
+
 # log(
 #         user=request.user,
 #         action="CREATED_FOO_WIDGET",
@@ -958,7 +976,7 @@ class VendorHomeView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "vendor/store-front.html"
 
     def test_func(self):
-        return is_vendor(self.request.user)
+        return is_vendor(self.request.user, self.kwargs["slug"])
 
     def get(self, request, slug):
         vendor_info = VendorStore.objects.get(store_name=slug)
@@ -1620,6 +1638,88 @@ class ChangeWithdrawalPinView(LoginRequiredMixin, UserPassesTestMixin, View):
         if form.is_valid():
             return redirect("store:vendor-wallet", business_name=request.user.username)
         return render(request, self.template_name, {"form": form})
+
+
+###########Vendor Store QR Generator ############################
+
+# class QRCodeView(View):
+#     def get(self, request, *args, **kwargs):
+#         img = qrcode.make('http://example.com/vendor-store')  # Replace with your vendor store URL
+#         response = HttpResponse(content_type="image/png")
+#         img.save(response, "PNG")
+#         return response
+
+
+class QRCodeView(View):
+    def get(self, request, *args, **kwargs):
+        store = VendorStore.objects.get(store_name=kwargs["store_name"])
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(
+            "http://example.com/vendor-store"
+        )  # Replace with your vendor store URL
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        # Add logo
+        logo_url = store.store_logo.url  #'http://example.com/logo.png'
+        response = requests.get(logo_url)
+        logo = Image.open(BytesIO(response.content))
+        # img.paste(logo, (30, 100), logo)
+        # Ensure the image has an alpha channel
+        # logo = logo.convert("RGBA")
+
+        # Generate a new image with transparency
+        transparent_logo = Image.new("RGBA", logo.size)
+
+        # Get the size of the image
+        width, height = logo.size
+
+        # Go through all pixels and turn each 'white' (also shades of whites)
+        # pixel to transparent
+        for x in range(width):
+            for y in range(height):
+                r, g, b, a = logo.getpixel((x, y))
+                if (
+                    r > 200 and g > 200 and b > 200
+                ):  # Soften this condition if you want to remove "shades" of white too
+                    transparent_logo.putpixel(
+                        (x, y), (r, g, b, 0)
+                    )  # Last parameter is alpha
+                else:
+                    transparent_logo.putpixel((x, y), (r, g, b, a))
+
+        # Resize logo and calculate position
+        logo = transparent_logo.resize((50, 50))  # Resize logo
+        img_w, img_h = img.size
+        logo_w, logo_h = logo.size
+        offset = ((img_w - logo_w) // 2, (img_h - logo_h) // 2)
+
+        img.paste(logo, offset, logo)
+
+        # Convert image to data URL
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+
+        return render(
+            request,
+            "vendor/qr_code.html",
+            {
+                "qr_code": img_str,
+                "business_name": self.kwargs["store_name"],
+            },
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["business_name"] = self.kwargs["store_name"]
+        return context
 
 
 ###################################################################################################3

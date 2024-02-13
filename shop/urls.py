@@ -16,6 +16,7 @@ from .views import (
     CheckoutView,
     OrderSummaryPDFView,
     ProductView,
+    QRCodeView,
     SetWithdrawalPinView,
     UpdateAddress,
     UpdateProductItemView,
@@ -102,6 +103,7 @@ urlpatterns = [
     path("item-detail/<slug:slug>/", DetailView.as_view(), name="detail"),
     path("vendor-mail/", send_email_to_vendors, name="vendor-mail"),
     path("user-mail/", send_email_to_users, name="user-mail"),
+    path("qrcode/<store_name>/", QRCodeView.as_view(), name="qrcode"),
     # path("add-to-cart/", AddToCart, name="add-to-cart"),
     # path("update_item/", UpdateCart, name="update-item"),
     # path("remove_from_cart/<slug:slug>/", remove_from_cart, name="remove_from_cart"),  # type: ignore

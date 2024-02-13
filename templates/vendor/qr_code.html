@@ -1,0 +1,123 @@
+{% extends 'vendor/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} QR Code {% endblock title %}
+
+{% block content %}
+
+
+    <div class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
+        <div id="qrCode" class="flex justify-center items-center p-10 bg-white rounded-lg shadow-lg">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+        </div>
+        <button id="downloadBtn" onclick="downloadQRCode()" class="btn btn-primary mt-4">Download QR Code</button>
+        <div class="flex space-x-4 mt-4">
+            <a href="#" id="facebookShare" class="btn btn-primary"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" id="twitterShare" class="btn btn-primary"><i class="fab fa-twitter"></i></a>
+            <a href="#" id="linkedinShare" class="btn btn-primary"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#" id="instagramShare" class="btn    btn-primary"><i class="fab fa-instagram"></i></a>
+        </div>
+        </div>
+   
+        {% endblock content %}
+
+        {% block script %}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        <script>
+            const qrCodeElement = document.getElementById('qrCode');
+            const logoElement = document.getElementById('logo');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const facebookShare = document.getElementById('facebookShare');
+                const twitterShare = document.getElementById('twitterShare');
+                const linkedinShare = document.getElementById('linkedinShare');
+            const instagramShare = document.getElementById('instagramShare');
+        
+        
+            // Download QR code as image
+        
+            const downloadQRCode = async () => {
+                const canvas = await html2canvas(qrCodeElement);
+                const image = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = 'vendor-qr-code.png';
+                link.click();
+                console.log("Downloaded Successfully")
+            };
+            facebookShare.addEventListener('click', () => {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'Vendor QR Code',
+                            text: 'Check out this vendor!',
+                            url: 'https://www.facebook.com/sharer/sharer.php?u=https://your-vendor-url.com',
+                        })
+                        .then(() => console.log('Successful share'))
+                        .catch((error) => console.log('Error sharing', error));
+                    } else {
+                        console.log('Web Share API is not supported in your browser.');
+                    }
+                });
+                
+                twitterShare.addEventListener('click', () => {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'Vendor QR Code',
+                            text: 'Check out this vendor!',
+                            url: 'https://twitter.com/intent/tweet?url=https://your-vendor-url.com',
+                        })
+                        .then(() => console.log('Successful share'))
+                        .catch((error) => console.log('Error sharing', error));
+                    } else {
+                        console.log('Web Share API is not supported in your browser.');
+                    }
+                });
+        
+                linkedinShare.addEventListener('click', () => {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'Vendor QR Code',
+                            text: 'Check out this vendor!',
+                            url: 'https://www.linkedin.com/shareArticle?mini=true&url=https://your-vendor-url.com',
+                        })
+                        .then(() => console.log('Successful share'))
+                        .catch((error) => console.log('Error sharing', error));
+                    } else {
+                        console.log('Web Share API is not supported in your browser.');
+                    }
+                });
+        
+                instagramShare.addEventListener('click', ()=>{
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'Vendor QR Code',
+                            text: 'Check out this vendor!',
+                            url: 'https://www.instagram.com/',
+                        })
+                        .then(() => console.log('Successful share'))
+                        .catch((error) => console.log('Error sharing', error));
+                    } else {
+                        console.log('Web Share API is not supported in your browser.');
+                    }
+                
+                })
+        
+        
+            shareBtn.addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Vendor QR Code',
+                        text: 'Check out this vendor!',
+                        url: 'https://your-vendor-url.com',
+                    })
+                    .then(() => console.log('Successful share'))
+                    .catch((error) => console.log('Error sharing', error));
+                } else {
+                    console.log('Web Share API is not supported in your browser.');
+                }
+            });
+        </script>
+        {% endblock script %}

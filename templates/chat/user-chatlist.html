@@ -1,0 +1,67 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+
+{% block title %} Conversations {% endblock title %}
+
+{% block content %}
+
+<div class="bg-base-200 flex items-center justify-center min-h-[80vh]">
+        <div class="rounded-lg shadow-lg w-full max-w-[80%] p-4">
+                <div class="p-4 border-b border-gray-200">
+                        <h2 class="text-2xl font-semibold">Conversations</h2>
+                </div>
+                <!-- <div class="divide-y"> -->
+                <!-- Each chat item in the list will be structured like this -->
+                <div class="my-4 mx-2 p-4 flex bg-base-300 items-center justify-between indicator w-full rounded-md">
+                        <span class="indicator-item badge badge-primary">new</span>
+
+                        <div>
+                                <h3 class="text-lg font-semibold">Customer Name</h3>
+                                <p class="text-gray-500">Most recent message...</p>
+                        </div>
+                        <a href="./chat2.html">
+                                <button class="btn btn-primary">Open</button></a>
+                </div>
+                <div class="my-4 mx-2 p-4 flex bg-base-300 items-center justify-between indicator w-full rounded-md">
+                        <span class="indicator-item badge badge-primary">new</span>
+
+                        <div>
+                                <h3 class="text-lg font-semibold">Customer Name</h3>
+                                <p class="text-gray-500">Most recent message...</p>
+                        </div>
+                        <a href="./chat2.html">
+                                <button class="btn btn-primary">Open</button></a>
+                </div>
+                <div class="my-4 mx-2 p-4 flex bg-base-300 items-center justify-between indicator w-full rounded-md">
+                        <span class="indicator-item badge badge-primary">new</span>
+
+                        <div>
+                                <h3 class="text-lg font-semibold">Customer Name</h3>
+                                <p class="text-gray-500">Most recent message...</p>
+                        </div>
+                        <a href="./chat2.html">
+                                <button class="btn btn-primary">Open</button></a>
+                </div>
+                <div class="my-4 mx-2 p-4 flex bg-base-300 items-center justify-between indicator w-full rounded-md">
+                        <span class="indicator-item badge badge-primary">new</span>
+
+                        <div>
+                                <h3 class="text-lg font-semibold">Customer Name</h3>
+                                <p class="text-gray-500">Most recent message...</p>
+                        </div>
+                        <a href="./chat2.html">
+                                <button class="btn btn-primary">Open</button></a>
+                </div>
+
+
+        </div>
+</div>
+
+{% endblock content %}
+
+{% block script %}
+
+{% endblock script %}

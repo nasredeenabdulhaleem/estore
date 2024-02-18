@@ -1,0 +1,113 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block description %}
+
+{% endblock description %}
+{% block style %}
+<style>
+    html, body {
+        height: 100%;
+    }
+    .overflow-container {
+        max-height: 90%;
+        overflow-y: auto;
+    }
+/* The element that requires a scrollbar */
+.scrollable-content {
+    height: 400px;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+/* The scrollbar itself */
+.scrollable-content::-webkit-scrollbar {
+    width: 12px;
+}
+
+/* The track of the scrollbar */
+.scrollable-content::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+}
+
+/* The handle of the scrollbar */
+.scrollable-content::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+
+/* The handle of the scrollbar when hovered */
+.scrollable-content::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+</style>
+{% endblock style %}
+
+{% block title %} Conversations {% endblock title %}
+
+{% block content %}
+<div class="min-h-[75vh] max-h-[75vh] flex flex-col justify-between">
+    <div class="bg-primary-focus text-primary-content  p-4 flex items-center">
+        <a href="./chatlist.html">
+        <button  class="mr-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+        </button></a>
+        <h1 class="text-xl font-semibold">Chat with Customer Name</h1>
+    </div>
+    <div class="flex-1 overflow-container scrollable-content bg-base-200 overflow-y-auto px-4 py-8">
+        <div id="chatMessages" class="space-y-4"></div>
+    </div>
+
+    <div class="bg-white p-4 flex items-end align-bottom">
+        <input id="messageInput" type="text" placeholder="Type your message..." class="flex-1 border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-blue-500">
+        <button onclick="sendMessage()" class="ml-4 bg-blue-500 text-white px-6 py-2 rounded-md">Send  <i class="fas fas-solid fa-paper-plane text-primary"></i></button>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block script %}
+<script>
+    function sendMessage() {
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value.trim();
+
+        if (message !== '') {
+            const chatMessages = document.getElementById('chatMessages');
+            const newMessage = document.createElement('div');
+            newMessage.className = 'flex justify-end';
+            newMessage.innerHTML = `
+                <div class="chat chat-end">
+                    <div class="chat-bubble chat-bubble-accent">${message}</div>
+                </div>
+            `;
+
+            chatMessages.appendChild(newMessage);
+
+            // Simulate receiving a response after a delay
+            setTimeout(() => {
+                const responseMessage = document.createElement('div');
+                responseMessage.className = 'flex';
+                responseMessage.innerHTML = `
+                    <div class="chat chat-start">
+                        <div class="chat-bubble chat-bubble-accent">
+                            Thanks for your message! Lorem ipsum dolor sit amet.
+                            </div>
+                    </div>
+
+                `;
+                chatMessages.appendChild(responseMessage);
+
+                // Scroll to the bottom of the chat
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1000);
+
+            // Clear the input field
+            messageInput.value = '';
+        }
+    }
+</script>
+
+{% endblock script %}

@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "pinax.eventlog",
     "shop",
+    "chat",
     "accounts",
     "dashboard",
     "cloudinary",

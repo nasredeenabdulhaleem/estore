@@ -6,6 +6,7 @@ asn1crypto==1.5.1
 async-timeout==4.0.3
 attrs==23.1.0
 bcrypt==4.0.1
+bidict==0.23.1
 black==23.12.0
 Brotli==1.1.0
 certifi==2022.6.15
@@ -28,6 +29,7 @@ fonttools==4.47.0
 freetype-py==2.3.0
 frozenlist==1.4.1
 gunicorn==21.2.0
+h11==0.14.0
 html5lib==1.1
 idna==3.3
 lxml==4.9.3
@@ -53,6 +55,8 @@ pyphen==0.14.0
 pypng==0.20220715.0
 python-bidi==0.4.2
 python-decouple==3.8
+python-engineio==4.9.0
+python-socketio==5.11.1
 pytz==2023.2
 PyYAML==6.0.1
 qrcode==7.4.2
@@ -60,6 +64,7 @@ reportlab==4.0.8
 requests==2.31.0
 rlPyCairo==0.3.0
 rsa==4.9
+simple-websocket==1.0.0
 six==1.16.0
 sqlparse==0.4.2
 svglib==1.5.1
@@ -72,7 +77,10 @@ uritools==4.0.2
 urllib3==1.26.12
 validators==0.22.0
 webencodings==0.5.1
+websocket-client==1.7.0
+websockets==12.0
 whitenoise==6.6.0
+wsproto==1.2.0
 xhtml2pdf==0.2.13
 yarl==1.9.4
 zopfli==0.2.3

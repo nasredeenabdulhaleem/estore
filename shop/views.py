@@ -972,11 +972,11 @@ def reciept(request, slug):
 # Vendor Dashboard View Section
 
 
-class VendorHomeView(LoginRequiredMixin, UserPassesTestMixin, View):
+class VendorHomeView(View):
     template_name = "vendor/store-front.html"
 
-    def test_func(self):
-        return is_vendor(self.request.user, self.kwargs["slug"])
+    # def test_func(self):
+    #     return is_vendor(self.request.user, self.kwargs["slug"])
 
     def get(self, request, slug):
         vendor_info = VendorStore.objects.get(store_name=slug)

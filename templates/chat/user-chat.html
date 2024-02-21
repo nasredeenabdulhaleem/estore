@@ -5,109 +5,285 @@
 {% endblock description %}
 {% block style %}
 <style>
-    html, body {
+    html,
+    body {
         height: 100%;
     }
+
     .overflow-container {
         max-height: 90%;
         overflow-y: auto;
     }
-/* The element that requires a scrollbar */
-.scrollable-content {
-    height: 400px;
-    width: 100%;
-    overflow-y: scroll;
-}
 
-/* The scrollbar itself */
-.scrollable-content::-webkit-scrollbar {
-    width: 12px;
-}
+    /* The element that requires a scrollbar */
+    .scrollable-content {
+        height: 400px;
+        width: 100%;
+        overflow-y: scroll;
+    }
 
-/* The track of the scrollbar */
-.scrollable-content::-webkit-scrollbar-track {
-    background: #f0f0f0;
-    border-radius: 10px;
-}
+    /* The scrollbar itself */
+    .scrollable-content::-webkit-scrollbar {
+        width: 12px;
+    }
 
-/* The handle of the scrollbar */
-.scrollable-content::-webkit-scrollbar-thumb {
-    background-color: #888;
-    border-radius: 10px;
-}
+    /* The track of the scrollbar */
+    .scrollable-content::-webkit-scrollbar-track {
+        background: #f0f0f0;
+        border-radius: 10px;
+    }
 
-/* The handle of the scrollbar when hovered */
-.scrollable-content::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
-}
+    /* The handle of the scrollbar */
+    .scrollable-content::-webkit-scrollbar-thumb {
+        background-color: #888;
+        border-radius: 10px;
+    }
+
+    /* The handle of the scrollbar when hovered */
+    .scrollable-content::-webkit-scrollbar-thumb:hover {
+        background-color: #555;
+    }
+
+    .message-sending {
+        background-color: #f0ad4e;
+        color: white;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 5px;
+    }
+
+    .message-sent {
+        background-color: #5cb85c;
+        color: white;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 5px;
+    }
+
+    .message-failed {
+        background-color: #d9534f;
+        color: white;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 5px;
+    }
+    .message-status {
+        font-size: 0.8em;
+        color: gray;
+        text-align: right;
+        margin-top: 5px;
+    }
 </style>
 {% endblock style %}
 
-{% block title %} Conversations {% endblock title %}
+{% block title %} {{business_name}} Chat  {% endblock title %}
 
 {% block content %}
 <div class="min-h-[75vh] max-h-[75vh] flex flex-col justify-between">
     <div class="bg-primary-focus text-primary-content  p-4 flex items-center">
-        <a href="./chatlist.html">
-        <button  class="mr-4">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-        </button></a>
-        <h1 class="text-xl font-semibold">Chat with Customer Name</h1>
+        <a href="{% url 'user-chat-list' %}">
+            <button class="mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    class="h-6 w-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+            </button></a>
+        <h1 class="text-xl font-semibold">Chat with {{business_name}}</h1>
     </div>
     <div class="flex-1 overflow-container scrollable-content bg-base-200 overflow-y-auto px-4 py-8">
         <div id="chatMessages" class="space-y-4"></div>
     </div>
 
     <div class="bg-white p-4 flex items-end align-bottom">
-        <input id="messageInput" type="text" placeholder="Type your message..." class="flex-1 border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-blue-500">
-        <button onclick="sendMessage()" class="ml-4 bg-blue-500 text-white px-6 py-2 rounded-md">Send  <i class="fas fas-solid fa-paper-plane text-primary"></i></button>
+        <input id="messageInput" type="text" placeholder="Type your message..."
+            class="flex-1 border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-blue-500">
+        <button onclick="sendMessage()" class="ml-4 bg-blue-500 text-white px-6 py-2 rounded-md">Send <i
+                class="fas fas-solid fa-paper-plane text-primary"></i></button>
     </div>
 </div>
+
 
 {% endblock content %}
 
 {% block script %}
 <script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            let cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    let csrfToken = getCookie('csrftoken');
+    let messages = [];
+    let sender_id = '{{sender_id}}';
+    let receiver_id = "{{receiver_id}}";
+
+    // Rest of the fetch request...
+    // Fetch previous messages when the DOM is loaded
+    fetchPreviousMessages();
+
+    function fetchPreviousMessages() {
+        console.log("Fetching previous messages");
+        try {
+            const chats = JSON.parse('{{ chats|safe }}');
+            console.log(chats);
+
+            for (let message of chats) {
+                
+                    messages.push({
+                        id: message.id,
+                        content: message.content,
+                        sender: message.senderId,
+                        receiver: message.receiverId,
+                        status: 'sent',  // Assume all previous messages were sent successfully
+                    });
+            }
+
+            updateUI();
+        } catch (error) {
+            console.error('Error:', error);
+        }
+
+    }
+   
+    ///////////////////////////////////////////////////////////
+    const messageInput = document.getElementById('messageInput');
+    const message = messageInput.value.trim();
+    
+
     function sendMessage() {
         const messageInput = document.getElementById('messageInput');
-        const message = messageInput.value.trim();
-
+    const message = messageInput.value.trim();
+    let sender_id = '{{sender_id}}';
+    let receiver_id = "{{receiver_id}}";
+        // Create a new message object
         if (message !== '') {
-            const chatMessages = document.getElementById('chatMessages');
-            const newMessage = document.createElement('div');
-            newMessage.className = 'flex justify-end';
-            newMessage.innerHTML = `
-                <div class="chat chat-end">
-                    <div class="chat-bubble chat-bubble-accent">${message}</div>
-                </div>
-            `;
+            let newMessage = {
+                id: Date.now(),  // Use a timestamp as a temporary ID
+                content: message,
+                sender: sender_id,
+                receiver: receiver_id,
+                status: 'sending'
+            };
 
-            chatMessages.appendChild(newMessage);
+            // Add the new message to the messages array
+            messages.push(newMessage);
 
-            // Simulate receiving a response after a delay
-            setTimeout(() => {
-                const responseMessage = document.createElement('div');
-                responseMessage.className = 'flex';
-                responseMessage.innerHTML = `
-                    <div class="chat chat-start">
-                        <div class="chat-bubble chat-bubble-accent">
-                            Thanks for your message! Lorem ipsum dolor sit amet.
-                            </div>
-                    </div>
+            // Update the UI
+            updateUI();
 
-                `;
-                chatMessages.appendChild(responseMessage);
+            // Send the message to the server
+            fetch('http://127.0.0.1:8000/chat/send-message/', {
+                method: 'POST',
 
-                // Scroll to the bottom of the chat
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 1000);
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify(newMessage)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Update the message status
+                    newMessage.status = 'sent';
 
+                    // Update the UI
+                    updateUI();
+                })
+                .catch(error => {
+
+                    console.error('Error:', error);
+
+                    // Update the message status
+                    newMessage.status = 'failed';
+
+                    // Update the UI
+                    updateUI();
+                });
             // Clear the input field
             messageInput.value = '';
         }
     }
+
+    function updateUI() {
+        const chatMessages = document.getElementById('chatMessages');
+
+        // Clear the chatMessages element
+        chatMessages.innerHTML = '';
+
+        // Iterate over the messages array
+        for (let message of messages) {
+            const newMessage = document.createElement('div');
+            newMessage.className = 'flex justify-end';
+
+            // Add a class based on the message status
+            // let statusClass;
+            // switch (message.status) {
+            //     case 'sending':
+            //         statusClass = ' message-sending';
+            //         break;
+            //     case 'sent':
+            //         statusClass = 'message-sent';
+            //         break;
+            //     case 'failed':
+            //         statusClass = 'message-failed';
+            //         break;
+            // }
+            // newMessage.classList.add(statusClass);
+            // Create a new i element for the icon
+            let statusIcon = document.createElement('i');
+
+            // Add a class based on the message status
+            let statusClasses;
+            switch (message.status) {
+                case 'sending':
+                    statusClasses = ['fas', 'fa-spinner', 'fa-spin', 'message-sending'];
+                    break;
+                case 'sent':
+                    statusClasses = ['fas', 'fa-check', 'message-sent'];
+                    break;
+                case 'failed':
+                    statusClasses = ['fas', 'fa-times', 'message-failed'];
+                    break;
+            }
+
+            // Add the status classes to the icon
+            statusIcon.classList.add(...statusClasses);
+
+            // Add the icon to the newMessage element
+            // newMessage.appendChild(statusIcon);
+            // Check the sender of the message
+            let chatClass;
+            if (message.sender === sender_id) {
+                chatClass = 'chat-end';
+            } else {
+                chatClass = 'chat-start';
+            }
+            console.log(message)
+            newMessage.innerHTML = `
+                <div class="chat ${chatClass}">
+                    <div class="chat-bubble chat-bubble-accent">${message.content}</div>
+                    <div class="message-status"> ${message.status}</div>
+                </div>
+            `;
+            
+
+            chatMessages.appendChild(newMessage);
+        }
+    }
+
 </script>
 
 {% endblock script %}

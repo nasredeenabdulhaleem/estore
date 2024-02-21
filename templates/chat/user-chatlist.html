@@ -1,5 +1,6 @@
 {% extends 'shop/base.html' %}
 {% load static %}
+{% load chat_tags %}
 {% block description %}
 
 {% endblock description %}
@@ -15,47 +16,28 @@
                 </div>
                 <!-- <div class="divide-y"> -->
                 <!-- Each chat item in the list will be structured like this -->
+                {% if chats %}
+                {% for chat in chats %}
                 <div class="my-4 mx-2 p-4 flex bg-base-300 items-center justify-between indicator w-full rounded-md">
                         <span class="indicator-item badge badge-primary">new</span>
 
                         <div>
-                                <h3 class="text-lg font-semibold">Customer Name</h3>
-                                <p class="text-gray-500">Most recent message...</p>
+                                <h3 class="text-lg font-semibold">{{ chat.content }}</h3>
+                                <p class="text-gray-500"> {% get_username_from_id chat.receiverId  %} </p>
                         </div>
-                        <a href="./chat2.html">
+                        
+                        <a href="user-chat/{%get_vendor_name chat.receiverId %}">
                                 <button class="btn btn-primary">Open</button></a>
                 </div>
-                <div class="my-4 mx-2 p-4 flex bg-base-300 items-center justify-between indicator w-full rounded-md">
-                        <span class="indicator-item badge badge-primary">new</span>
-
-                        <div>
-                                <h3 class="text-lg font-semibold">Customer Name</h3>
-                                <p class="text-gray-500">Most recent message...</p>
-                        </div>
-                        <a href="./chat2.html">
-                                <button class="btn btn-primary">Open</button></a>
+                {% endfor %}
+                {% else %}
+                <div class="flex flex-col items-center justify-center h-screen bg-base-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-12 w-12 text-gray-400 mb-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m-8-8h8m-4 8a4 4 0 01-4-4 4 4 0 014-4 4 4 0 014 4 4 4 0 01-4 4z"></path>
+                        </svg>
+                        <h2 class="text-lg text-gray-600 font-semibold">No Conversations</h2>
                 </div>
-                <div class="my-4 mx-2 p-4 flex bg-base-300 items-center justify-between indicator w-full rounded-md">
-                        <span class="indicator-item badge badge-primary">new</span>
-
-                        <div>
-                                <h3 class="text-lg font-semibold">Customer Name</h3>
-                                <p class="text-gray-500">Most recent message...</p>
-                        </div>
-                        <a href="./chat2.html">
-                                <button class="btn btn-primary">Open</button></a>
-                </div>
-                <div class="my-4 mx-2 p-4 flex bg-base-300 items-center justify-between indicator w-full rounded-md">
-                        <span class="indicator-item badge badge-primary">new</span>
-
-                        <div>
-                                <h3 class="text-lg font-semibold">Customer Name</h3>
-                                <p class="text-gray-500">Most recent message...</p>
-                        </div>
-                        <a href="./chat2.html">
-                                <button class="btn btn-primary">Open</button></a>
-                </div>
-
+                {% endif %}
 
         </div>
 </div>

@@ -23,6 +23,12 @@
                     <p class="text-inherit">Vendor: {{vendor_info.vendor.vendor_fullname}}</p>
                     
                 </div>
+                <a href="{% url 'user-chat' vendor_info.store_name %}" class="flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6 mr-2">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m-8-8h8m-4 8a4 4 0 01-4-4 4 4 0 014-4 4 4 0 014 4 4 4 0 01-4 4z"></path>
+                    </svg>
+                    Chat Vendor
+                </a>
             </div>
 
             <!-- Products in the Store -->

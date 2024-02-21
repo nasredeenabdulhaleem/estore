@@ -136,10 +136,9 @@
             fetchPreviousMessages();
         
             function fetchPreviousMessages() {
-                console.log("Fetching previous messages");
                 try {
                     const chats = JSON.parse('{{ chats|safe }}');
-                    console.log(chats);
+                    
         
                     for (let message of chats) {
                         
@@ -278,7 +277,6 @@
                     } else {
                         chatClass = 'chat-start';
                     }
-                    console.log(message)
                     newMessage.innerHTML = `
                         <div class="chat ${chatClass}">
                             <div class="chat-bubble chat-bubble-accent">${message.content}</div>

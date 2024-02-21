@@ -41,7 +41,7 @@ class ChatService:
         }
 
         self.token = jwt.encode(payload, jwt_secret, algorithm="HS256")
-        print(self.token)
+
         # Set the token to expire in 23 hour
         self.token_expiration = datetime.now() + timedelta(hours=23)
 
@@ -70,7 +70,6 @@ class ChatService:
                 headers={"Authorization": f"Bearer {self.token}"},
             )
             response.raise_for_status()
-            print(response.text)
             return response.status_code == 200
         except requests.RequestException as e:
             self.logger.error(f"Failed to check server health: {e}")
@@ -138,7 +137,6 @@ class ChatService:
                 headers={"Authorization": f"Bearer {self.token}"},
                 data=data,
             )
-            print(response.json())
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:

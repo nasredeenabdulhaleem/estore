@@ -41,14 +41,12 @@ def create_chat_user(user):
             new_user_user = chat_service.create_new_user(
                 f"{user.username}{user.id}", user.username, role="user"
             )
-            print("new user", new_user_user)
         else:
             new_user_user = chat_service.create_new_user(
                 f"{user.vendor.business_name}{user.vendor.id}",
                 user.vendor.business_name,
                 role="vendor",
             )
-            print("new user", new_user_user)
         # {'chat_id': 'test001', 'username': 'tester', 'role': 'admin', '_id': '65d3b7e2e62e19a96cc10566', 'createdAt': '2024-02-19T20:19:46.092Z', '__v': 0}
         chat_user = ChatUser.objects.create(
             user=user, chat_id=new_user_user["chat_id"], role=new_user_user["role"]
@@ -92,7 +90,7 @@ class UserChatListView(LoginRequiredMixin, UserPassesTestMixin, View):
         if chat:
             chat_id = chat.chat_id
             chats = chat_service.get_all_user_chat(chat_id)
-            print(chats)
+
             return render(
                 request,
                 self.template_name,
@@ -126,7 +124,6 @@ class UserChatView(View):
             id=vendor_profile.user.id
         )  # VendorProfile.objects.filter(business_name = self.kwargs['vendor']).first().user
         if check_and_create_chat_users(user, vendor):
-            print("chat users exist")
             sender_id = ChatUser.objects.filter(user=user).first()
             receiver_id = ChatUser.objects.filter(user=vendor).first()
             get_chat = chat_service.get_chat(
@@ -165,7 +162,7 @@ class VendorChatListView(LoginRequiredMixin, UserPassesTestMixin, View):
         if chat:
             chat_id = chat.chat_id
             chats = chat_service.get_all_user_chat(chat_id)
-            print(chats)
+
             return render(
                 request,
                 self.template_name,
@@ -180,34 +177,32 @@ class VendorChatListView(LoginRequiredMixin, UserPassesTestMixin, View):
             return render(
                 request,
                 self.template_name,
-                context={"data": user_context_processor(self.request),"business_name":business_name, "chats": False},
+                context={
+                    "data": user_context_processor(self.request),
+                    "business_name": business_name,
+                    "chats": False,
+                },
             )
 
+
 class VendorChatView(View):
-    template_name= "chat/vendor-chat.html"
+    template_name = "chat/vendor-chat.html"
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        business_name = self.kwargs['business_name']
-        print(business_name)
-        receiver_id = self.kwargs['user_id']
+        business_name = self.kwargs["business_name"]
 
-        # if not business_name_exists(self.kwargs["vendor"]):
-        #     messages.error(request, "Vendor does not exist")
-        #     return redirect("store:dashboard")
-        # vendor_profile = VendorProfile.objects.filter(
-        #     business_name=self.kwargs["vendor"]
-        # ).first()
-        # vendor = User.objects.get(
-        #     id=vendor_profile.user.id
-        # )  # VendorProfile.objects.filter(business_name = self.kwargs['vendor']).first().user
-        # if check_and_create_chat_users(user, vendor):
-        print("chat users exist")
+        receiver_id = self.kwargs["user_id"]
+
         sender_id = ChatUser.objects.filter(user=user).first()
-        # receiver_id = ChatUser.objects.filter(ch=vendor).first()
-        get_chat = chat_service.get_chat(
-            sender_id=sender_id.chat_id, receiver_id=receiver_id
-        )
+        try:
+            get_chat = chat_service.get_chat(
+                sender_id=sender_id.chat_id, receiver_id=receiver_id
+            )
+        except Exception as e:
+            messages.error(request, "Failed to get chats. Try again later")
+            return redirect("store:dashboard")
+
         return render(
             request,
             self.template_name,
@@ -219,31 +214,22 @@ class VendorChatView(View):
                 "business_name": business_name,
             },
         )
-        # else:
-        #     messages.error(request, "Failed to start chat. Try again later")
-        #     return redirect("store:dashboard")
-            # return render(
-            #     request,
-            #     self.template_name,
-            #     context={"data": user_context_processor(self.request)},
-            # )
-
 
 
 def send_chat_message(request, *args, **kwargs):
     if request.method == "POST":
         body = json.loads(request.body)
-        print(body)
+
         message = body["content"]
         sender_id = body["sender"]
         receiver_id = body["receiver"]
-        print("sender_id", sender_id)
-        print("receiver_id", receiver_id)
-        print("message", message)
-        user = request.user
-        chat_message = chat_service.send_message(
-            sender_id=sender_id, receiver_id=receiver_id, message=message
-        )
+
+        try:
+            chat_message = chat_service.send_message(
+                sender_id=sender_id, receiver_id=receiver_id, message=message
+            )
+        except Exception as e:
+            return JsonResponse({"error": "Failed to send message"}, status=500)
         return JsonResponse({"message": "Message sent successfully"}, status=200)
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)

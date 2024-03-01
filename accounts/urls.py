@@ -5,7 +5,9 @@ from .views import (
     Login,
     VerifyEmailView,
     account_verification,
+    # deactivate_account,
     logout_view,
+    update_password,
     vendor_login,
     vendor_signup,
 )
@@ -55,4 +57,7 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
+    path("update_password/", update_password, name="update_password"),
+    #  path('deactivate-account/', deactivate_account, name='deactivate_account'),
+    #  path('reactivate/<uidb64>/<token>/', reactivate_account, name='reactivate_account'),
 ]

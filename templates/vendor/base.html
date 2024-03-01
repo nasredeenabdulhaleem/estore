@@ -1,4 +1,6 @@
 {% load static%}
+
+{% load cloudinary_tags %}
 <!DOCTYPE html>
 <html lang="en" data-theme="luxury">
 
@@ -61,11 +63,27 @@
                         </label>
                     </div>
 
-                    <a class="text-gray-800 hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium"
-                        href="#">Login</a>
-                    <a class="bg-gray-800 text-white hover:bg-gray-700 rounded-md px-3 py-2 ml-4 text-sm font-medium"
-                        href="#">Sign up</a>
+                   
+                      <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+                          <div class="w-10 rounded-full">
+                            <img src="{% transform_image user.vendor.store.store_logo.url %}" />
+                          </div>
+                        </label>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                          <li>
+                            <a href="{#% url 'store:profile' %}" class="justify-between">
+                              Profile
+                              
+                            </a>
+                          </li>
+                          <
+                          <li><a href="{% url 'logout' %}" >Logout</a></li>
+                        </ul>
+                      
+                      </div>
                 </div>
+                
             </div>
         </div>
 
@@ -81,7 +99,7 @@
                 <button class="btn btn-circle btn-outline shadow-md" title="Orders"><a class="text-inherit py-2 px-4"
                         href="{% url 'store:vendor-orders' business_name %}"><i class="fas fa-clipboard-list"></i></a></button>
                 <button class="btn btn-circle btn-outline shadow-md" title="Chats">
-                    <a class="text-inherit py-2 px-4" href="{#% url 'store:vendor-chats' business_name %}">
+                    <a class="text-inherit py-2 px-4" href="{% url 'vendor-chat-list' business_name %}">
                         <i class="fas fa-comments"></i>
                     </a>
                 </button>

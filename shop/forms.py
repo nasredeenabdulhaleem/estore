@@ -6,6 +6,7 @@ from .models import (
     Size,
     UserProfile,
     Address,
+    VendorProfile,
     VendorStore,
     VendorWithdrawal,
     WithdrawalPin,
@@ -367,3 +368,9 @@ class ChangeWithdrawalPinForm(forms.Form):
                 self.vendor.withdrawalpin.pin = hashed_new_pin.decode()
                 self.vendor.withdrawalpin.save()
         return cleaned_data
+
+
+class VendorProfileForm(forms.ModelForm):
+    class Meta:
+        model = VendorProfile
+        fields = ["firstname", "lastname", "email", "phone", "email", "address"]

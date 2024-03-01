@@ -307,6 +307,34 @@ def vendor_login(request, business_name):
             raise Http404("Business name does not exist")
 
 
+def update_password(request):
+    if request.method == "POST":
+        current_password = request.POST["current_password"]
+        new_password = request.POST["new_password"]
+        user = User.objects.get(username=request.user.username)
+
+        if user.check_password(current_password):
+            user.set_password(new_password)
+            user.save()
+            messages.success(request, "Password updated successfully")
+            if request.user.role == "Vendor":
+                return redirect("update_password")
+            return redirect("store:settings")
+        else:
+            messages.error(request, "Current password is incorrect")
+            return redirect("update_password")
+    else:
+        if request.user.role == "Vendor":
+            business_name = request.user.vendor.business_name
+            return render(
+                request,
+                "accounts/vendor-update-password.html",
+                {"business_name": business_name},
+            )
+        else:
+            return render(request, "accounts/user-update-password.html")
+
+
 # class VendorSignupView:
 #     templatee_name = "account/vendor/signup.html"
 
@@ -350,6 +378,49 @@ def vendor_login(request, business_name):
 #         else:
 #             messages.info(request, "Password not the Same")
 #             return redirect("signup")
+# @login_required
+# def deactivate_account(request):
+#     user = request.user
+#     user.is_active = False
+#     user.save()
+#     messages.success(request, 'Your account has been deactivated.')
+#     return redirect('login')  # or wherever you want to redirect after deactivation
+
+# Acount reactivation
+# def login_view(request):
+#     # ... your existing login code ...
+
+#     user = authenticate(username=username, password=password)
+#     if user is not None:
+#         if user.is_active:
+#             login(request, user)
+#             # Redirect to a success page.
+#         else:
+#             # Send reactivation email
+#             mail_subject = 'Reactivate your account.'
+#             message = render_to_string('accounts/reactivate_account_email.html', {
+#                 'user': user,
+#                 'domain': get_current_site(request).domain,
+#                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+#                 'token': account_activation_token.make_token(user),
+#             })
+#             send_mail(mail_subject, message, 'info@mywebsite.com', [user.email])
+#             return HttpResponse('Please confirm your email address to reactivate your account')
+#     else:
+#         # Return an 'invalid login' error message.
+
+# def reactivate_account(request, uidb64, token):
+#     try:
+#         uid = force_text(urlsafe_base64_decode(uidb64))
+#         user = get_user_model().objects.get(pk=uid)
+#     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+#         user = None
+#     if user is not None and account_activation_token.check_token(user, token):
+#         user.is_active = True
+#         user.save()
+#         # log the user in and redirect them to a success page
+#     else:
+#         return HttpResponse('Activation link is invalid!')
 
 
 def logout_view(request):

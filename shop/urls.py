@@ -46,6 +46,7 @@ from .views import (
     search,
     send_email_to_users,
     send_email_to_vendors,
+    update_vendor_profile,
     update_vendor_store,
     user_settings,
     # validate_payment,
@@ -105,11 +106,21 @@ urlpatterns = [
     path("qrcode/<store_name>/", QRCodeView.as_view(), name="qrcode"),
     # Vendor Urls
     path("create-store", create_store, name="create-store"),
-    path("update-store", update_vendor_store, name="update-store"),
+    # path("update-store", update_vendor_store, name="update-store"),
     path("<str:business_name>/", VendorDashboardView.as_view(), name="vendor-home"),
     path(
         "store/<slug>/", VendorHomeView.as_view(), name="vendor-storefront"
     ),  # vendore storefront
+    path(
+        "<str:business_name>/update-profile/",
+        update_vendor_profile,
+        name="update_vendor_profile",
+    ),
+    path(
+        "<str:business_name>/update-store/",
+        update_vendor_store,
+        name="update_vendor_store",
+    ),
     path(
         "<str:business_name>/settings/", VendorSettings, name="vendor-settings"
     ),  # vendor settings

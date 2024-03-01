@@ -69,6 +69,8 @@ from .forms import (
     ProductAddToCartFormV3,
     ProductAddToCartFormV2,
     UserProfileForm,
+    VendorProfileForm,
+    VendorStoreForm,
     VendorWithdrawalForm,
     WithdrawalPinForm,
 )
@@ -1638,6 +1640,53 @@ class ChangeWithdrawalPinView(LoginRequiredMixin, UserPassesTestMixin, View):
         if form.is_valid():
             return redirect("store:vendor-wallet", business_name=request.user.username)
         return render(request, self.template_name, {"form": form})
+
+
+# ##########################################################################################
+def update_vendor_profile(request, business_name):
+    if request.method == "POST":
+        form = VendorProfileForm(request.POST, instance=request.user.vendor)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile Successfully Updated")
+            return redirect("store:update_vendor_profile", business_name=business_name)
+        else:
+            messages.error(request, "Form is not valid")
+            return render(
+                request,
+                "vendor/update-vendor-profile.html",
+                {"form": form, "business_name": business_name},
+            )
+    else:
+        form = VendorProfileForm(instance=request.user.vendor)
+    return render(
+        request,
+        "vendor/update-vendor-profile.html",
+        {"form": form, "business_name": business_name},
+    )
+
+
+def update_vendor_store(request, business_name):
+    if request.method == "POST":
+        form = VendorStoreForm(request.POST, instance=request.user.vendor.store)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile Successfully Updated")
+            return redirect("store:update_vendor_profile", business_name=business_name)
+        else:
+            messages.error(request, "Form is not valid")
+            return render(
+                request,
+                "vendor/update-vendor-profile.html",
+                {"form": form, "business_name": business_name},
+            )
+    else:
+        form = VendorStoreForm(instance=request.user.vendor.store)
+    return render(
+        request,
+        "vendor/update-vendor-store.html",
+        {"form": form, "business_name": business_name},
+    )
 
 
 ###########Vendor Store QR Generator ############################

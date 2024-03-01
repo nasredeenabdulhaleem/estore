@@ -714,7 +714,9 @@ class VendorBank(models.Model):
 
 
 class VendorStore(models.Model):
-    vendor = models.OneToOneField(VendorProfile, on_delete=models.CASCADE)
+    vendor = models.OneToOneField(
+        VendorProfile, on_delete=models.CASCADE, related_name="store"
+    )
     store_name = models.CharField(max_length=255, null=False)
     store_address = models.TextField(null=True)
     store_logo = CloudinaryField("image")

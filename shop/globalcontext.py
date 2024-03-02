@@ -1,12 +1,12 @@
 from django.conf import settings
-
+from decouple import config
 from shop.models import Cart, CartItem, OrderItem, VendorProfile
 
 
 def my_global_context_processor(request):
     return {
-        "site_name": settings.SITE_NAME,
-        "site_url": settings.SITE_URL,
+        "site_name": config("SITENAME"),
+        # "site_url": settings.SITE_URL,
     }
 
 

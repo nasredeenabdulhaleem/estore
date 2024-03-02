@@ -1,8 +1,5 @@
-import time
-from django.dispatch import receiver
 from django.http import JsonResponse
 import json
-from django.core.serializers import serialize
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.views.generic import View
@@ -13,9 +10,11 @@ from accounts.models import User
 
 from shop.globalcontext import user_context_processor
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
 from decouple import config
 
 from shop.models import VendorProfile
+from shop.views import is_vendor
 
 # Initialize the ChatService with the API and WebSocket URLs
 api_url = config("CHAT_API_URL")
@@ -108,8 +107,12 @@ class UserChatListView(LoginRequiredMixin, UserPassesTestMixin, View):
             )
 
 
-class UserChatView(View):
+class UserChatView(LoginRequiredMixin, UserPassesTestMixin,View):
     template_name = "chat/user-chat.html"
+
+    def test_func(self):
+        return is_user(self.request.user, self.kwargs["business_name"])
+
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -185,8 +188,11 @@ class VendorChatListView(LoginRequiredMixin, UserPassesTestMixin, View):
             )
 
 
-class VendorChatView(View):
+class VendorChatView(LoginRequiredMixin, UserPassesTestMixin,View):
     template_name = "chat/vendor-chat.html"
+
+    def test_func(self):
+        return is_vendor(self.request.user, self.kwargs["business_name"])
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -215,7 +221,7 @@ class VendorChatView(View):
             },
         )
 
-
+@login_required
 def send_chat_message(request, *args, **kwargs):
     if request.method == "POST":
         body = json.loads(request.body)

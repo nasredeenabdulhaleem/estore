@@ -106,7 +106,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "shop.utils.context_processors.global_context",
+                "shop.globalcontext.my_global_context_processor", 
             ],
         },
     },

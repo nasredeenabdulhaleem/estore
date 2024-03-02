@@ -19,12 +19,13 @@
 <body class="font-quicksand">
     <div id="toastContainer" class="toast z-20 toast-top toast-end" id="toastContainer">
         {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}" id="alert">
-        <span>{{message}}</span>
-        {% endfor %}
+        <div class="alert alert-{{ message.tags }}" id="alert">
+            <span>{{message}}</span>
+            {% endfor %}
+        </div>
     </div>
-    </div>
-    <header class="bg-base-100 fixed z-10 w-full bg-opacity-90 transition-shadow duration-100 [transform:translate3d(0,0,0)] shadow backdrop-blur top-0">
+    <header
+        class="bg-base-100 fixed z-10 w-full bg-opacity-90 transition-shadow duration-100 [transform:translate3d(0,0,0)] shadow backdrop-blur top-0">
         <div class="container mx-auto px-4 md:px-6 py-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -36,14 +37,14 @@
                                 d="M4 6h16M4 12h16M4 18h7" />
                         </svg>
                     </button>
-
-                    <span class="font-semibold text-accent-content text-xl ml-2">Dashboard</span>
+                    <a href="{% url 'store:vendor-home' business_name %}">
+                        <span class="font-semibold text-accent-content text-xl ml-2">Dashboard</span></a>
                 </div>
                 <div class="flex items-center">
                     <div class="theme-swap">
                         <label class="swap swap-rotate">
 
-                           
+
                             <input type="checkbox" />
 
                             <!-- sun icon -->
@@ -63,27 +64,28 @@
                         </label>
                     </div>
 
-                   
-                      <div class="dropdown dropdown-end">
+
+                    <div class="dropdown dropdown-end">
                         <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-                          <div class="w-10 rounded-full">
-                            <img src="{% transform_image user.vendor.store.store_logo.url %}" />
-                          </div>
+                            <div class="w-10 rounded-full">
+                                <img src="{% transform_image user.vendor.store.store_logo.url %}" />
+                            </div>
                         </label>
-                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                          <li>
-                            <a href="{#% url 'store:profile' %}" class="justify-between">
+                        <ul tabindex="0"
+                            class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-200 rounded-box w-52">
+                            <li>
+                                <!-- <a href="{#% url 'store:profile' %}" class="justify-between">
                               Profile
                               
                             </a>
-                          </li>
-                          <
-                          <li><a href="{% url 'logout' %}" >Logout</a></li>
+                          </li> -->
+
+                            <li><a href="{% url 'logout' %}">Logout</a></li>
                         </ul>
-                      
-                      </div>
+
+                    </div>
                 </div>
-                
+
             </div>
         </div>
 
@@ -97,7 +99,8 @@
                 <button class="btn btn-circle btn-outline shadow-md" title="Products"><a class="text-inherit py-2 px-4"
                         href="{% url 'store:vendor-products' business_name %}"><i class="fas fa-boxes"></i></a></button>
                 <button class="btn btn-circle btn-outline shadow-md" title="Orders"><a class="text-inherit py-2 px-4"
-                        href="{% url 'store:vendor-orders' business_name %}"><i class="fas fa-clipboard-list"></i></a></button>
+                        href="{% url 'store:vendor-orders' business_name %}"><i
+                            class="fas fa-clipboard-list"></i></a></button>
                 <button class="btn btn-circle btn-outline shadow-md" title="Chats">
                     <a class="text-inherit py-2 px-4" href="{% url 'vendor-chat-list' business_name %}">
                         <i class="fas fa-comments"></i>
@@ -119,13 +122,15 @@
                 <a class="text-inherit font-bold py-2 px-4 w-full" href="./dashboard.html"><button
                         class="btn btn-square p-2 btn-lg btn-outline shadow-lg w-full" title="dashboard"><i
                             class="fas fa-tachometer-alt"></i> Dashboard</button></a>
-                <a class="text-inherit font-bold py-2 px-4 w-full" href="{% url 'store:vendor-products' business_name %}"><button
+                <a class="text-inherit font-bold py-2 px-4 w-full"
+                    href="{% url 'store:vendor-products' business_name %}"><button
                         class="btn btn-square p-2 btn-lg btn-outline shadow-lg w-full" title="products"><i
                             class="fas fa-boxes"></i> Products</button></a>
-                <a class="text-inherit font-bold py-2 px-4 w-full" href="{% url 'store:vendor-orders' business_name %}"><button
+                <a class="text-inherit font-bold py-2 px-4 w-full"
+                    href="{% url 'store:vendor-orders' business_name %}"><button
                         class="btn btn-square p-2 btn-lg btn-outline shadow-lg w-full" title="orders"><i
                             class="fas fa-clipboard-list"></i> Orders</button></a>
-                
+
                 <a class="text-inherit font-bold py-2 px-4 w-full" href="{% url 'vendor-chat-list' business_name %}">
                     <button class="btn btn-square p-2 btn-lg btn-outline shadow-lg w-full" title="Chats">
                         <i class="fas fa-comments"></i> Chats
@@ -137,14 +142,15 @@
                         <i class="fas fa-wallet"></i> Wallet
                     </button>
                 </a>
-                <a class="text-inherit font-bold py-2 px-4 w-full" href="{% url 'store:vendor-settings' business_name %}"><button
+                <a class="text-inherit font-bold py-2 px-4 w-full"
+                    href="{% url 'store:vendor-settings' business_name %}"><button
                         class="btn btn-square p-2 btn-lg btn-outline shadow-lg w-full" title="settings"><i
                             class="fas fa-cogs"></i>Settings</button></a>
             </div>
         </div>
         <!-- sidenav -->
         <main class="w-full md:ml-[16.666%] mt-[15vh]">
-            
+
             {% block content %}
 
 
@@ -153,14 +159,14 @@
     </div>
 
     <script>
-        window.onload = function() {
-        setTimeout(function() {
-            var toastContainer = document.getElementById('toastContainer');
-            if (toastContainer) {
-                toastContainer.style.display = 'none';
-            }
-        }, 5000);  // 5000 milliseconds = 5 seconds
-    }
+        window.onload = function () {
+            setTimeout(function () {
+                var toastContainer = document.getElementById('toastContainer');
+                if (toastContainer) {
+                    toastContainer.style.display = 'none';
+                }
+            }, 5000);  // 5000 milliseconds = 5 seconds
+        }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/theme-change@2.0.2/index.js"></script>

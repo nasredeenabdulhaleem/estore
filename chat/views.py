@@ -88,7 +88,10 @@ class UserChatListView(LoginRequiredMixin, UserPassesTestMixin, View):
         chat = ChatUser.objects.filter(user=user).first()
         if chat:
             chat_id = chat.chat_id
-            chats = chat_service.get_all_user_chat(chat_id)
+            try:
+                chats = chat_service.get_all_user_chat(chat_id)
+            except Exception as e:
+                chats = False
 
             return render(
                 request,
@@ -164,7 +167,10 @@ class VendorChatListView(LoginRequiredMixin, UserPassesTestMixin, View):
         business_name = user.vendor.business_name
         if chat:
             chat_id = chat.chat_id
-            chats = chat_service.get_all_user_chat(chat_id)
+            try:
+                chats = chat_service.get_all_user_chat(chat_id)
+            except Exception as e:
+                chats = False
 
             return render(
                 request,

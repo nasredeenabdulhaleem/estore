@@ -1007,6 +1007,7 @@ def create_store(request):
             store = form.save(commit=False)
             store.vendor = request.user.vendor
             store.save()
+            messages.info(request, "Successfully created store")
             return redirect(
                 "store:vendor-home", business_name=request.user.vendor.business_name
             )
@@ -1163,12 +1164,13 @@ class AddProductView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return is_vendor(self.request.user, self.kwargs["business_name"])
 
-    def get(self, request):
+    def get(self, request, business_name, *args, **kwargs):
         form = AddProductForm()
         context = {
             "form": form,
             # "category": category
             "title": "Add Product",
+            "business_name": business_name,
         }
         return render(request, self.template_name, context)
 
@@ -1672,12 +1674,12 @@ def update_vendor_store(request, business_name):
         if form.is_valid():
             form.save()
             messages.success(request, "Profile Successfully Updated")
-            return redirect("store:update_vendor_profile", business_name=business_name)
+            return redirect("store:update_vendor_store", business_name=business_name)
         else:
             messages.error(request, "Form is not valid")
             return render(
                 request,
-                "vendor/update-vendor-profile.html",
+                "vendor/update-vendor-store.html",
                 {"form": form, "business_name": business_name},
             )
     else:

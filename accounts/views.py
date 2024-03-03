@@ -196,15 +196,17 @@ def account_verification(request):
 class Login(LoginView):
     template_name = "accounts/user-login.html"
     redirect_authenticated_user = True  # Redirect if user is already logged in
+    success_url = reverse_lazy("store:store")
 
     def form_valid(self, form):
         response = super().form_valid(form)
         if self.request.user.role == "Vendor":
+            business_name = self.request.user.vendor.business_name
             logout(self.request)
             messages.error(
                 self.request, "Vendors log in Not Allowed. Use store Login instead"
             )
-            return redirect("login")
+            return redirect("vendor_login", business_name=business_name)
         return response
 
 

@@ -99,6 +99,24 @@
          
     </div>
     </div>
+    
+    <div class="flex items-center m-2 justify-between p-6 bg-base-200 shadow-lg rounded-lg">
+        <div class="text-2xl font-bold text-gray-400">
+            {{product.vendor.store.store_name}}
+        </div>
+        <a href="{% url 'store:vendor-storefront' product.vendor.store.store_name %}" class="flex items-center text-blue-500 hover:text-blue-700">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18v18H3V3z"></path>
+            </svg>
+            Visit Vendor Store
+        </a>
+        <a href="{% url 'user-chat' product.vendor.store.store_name %}" class="flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m-8-8h8m-4 8a4 4 0 01-4-4 4 4 0 014-4 4 4 0 014 4 4 4 0 01-4 4z"></path>
+            </svg>
+            Chat Vendor
+        </a>
+    </div>
 </main>
 
                  

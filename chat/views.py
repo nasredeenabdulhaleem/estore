@@ -114,7 +114,7 @@ class UserChatView(LoginRequiredMixin, UserPassesTestMixin,View):
     template_name = "chat/user-chat.html"
 
     def test_func(self):
-        return is_user(self.request.user, self.kwargs["business_name"])
+        return is_user(self.request.user)
 
 
     def get(self, request, *args, **kwargs):

@@ -63,11 +63,11 @@ class UserSignup(View):
                     user=user, email=user.email, count=1
                 )
 
-                email_verification = EmailVerification()
-                # Generate token and send verification email
-                # Generate token and send verification email
-                token = email_verification.generate_token(user.email)
-                email_sent = email_verification.send_verification_email(user)
+                # email_verification = EmailVerification()
+                # # Generate token and send verification email
+                # # Generate token and send verification email
+                # token = email_verification.generate_token(user.email)
+                # email_sent = email_verification.send_verification_email(user)
                 # log(
                 #     user=user,
                 #     action="Created a User Account, Verification Email Sent",
@@ -107,6 +107,7 @@ class VerifyEmailView(View):
 
         if payload:
             email = payload["email"]
+            print(email)
             # Activate the user
             if email_verifier.activate_user(email):
                 messages.info(
@@ -117,9 +118,8 @@ class VerifyEmailView(View):
                 else:
                     return redirect("login")
             else:
-                messages.info(
-                    "Email verification failed. Invalid token or user does not exist."
-                )
+                messages.info(request,
+                    "Email verification failed. Invalid token or user does not exist.")
                 return redirect("account-verification")
         else:
             messages.info(
@@ -196,7 +196,7 @@ def account_verification(request):
 class Login(LoginView):
     template_name = "accounts/user-login.html"
     redirect_authenticated_user = True  # Redirect if user is already logged in
-    success_url = reverse_lazy("store:store")
+    success_url = reverse_lazy("store:home")
 
     def form_valid(self, form):
         response = super().form_valid(form)

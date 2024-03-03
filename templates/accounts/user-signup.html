@@ -17,6 +17,14 @@
 
 <body class="bg-inherit font-quicksand">
     <!-- BEGIN: Signup Form -->
+    <div class="toast toast-top toast-end" id="toastContainer">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" id="alert">
+            <span>{{message}}</span>
+            <!-- <button onclick="document.getElementById('alert').style.display='none'"><i class="fa fa-times"></i></button> -->
+            {% endfor %}
+        </div>
+    </div>
     <main>
         <div class=" mx-auto rounded-md overflow-hidden shadow-md">
             <div class="flex flex-row items-center justify-evenly ">
@@ -196,55 +204,7 @@
                 <div class="space-y-4 px-4 py-4 md:px-12">
                     <form action="{% url 'vendor_signup' %}" method="post" enctype="application/x-www-form-urlencoded">
                         {% csrf_token %}
-                        <!-- <div class="mb-4">
-                            <label class="block text-accent-content font-bold mb-2" for="business-name">
-                                Business Name
-                            </label>
-                            <input
-                                class="input input-bordered w-full appearance-none block  text-sm"
-                                id="business-name"
-                                name="business_name"
-                                type="text"
-                                placeholder="Business Name"
-                            />
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-accent-content font-bold mb-2" for="business-email">
-                                Business Email
-                            </label>
-                            <input
-                                class="input input-bordered w-full appearance-none block text-sm"
-                                id="business-email"
-                                name="business_email"
-                                type="email"
-                                placeholder="Business Email"
-                            />
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="block text-accent-content font-bold mb-2" for="password">
-                                Password
-                            </label>
-                            <input
-                                class="input input-bordered  appearance-none block w-full  text-sm"
-                                id="password"
-                                name="password1"
-                                type="password"
-                                placeholder="Password"
-                            />
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-accent-content font-bold mb-2" for="confirm-password">
-                                Confirm Password
-                            </label>
-                            <input
-                                class="input input-bordered  appearance-none block w-full  text-sm"
-                                id="confirm-password"
-                                name="password2"
-                                type="password"
-                                placeholder="Confirm Password"
-                            />
-                        </div> -->
+                        <!-- Display non-field errors -->
                         {% if vendor_form.non_field_errors %}
                         {% for error in vendor_form.non_field_errors %}
                         <div role="alert" class="alert alert-error">

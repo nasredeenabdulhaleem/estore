@@ -55,6 +55,7 @@ class UserSignup(View):
 
     def post(self, request):
         form = SignupForm(request.POST)
+        vendor_form = VendorSignupForm()
         if form.is_valid():
             try:
                 user = form.save()
@@ -63,10 +64,10 @@ class UserSignup(View):
                 )
 
                 email_verification = EmailVerification()
-
+                # Generate token and send verification email
                 # Generate token and send verification email
                 token = email_verification.generate_token(user.email)
-                email_sent = email_verification.send_email(user, token)
+                email_sent = email_verification.send_verification_email(user)
                 # log(
                 #     user=user,
                 #     action="Created a User Account, Verification Email Sent",
@@ -74,7 +75,6 @@ class UserSignup(View):
                 #     # extra={"title": foo.title},
                 #     dateof=datetime.datetime.now(),
                 # )
-
                 messages.info(
                     request,
                     f"Created User {user.username}, a verification email has been sent to activate account",
@@ -83,10 +83,10 @@ class UserSignup(View):
             except Exception as e:
                 print(e)
                 messages.error(request, f"Error Creating Account, try again later")
-                return render(request, self.template_name, {"form": form})
+                return render(request, self.template_name, {"form": form, "vendor_form": vendor_form})
         else:
             messages.error(request, f"Error Creating Account, Rectify error and retry")
-            return render(request, self.template_name, {"form": form})
+            return render(request, self.template_name, {"form": form, "vendor_form": vendor_form})
 
 
 class VerifyEmailView(View):

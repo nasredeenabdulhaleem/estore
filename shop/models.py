@@ -180,7 +180,7 @@ class Product(models.Model):
         return self.productitem_set.aggregate(total=Sum("quantity_in_stock"))["total"] or 0  # type: ignore
 
     def get_absolute_url(self):
-        return reverse("store:vendor_product_detail", args=[str(self.slug)])
+        return reverse("store:vendor_product_detail", args=[str(self.vendor.business_name),str(self.slug)])
 
     # override the default save method to upload images to cloudinary and save the url in the image field
     def save(self, *args, **kwargs):

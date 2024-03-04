@@ -15,7 +15,7 @@ urlpatterns = [
         name="user-chat-list",
     ),
     path(
-        "user-chat/<str:vendor>/",
+        "chat/user-chat/<str:vendor>/",
         UserChatView.as_view(),
         name="user-chat",
     ),

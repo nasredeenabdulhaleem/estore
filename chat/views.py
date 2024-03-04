@@ -19,11 +19,12 @@ from shop.views import is_vendor
 # Initialize the ChatService with the API and WebSocket URLs
 api_url = config("CHAT_API_URL")
 ws_url = config("CHAT_WS_URL")
+print(f"{api_url}:{ws_url}")
 chat_service = ChatService(api_url, ws_url)
 
 # Authenticate the chat service
 chat_service.authenticate()
-chat_service.check_server_health()
+chat_service.check_server_health() 
 chat_service.connect_to_chat(user_id="nasredeen")
 # chat_service.send_test_message()
 chat_service.receive_message()

@@ -22,6 +22,7 @@ class ChatService:
         self.sio = socketio.Client()
         self.connected_users = set()
         self.logger = logging.getLogger(__name__)
+        print(f"ChatService initialized, {api_url}")
 
         """Generate a JWT and store it and its expiration time."""
 

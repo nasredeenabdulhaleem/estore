@@ -20,7 +20,7 @@
                 <span class="text-gray-400 text-sm mr-2">Category:</span>
                 <span class="text-2xl font-bold">{{ product.category.category }}</span>
             </div>
-            <p class="text-accent-content text-sm mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut ante eget leo tempor aliquam. Sed euismod, nulla vel rhoncus bibendum, elit elit bibendum nulla, vel bibendum elit elit vel.</p>
+            <p class="text-accent-content text-sm mb-4">{{product.description}}.</p>
             <div class="flex flex-wrap items-center mb-4">
                 <span class="text-accent-content text-sm mr-2">Available Color/Size:</span>
                 {% for product in productitem %}
@@ -32,7 +32,7 @@
             </div>
             <div class="flex items-center mb-4">
                 <span class="text-gray-400 text-sm mr-2">Price:</span>
-                <span class="text-2xl font-bold">$99.99</span>
+                <span class="text-2xl font-bold">{{product.price}}</span>
             </div>
             <!-- <button class="btn btn-primary btn-lg">Add to Cart</button> -->
         <form method="post" action="{% url 'store:detail' product.slug %}">

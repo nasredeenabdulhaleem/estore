@@ -13,7 +13,7 @@ from .views import (
 )
 from django.contrib.auth import views as auth_views
 
-
+ 
 urlpatterns = [
     path("login/", Login.as_view(), name="login"),
     path("signup/", UserSignup.as_view(), name="signup"),

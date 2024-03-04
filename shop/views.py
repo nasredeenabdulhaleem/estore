@@ -1144,7 +1144,10 @@ class ProductView(LoginRequiredMixin, UserPassesTestMixin, View):
 @login_required
 @user_passes_test_with_args(is_vendor, login_url=reverse_lazy("vendor_login"))
 def vendor_product_detail(request, business_name, slug, *args, **kwargs):
-    product = Product.objects.get(vendor__user=request.user, slug=slug)
+    try:
+        product = Product.objects.get(vendor__user=request.user, slug=slug)
+    except:
+        raise Http404
     productitem = ProductItem.objects.filter(product=product)
     context = {
         "product": product,
@@ -1174,12 +1177,13 @@ class AddProductView(LoginRequiredMixin, UserPassesTestMixin, View):
         }
         return render(request, self.template_name, context)
 
-    def post(self, request):
+    def post(self, request, business_name, *args, **kwargs):
         vendor = VendorProfile.objects.get(user_id=request.user.id)
         form = AddProductForm(request.POST, request.FILES)
         context = {
             "form": form,
             "title": "Add Product",
+            "business_name": business_name,
         }
         if form.is_valid():
             product = form.save(commit=False)
@@ -1194,14 +1198,14 @@ class AddProductView(LoginRequiredMixin, UserPassesTestMixin, View):
                     product=product,
                     quantity_in_stock=1,
                     description=product.description,
-                    product_image=product.image.url,
+                    product_image=product.image,
                     color=default_color,
                     size=default_size,
                     price=product.price,
                 )
 
             messages.success(request, "Product Added Successfully")
-            return redirect("store:vendor_product_detail", slug=product.slug)
+            return redirect("store:vendor_product_detail", business_name=business_name, slug=product.slug)
         else:
             messages.error(request, "Error Adding Product")
             return render(request, self.template_name, context)
@@ -1240,7 +1244,10 @@ class UpdateProductView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     template_name = "vendor/delete-product.html"
     model = Product
-    success_url = reverse_lazy("store:vendor-products")
+    
+    def get_success_url(self):
+
+        return reverse_lazy("store:vendor-products", kwargs={"business_name":self.kwargs["business_name"]})
 
     def test_func(self):
         return is_vendor(self.request.user, self.kwargs["business_name"])
@@ -1272,7 +1279,7 @@ class AddProductItemView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     # success_url = reverse_lazy('store:vendor_product_detail')
     def get_success_url(self):
         return reverse_lazy(
-            "store:vendor_product_detail", kwargs={"slug": self.kwargs.get("slug")}
+            "store:vendor_product_detail", kwargs={"slug": self.kwargs.get("slug"),"business_name": self.kwargs.get("business_name")}
         )
 
     def get_form_class(self):
@@ -1405,7 +1412,7 @@ class UpdateProductItemView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
 
     def get_success_url(self):
         return reverse_lazy(
-            "store:vendor_product_detail", kwargs={"slug": self.object.product.slug}  # type: ignore
+            "store:vendor_product_detail", kwargs={"slug": self.object.product.slug,"business_name": self.kwargs.get("business_name")}  # type: ignore
         )
 
     def get_initial(self):
@@ -1437,7 +1444,7 @@ class DeleteProductItemView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
 
     def get_success_url(self):
         return reverse_lazy(
-            "store:vendor_product_detail", kwargs={"slug": self.object.product.slug}  # type: ignore
+            "store:vendor_product_detail", kwargs={"business_name": self.object.get("business_name"),"slug": self.object.product.slug,}  # type: ignore
         )
 
 

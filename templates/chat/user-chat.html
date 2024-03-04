@@ -89,7 +89,7 @@
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
             </button></a>
-        <h1 class="text-xl font-semibold">Chat with {{business_name}}</h1>
+        <h1 class="text-xl font-semibold">Chat with {{receiver_id}}</h1>
     </div>
     <div class="flex-1 overflow-container scrollable-content bg-base-200 overflow-y-auto px-4 py-8">
         <div id="chatMessages" class="space-y-4"></div>
@@ -125,6 +125,16 @@
     }
 
     let csrfToken = getCookie('csrftoken');
+    let hostName;
+
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+        hostName = `http://${window.location.hostname}:${window.location.port}`;
+    } else {
+        hostName = `https://${window.location.hostname}`;
+    }
+
+    console.log(hostName);
+    console.log(window.location.port);
     let messages = [];
     let sender_id = '{{sender_id}}';
     let receiver_id = "{{receiver_id}}";
@@ -184,7 +194,7 @@
             updateUI();
 
             // Send the message to the server
-            fetch('http://127.0.0.1:8000/chat/send-message/', {
+            fetch(`${hostName}/chat/send-message/`, {
                 method: 'POST',
 
                 credentials: 'include',

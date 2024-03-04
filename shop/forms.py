@@ -211,13 +211,13 @@ class ProductAddToCartFormV1(forms.ModelForm):
         # Update the queryset for the color fields based on the selected product_slug
         if product_slug:
             product_items = ProductItem.objects.filter(product__slug=product_slug)
-            self.fields["color"].queryset = Color.objects.filter(
-                productitem__in=product_items
-            )
+            # self.fields["color"].queryset = Color.objects.filter(
+            #     productitem__in=product_items
+            # )
 
     def get_product_item(self):
-        color = Color.objects.get(name="default")
-        size = Size.objects.get(title="default")
+        color = Color.objects.get(name="Default")
+        size = Size.objects.get(title="Default")
         if color and size:
             return ProductItem.objects.filter(color=color, size=size).first()
         return None

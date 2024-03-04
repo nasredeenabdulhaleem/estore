@@ -22,7 +22,7 @@
 
                         <div>
                                 <h3 class="text-lg font-semibold">{{ chat.content }}</h3>
-                                <p class="text-gray-500"> {% get_username_from_id chat.receiverId  %} </p>
+                                <p class="text-gray-500"> {{ chat.senderId  }} </p>
                         </div>
                         
                         <a href="{% url 'vendor-user-chat' business_name chat.senderId %}">
